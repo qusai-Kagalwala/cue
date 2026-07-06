@@ -35,6 +35,7 @@ cue/
 │   │   └── lessons.js           # P1 stubs → P6 real content · 8 lessons × 3 variants
 │   │
 │   ├── lib/                     # pure logic, no React imports
+│   │   ├── screens.js           # ✅ SCREENS routing constants (Fast Refresh rule)
 │   │   ├── storage.js           # P1 · localStorage blob under `cue:v1`
 │   │   ├── xp.js                # P1 · awardXP, levelFor, streak logic (pure fns)
 │   │   ├── tokens.js            # P2 · estimateTokens = ceil(len/4)
