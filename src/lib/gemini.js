@@ -1,7 +1,8 @@
 // src/lib/gemini.js
-// T3.1 — Thin client for the evaluation proxy. No key, no prompt template —
-// just a fetch to our own /api/evaluate and typed errors for T3.2's
-// resilience layer to catch. Pure module, no React.
+// T3.1 thin client + T3.2 retry layer. Pure module, no React.
+// evaluatePrompt  = single attempt, throws typed EvalError
+// evaluateWithRetry = retries ONCE on transient failures (BAD_JSON/NETWORK),
+//                     then rethrows for the hook to catch → heuristic fallback.
 
 /** Error codes: BAD_INPUT | RATE_LIMIT | TIMEOUT | BAD_JSON | NETWORK | UPSTREAM */
 export class EvalError extends Error {
@@ -12,15 +13,12 @@ export class EvalError extends Error {
   }
 }
 
-/**
- * Evaluate the learner's prompt against the current lesson.
- * @param {object} lesson  merged lesson from getLesson/useProgress
- *                         (title, concept, scenario, task, tokenBudget)
- * @param {string} userPrompt
- * @returns {Promise<{score:number, strengths:string[], improvements:string[],
- *                    rewrittenExample:string, budgetRespected:boolean}>}
- * @throws {EvalError}
- */
+const RETRYABLE = new Set(['BAD_JSON', 'NETWORK'])
+const RETRY_DELAY_MS = 700
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
+/** Single evaluation attempt against our proxy. */
 export async function evaluatePrompt(lesson, userPrompt) {
   let res
   try {
@@ -66,4 +64,23 @@ export async function evaluatePrompt(lesson, userPrompt) {
   }
 
   return r
+}
+
+/**
+ * T3.2 — evaluate with one retry on transient failures.
+ * RATE_LIMIT / TIMEOUT / UPSTREAM / BAD_INPUT are NOT retried:
+ * hammering a rate-limited or broken upstream only makes it worse,
+ * and bad input won't become good input by asking twice.
+ * @throws {EvalError} after the final attempt fails
+ */
+export async function evaluateWithRetry(lesson, userPrompt) {
+  try {
+    return await evaluatePrompt(lesson, userPrompt)
+  } catch (err) {
+    if (err instanceof EvalError && RETRYABLE.has(err.code)) {
+      await sleep(RETRY_DELAY_MS)
+      return evaluatePrompt(lesson, userPrompt) // second failure propagates
+    }
+    throw err
+  }
 }
