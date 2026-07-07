@@ -53,9 +53,10 @@ export default function TopBar({ screen, onNavigate }) {
             <span className="hidden sm:inline">{streak}</span>
           </span>
 
-          {/* XP / level pill */}
+          {/* XP / level pill — level hides below 380px (T6.2 tiny screens) */}
           <span className="rounded-full border border-cue-dim px-2.5 py-1 font-mono text-xs text-cue">
-            Lv {level} · {xp} XP
+            <span className="hidden min-[380px]:inline">Lv {level} · </span>
+            {xp} XP
           </span>
 
           {/* Lesson map */}

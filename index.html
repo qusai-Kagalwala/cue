@@ -4,15 +4,40 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cue — your cue to ask better</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body>
+    <!-- T6.2 — no-JS fallback. Inline styles on purpose: Tailwind's
+         classes don't exist when the JS bundle never loads. -->
+    <noscript>
+      <div
+        style="
+          font-family: monospace;
+          color: #ede8df;
+          background: #0e0d0b;
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          padding: 2rem;
+        "
+      >
+        <p style="line-height: 1.7">
+          <strong style="color: #f5b942">Cue</strong> needs JavaScript to
+          run.<br />
+          Please enable it and reload — the stage can't open without the
+          crew. 🎭
+        </p>
+      </div>
+    </noscript>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
