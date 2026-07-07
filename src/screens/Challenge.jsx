@@ -2,7 +2,7 @@
 // T2.2 layout + T2.3 persona + T2.4 two-panel/shortcuts + T3.3 evaluation flow.
 // Submit → useEvaluation state machine → real Gemini score (or offline
 // fallback) → XP awarded. The console harness is retired.
-// T4.1 results in place + T4.2 auto-continue loop & completion handoff.
+// T4.1 results + T4.2 auto-continue + T4.3 budget mode (Lesson 8).
 
 import { useEffect, useState } from 'react'
 import { useProgress, advanceLesson } from '../hooks/useProgress'
@@ -117,6 +117,20 @@ export default function Challenge({ onNavigate }) {
 
       {/* ---- RIGHT PANEL: type (sticky under the top bar on desktop) ---- */}
       <div className="mt-5 space-y-4 lg:sticky lg:top-20 lg:mt-0 lg:self-start">
+
+        {/* T4.3 — budget shown prominently BEFORE typing (Lesson 8 only) */}
+        {currentLesson.tokenBudget != null && (
+          <div className="flex items-center gap-3 rounded-xl border border-cue-dim bg-cue/5 px-4 py-3">
+            <span className="font-display text-xl font-bold text-cue">
+              {currentLesson.tokenBudget}
+            </span>
+            <p className="text-sm leading-snug text-muted">
+              <span className="text-ink">token budget.</span> Every word
+              costs — say it once, cut the filler.
+            </p>
+          </div>
+        )}
+
         <PromptInput
           value={prompt}
           onChange={setPrompt}
