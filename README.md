@@ -70,7 +70,7 @@ Each lesson ships in three persona variants, so the scenario always feels like *
 🚧 **In active development** — building in public over a 6-week sprint. See [`task.md`](./task.md) for the full ticket backlog.
 
 - [x] Phase 0 — Scaffold, design tokens, app shell
-- [ ] Phase 1 — Data layer & progress state
+- [x] Phase 1 — Data layer & progress state
 - [ ] Phase 2 — Challenge screen (mobile-first)
 - [ ] Phase 3 — Gemini evaluation via serverless proxy
 - [ ] Phase 4 — Results & auto-continue loop
