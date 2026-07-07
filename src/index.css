@@ -1,3 +1,9 @@
+/* src/index.css — design tokens (T0.2) + curtain keyframes (T3.3)
+   T6.3: --color-faint lightened #5f594e → #82796a. The old value measured
+   ~2.8:1 against the stage background — a WCAG AA failure for the meaningful
+   micro-labels that use it (SCENARIO, est. tokens, LESSON 1 OF 8).
+   The new value measures ~4.5:1: passes AA, still reads as tertiary. */
+
 @import "tailwindcss";
 
 @theme {
@@ -14,12 +20,12 @@
   --color-ink: #ede8df;
   /* primary text — warm off-white */
   --color-muted: #9a9184;
-  /* secondary text */
-  --color-faint: #5f594e;
-  /* placeholders, disabled */
+  /* secondary text (~5.9:1 on stage, AA ✓) */
+  --color-faint: #82796a;
+  /* labels, placeholders (~4.5:1, AA ✓) */
 
   --color-cue: #f5b942;
-  /* amber accent — the spotlight */
+  /* amber accent (~9.8:1 on stage, AAA ✓) */
   --color-cue-bright: #ffcb5c;
   /* hover */
   --color-cue-dim: #6b5320;
@@ -50,4 +56,15 @@ body {
 ::selection {
   background: var(--color-cue-dim);
   color: var(--color-ink);
+}
+
+/* Curtain loader sweep (T3.3) */
+@keyframes curtain {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(300%);
+  }
 }

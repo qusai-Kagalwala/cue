@@ -33,6 +33,14 @@ export default function Challenge({ onNavigate }) {
 
   const evaluating = status === 'evaluating'
 
+  // T6.3 — screen-reader announcement when results land. The evaluating
+  // phase is already announced by CurtainLoader's role="status"; this
+  // region only speaks on completion, so nothing double-announces.
+  const announcement =
+    status === 'done' && result
+      ? `Evaluation complete. ${result.offline ? 'Offline estimate. ' : ''}Score ${result.score} out of 100. ${award ? `${award.xpGained} XP earned.` : ''}`
+      : ''
+
   // `?` toggles the overlay, Esc closes it — never while typing, and
   // Esc must NOT touch the evaluation state machine (AC: Escape is safe).
   useEffect(() => {
@@ -69,6 +77,11 @@ export default function Challenge({ onNavigate }) {
 
   return (
     <div className="mx-auto max-w-2xl space-y-5 lg:max-w-none lg:grid lg:grid-cols-2 lg:items-start lg:gap-10 lg:space-y-0">
+
+      {/* T6.3 — always-mounted live region for result announcements */}
+      <div aria-live="polite" className="sr-only lg:col-span-2">
+        {announcement}
+      </div>
 
       {/* First visit only — spans both panels on desktop */}
       {persona === null && (
