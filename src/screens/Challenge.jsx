@@ -1,16 +1,24 @@
 // src/screens/Challenge.jsx
-// T2.2 — The real challenge screen (mobile-first single column).
-// Landing screen IS this screen: read concept → read scenario → type → submit.
-// Desktop two-panel rearrangement lands in T2.4; evaluation wiring in Phase 3.
+// T2.2 mobile-first layout + T2.3 first-visit persona picker.
+// Landing screen IS this screen. Persona null → chips appear above the
+// challenge (which still renders the 'everyday' variant beneath — the
+// learner can type immediately either way).
 
 import { useState } from 'react'
 import { useProgress } from '../hooks/useProgress'
+import PersonaPicker from '../components/PersonaPicker'
 import ScenarioCard from '../components/ScenarioCard'
 import PromptInput from '../components/PromptInput'
 
 export default function Challenge() {
-  const { currentLesson, currentLessonIndex, totalLessons, isComplete } =
-    useProgress()
+  const {
+    persona,
+    setPersona,
+    currentLesson,
+    currentLessonIndex,
+    totalLessons,
+    isComplete,
+  } = useProgress()
   const [prompt, setPrompt] = useState('')
   const [conceptOpen, setConceptOpen] = useState(true)
 
@@ -36,6 +44,9 @@ export default function Challenge() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
+
+      {/* First visit only — picking never navigates, text swaps in place */}
+      {persona === null && <PersonaPicker onPick={setPersona} />}
 
       {/* Lesson header */}
       <header className="space-y-1">
