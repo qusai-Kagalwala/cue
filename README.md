@@ -71,7 +71,7 @@ Each lesson ships in three persona variants, so the scenario always feels like *
 
 - [x] Phase 0 — Scaffold, design tokens, app shell
 - [x] Phase 1 — Data layer & progress state
-- [ ] Phase 2 — Challenge screen (mobile-first)
+- [x] Phase 2 — Challenge screen (mobile-first)
 - [ ] Phase 3 — Gemini evaluation via serverless proxy
 - [ ] Phase 4 — Results & auto-continue loop
 - [ ] Phase 5 — Lesson map & settings

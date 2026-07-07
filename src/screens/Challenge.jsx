@@ -1,14 +1,15 @@
 // src/screens/Challenge.jsx
-// T2.2 mobile-first layout + T2.3 first-visit persona picker.
-// Landing screen IS this screen. Persona null → chips appear above the
-// challenge (which still renders the 'everyday' variant beneath — the
-// learner can type immediately either way).
+// T2.2 mobile-first + T2.3 persona picker + T2.4 desktop two-panel & shortcuts.
+// <1024px: single column (read → type, top to bottom).
+// ≥1024px: reading panel left, sticky editor panel right — eyes on the
+// scenario, hands on the keyboard, nothing scrolls away from you.
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useProgress } from '../hooks/useProgress'
 import PersonaPicker from '../components/PersonaPicker'
 import ScenarioCard from '../components/ScenarioCard'
 import PromptInput from '../components/PromptInput'
+import ShortcutOverlay from '../components/ShortcutOverlay'
 
 export default function Challenge() {
   const {
@@ -21,6 +22,22 @@ export default function Challenge() {
   } = useProgress()
   const [prompt, setPrompt] = useState('')
   const [conceptOpen, setConceptOpen] = useState(true)
+  const [showShortcuts, setShowShortcuts] = useState(false)
+
+  // `?` toggles the overlay, Esc closes it — but never while typing
+  // (a "?" belongs in the learner's prompt, not hijacked by the UI).
+  useEffect(() => {
+    function onKeyDown(e) {
+      const typing = ['TEXTAREA', 'INPUT'].includes(e.target.tagName)
+      if (e.key === '?' && !typing) {
+        e.preventDefault()
+        setShowShortcuts((v) => !v)
+      }
+      if (e.key === 'Escape') setShowShortcuts(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
 
   // All 8 lessons done — real Completion screen lands in T4.2
   if (isComplete || !currentLesson) {
@@ -43,54 +60,68 @@ export default function Challenge() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-5">
+    <div className="mx-auto max-w-2xl space-y-5 lg:max-w-none lg:grid lg:grid-cols-2 lg:items-start lg:gap-10 lg:space-y-0">
 
-      {/* First visit only — picking never navigates, text swaps in place */}
-      {persona === null && <PersonaPicker onPick={setPersona} />}
+      {/* First visit only — spans both panels on desktop */}
+      {persona === null && (
+        <div className="lg:col-span-2 lg:mb-2">
+          <PersonaPicker onPick={setPersona} />
+        </div>
+      )}
 
-      {/* Lesson header */}
-      <header className="space-y-1">
-        <p className="font-mono text-xs uppercase tracking-widest text-faint">
-          Lesson {currentLessonIndex + 1} of {totalLessons}
-        </p>
-        <h1 className="font-display text-2xl font-semibold sm:text-3xl">
-          {currentLesson.title}
-        </h1>
-      </header>
-
-      {/* Concept blurb — collapsible so repeat visitors can tuck it away */}
-      <section className="rounded-xl border border-line bg-surface">
-        <button
-          onClick={() => setConceptOpen((v) => !v)}
-          aria-expanded={conceptOpen}
-          className="flex w-full items-center justify-between rounded-xl p-4 text-left sm:px-5"
-        >
-          <span className="text-xs uppercase tracking-widest text-faint">
-            The idea
-          </span>
-          <span className="font-mono text-xs text-muted" aria-hidden="true">
-            {conceptOpen ? '−' : '+'}
-          </span>
-        </button>
-        {conceptOpen && (
-          <p className="max-w-[65ch] px-4 pb-4 leading-relaxed text-muted sm:px-5">
-            {currentLesson.concept}
+      {/* ---- LEFT PANEL: read ---- */}
+      <div className="space-y-5">
+        <header className="space-y-1">
+          <p className="font-mono text-xs uppercase tracking-widest text-faint">
+            Lesson {currentLessonIndex + 1} of {totalLessons}
           </p>
-        )}
-      </section>
+          <h1 className="font-display text-2xl font-semibold sm:text-3xl">
+            {currentLesson.title}
+          </h1>
+        </header>
 
-      <ScenarioCard
-        scenario={currentLesson.scenario}
-        task={currentLesson.task}
-        hints={currentLesson.hints}
-      />
+        {/* Concept blurb — collapsible so repeat visitors can tuck it away */}
+        <section className="rounded-xl border border-line bg-surface">
+          <button
+            onClick={() => setConceptOpen((v) => !v)}
+            aria-expanded={conceptOpen}
+            className="flex w-full items-center justify-between rounded-xl p-4 text-left sm:px-5"
+          >
+            <span className="text-xs uppercase tracking-widest text-faint">
+              The idea
+            </span>
+            <span className="font-mono text-xs text-muted" aria-hidden="true">
+              {conceptOpen ? '−' : '+'}
+            </span>
+          </button>
+          {conceptOpen && (
+            <p className="max-w-[65ch] px-4 pb-4 leading-relaxed text-muted sm:px-5">
+              {currentLesson.concept}
+            </p>
+          )}
+        </section>
 
-      <PromptInput
-        value={prompt}
-        onChange={setPrompt}
-        onSubmit={handleSubmit}
-        tokenBudget={currentLesson.tokenBudget}
-      />
+        <ScenarioCard
+          scenario={currentLesson.scenario}
+          task={currentLesson.task}
+          hints={currentLesson.hints}
+        />
+      </div>
+
+      {/* ---- RIGHT PANEL: type (sticky under the top bar on desktop) ---- */}
+      <div className="mt-5 lg:sticky lg:top-20 lg:mt-0 lg:self-start">
+        <PromptInput
+          value={prompt}
+          onChange={setPrompt}
+          onSubmit={handleSubmit}
+          tokenBudget={currentLesson.tokenBudget}
+        />
+        <p className="mt-3 hidden text-right font-mono text-xs text-faint lg:block">
+          press ? for shortcuts
+        </p>
+      </div>
+
+      {showShortcuts && <ShortcutOverlay onClose={() => setShowShortcuts(false)} />}
     </div>
   )
 }
