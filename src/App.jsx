@@ -18,7 +18,7 @@ export default function App() {
 
       <main className="mx-auto max-w-5xl px-4 pb-12 pt-6 lg:px-6">
         {screen === SCREENS.CHALLENGE && <Challenge onNavigate={setScreen} />}
-        {screen === SCREENS.MAP && <LessonMap />}
+        {screen === SCREENS.MAP && <LessonMap onNavigate={setScreen} />}
         {screen === SCREENS.SETTINGS && <Settings />}
       </main>
     </div>

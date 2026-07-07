@@ -53,13 +53,16 @@ export function setPersona(personaId) {
  * Returns a summary for the XP toast / level-up UI.
  */
 export function completeLesson(score) {
-  const xpGained = awardXP(score)
+  // T5.1 — replays (lesson already has a best score) earn HALF XP.
+  // Keeps the economy honest: mastery pays once, practice pays a little.
+  const lesson = LESSONS[state.currentLessonIndex]
+  const isReplay = lesson ? state.lessonScores[lesson.id] != null : false
+  const xpGained = isReplay ? Math.round(awardXP(score) / 2) : awardXP(score)
   const xp = state.xp + xpGained
   const level = levelFor(xp)
   const leveledUp = level > state.level
   const streak = applyStreak(state.streak, todayKey())
 
-  const lesson = LESSONS[state.currentLessonIndex]
   const lessonScores = { ...state.lessonScores }
   if (lesson) {
     const clamped = Math.min(100, Math.max(0, Number(score) || 0))
@@ -67,7 +70,7 @@ export function completeLesson(score) {
   }
 
   setState({ xp, level, streak, lessonScores })
-  return { xpGained, leveledUp, newLevel: level }
+  return { xpGained, leveledUp, newLevel: level, isReplay }
 }
 
 /** Move to the next lesson in the flat queue (called by auto-continue). */

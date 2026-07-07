@@ -7,6 +7,10 @@ import { BASE_XP } from '../lib/xp'
 export default function XPToast({ award }) {
   if (!award) return null
   const bonus = award.xpGained - BASE_XP
+  // Replays halve the award, so the base+bonus breakdown doesn't apply.
+  const breakdown = award.isReplay
+    ? 'replay · half XP'
+    : `${BASE_XP} base${bonus > 0 ? ` + ${bonus} bonus` : ''}`
 
   if (award.leveledUp) {
     return (
@@ -15,7 +19,7 @@ export default function XPToast({ award }) {
           Level {award.newLevel} 🎭
         </p>
         <p className="font-mono text-xs text-muted">
-          +{award.xpGained} XP ({BASE_XP} base{bonus > 0 && ` + ${bonus} bonus`})
+          +{award.xpGained} XP ({breakdown})
         </p>
       </div>
     )
@@ -24,9 +28,7 @@ export default function XPToast({ award }) {
   return (
     <p className="text-center font-mono text-sm text-cue">
       +{award.xpGained} XP
-      <span className="text-muted">
-        {' '}· {BASE_XP} base{bonus > 0 && ` + ${bonus} bonus`}
-      </span>
+      <span className="text-muted"> · {breakdown}</span>
     </p>
   )
 }
