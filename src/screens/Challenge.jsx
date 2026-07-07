@@ -2,7 +2,7 @@
 // T2.2 layout + T2.3 persona + T2.4 two-panel/shortcuts + T3.3 evaluation flow.
 // Submit → useEvaluation state machine → real Gemini score (or offline
 // fallback) → XP awarded. The console harness is retired.
-// TEMP result block below is a placeholder — T4.1's ResultsPanel replaces it.
+// T4.1: ResultsPanel renders feedback in place. Auto-continue lands in T4.2.
 
 import { useEffect, useState } from 'react'
 import { useProgress } from '../hooks/useProgress'
@@ -12,6 +12,7 @@ import ScenarioCard from '../components/ScenarioCard'
 import PromptInput from '../components/PromptInput'
 import ShortcutOverlay from '../components/ShortcutOverlay'
 import CurtainLoader from '../components/CurtainLoader'
+import ResultsPanel from '../components/ResultsPanel'
 
 export default function Challenge() {
   const {
@@ -22,7 +23,7 @@ export default function Challenge() {
     totalLessons,
     isComplete,
   } = useProgress()
-  const { status, result, award, errorCode, submit } = useEvaluation()
+  const { status, result, award, submit } = useEvaluation()
   const [prompt, setPrompt] = useState('')
   const [conceptOpen, setConceptOpen] = useState(true)
   const [showShortcuts, setShowShortcuts] = useState(false)
@@ -124,21 +125,8 @@ export default function Challenge() {
 
         {evaluating && <CurtainLoader />}
 
-        {/* TEMP — replaced by ResultsPanel in T4.1 */}
-        {status === 'done' && result && (
-          <div className="rounded-xl border border-line bg-surface p-4 font-mono text-sm">
-            <p className="text-cue">
-              score: {result.score}
-              {result.offline && (
-                <span className="ml-2 text-faint">
-                  (offline estimate · {errorCode})
-                </span>
-              )}
-            </p>
-            <p className="mt-1 text-muted">
-              +{award?.xpGained} XP{award?.leveledUp && ` · LEVEL UP → ${award.newLevel}`}
-            </p>
-          </div>
+        {status === 'done' && (
+          <ResultsPanel result={result} award={award} />
         )}
 
         {status === 'error' && (
