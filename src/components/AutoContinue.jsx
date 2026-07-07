@@ -5,7 +5,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-const SECONDS = 8
+const SECONDS = 25
 
 export default function AutoContinue({ onNext, isLast = false }) {
   const [remaining, setRemaining] = useState(SECONDS)
