@@ -17,7 +17,7 @@ export default function App() {
       <TopBar screen={screen} onNavigate={setScreen} />
 
       <main className="mx-auto max-w-5xl px-4 pb-12 pt-6 lg:px-6">
-        {screen === SCREENS.CHALLENGE && <Challenge />}
+        {screen === SCREENS.CHALLENGE && <Challenge onNavigate={setScreen} />}
         {screen === SCREENS.MAP && <LessonMap />}
         {screen === SCREENS.SETTINGS && <Settings />}
       </main>

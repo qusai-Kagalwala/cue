@@ -2,10 +2,10 @@
 // T2.2 layout + T2.3 persona + T2.4 two-panel/shortcuts + T3.3 evaluation flow.
 // Submit → useEvaluation state machine → real Gemini score (or offline
 // fallback) → XP awarded. The console harness is retired.
-// T4.1: ResultsPanel renders feedback in place. Auto-continue lands in T4.2.
+// T4.1 results in place + T4.2 auto-continue loop & completion handoff.
 
 import { useEffect, useState } from 'react'
-import { useProgress } from '../hooks/useProgress'
+import { useProgress, advanceLesson } from '../hooks/useProgress'
 import { useEvaluation } from '../hooks/useEvaluation'
 import PersonaPicker from '../components/PersonaPicker'
 import ScenarioCard from '../components/ScenarioCard'
@@ -13,8 +13,11 @@ import PromptInput from '../components/PromptInput'
 import ShortcutOverlay from '../components/ShortcutOverlay'
 import CurtainLoader from '../components/CurtainLoader'
 import ResultsPanel from '../components/ResultsPanel'
+import AutoContinue from '../components/AutoContinue'
+import Completion from './Completion'
+import { SCREENS } from '../lib/screens'
 
-export default function Challenge() {
+export default function Challenge({ onNavigate }) {
   const {
     persona,
     setPersona,
@@ -23,7 +26,7 @@ export default function Challenge() {
     totalLessons,
     isComplete,
   } = useProgress()
-  const { status, result, award, submit } = useEvaluation()
+  const { status, result, award, submit, reset } = useEvaluation()
   const [prompt, setPrompt] = useState('')
   const [conceptOpen, setConceptOpen] = useState(true)
   const [showShortcuts, setShowShortcuts] = useState(false)
@@ -45,24 +48,23 @@ export default function Challenge() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [])
 
-  // All 8 lessons done — real Completion screen lands in T4.2
+  // All 8 lessons done — hand over to the completion screen
   if (isComplete || !currentLesson) {
-    return (
-      <div className="space-y-2">
-        <h1 className="font-display text-2xl font-semibold text-cue">
-          That's a wrap 🎭
-        </h1>
-        <p className="max-w-[65ch] text-muted">
-          You've finished all {totalLessons} lessons. The full completion
-          screen (totals, replay) arrives in Phase 4.
-        </p>
-      </div>
-    )
+    return <Completion onGoToMap={() => onNavigate(SCREENS.MAP)} />
   }
 
   function handleSubmit() {
     if (evaluating) return
     submit(currentLesson, prompt)
+  }
+
+  // T4.2 — advance the queue and reset the loop for the next lesson.
+  // The score was already persisted on receipt (useEvaluation), so a
+  // refresh before pressing Next loses nothing.
+  function handleNext() {
+    advanceLesson()
+    reset()
+    setPrompt('')
   }
 
   return (
@@ -126,7 +128,13 @@ export default function Challenge() {
         {evaluating && <CurtainLoader />}
 
         {status === 'done' && (
-          <ResultsPanel result={result} award={award} />
+          <>
+            <ResultsPanel result={result} award={award} />
+            <AutoContinue
+              onNext={handleNext}
+              isLast={currentLessonIndex === totalLessons - 1}
+            />
+          </>
         )}
 
         {status === 'error' && (
