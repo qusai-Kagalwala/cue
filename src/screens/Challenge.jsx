@@ -1,15 +1,17 @@
 // src/screens/Challenge.jsx
-// T2.2 mobile-first + T2.3 persona picker + T2.4 desktop two-panel & shortcuts.
-// <1024px: single column (read → type, top to bottom).
-// ≥1024px: reading panel left, sticky editor panel right — eyes on the
-// scenario, hands on the keyboard, nothing scrolls away from you.
+// T2.2 layout + T2.3 persona + T2.4 two-panel/shortcuts + T3.3 evaluation flow.
+// Submit → useEvaluation state machine → real Gemini score (or offline
+// fallback) → XP awarded. The console harness is retired.
+// TEMP result block below is a placeholder — T4.1's ResultsPanel replaces it.
 
 import { useEffect, useState } from 'react'
 import { useProgress } from '../hooks/useProgress'
+import { useEvaluation } from '../hooks/useEvaluation'
 import PersonaPicker from '../components/PersonaPicker'
 import ScenarioCard from '../components/ScenarioCard'
 import PromptInput from '../components/PromptInput'
 import ShortcutOverlay from '../components/ShortcutOverlay'
+import CurtainLoader from '../components/CurtainLoader'
 
 export default function Challenge() {
   const {
@@ -20,12 +22,15 @@ export default function Challenge() {
     totalLessons,
     isComplete,
   } = useProgress()
+  const { status, result, award, errorCode, submit } = useEvaluation()
   const [prompt, setPrompt] = useState('')
   const [conceptOpen, setConceptOpen] = useState(true)
   const [showShortcuts, setShowShortcuts] = useState(false)
 
-  // `?` toggles the overlay, Esc closes it — but never while typing
-  // (a "?" belongs in the learner's prompt, not hijacked by the UI).
+  const evaluating = status === 'evaluating'
+
+  // `?` toggles the overlay, Esc closes it — never while typing, and
+  // Esc must NOT touch the evaluation state machine (AC: Escape is safe).
   useEffect(() => {
     function onKeyDown(e) {
       const typing = ['TEXTAREA', 'INPUT'].includes(e.target.tagName)
@@ -55,8 +60,8 @@ export default function Challenge() {
   }
 
   function handleSubmit() {
-    // Phase 3 (T3.3) wires this to the evaluation flow.
-    console.log('[cue] submit:', prompt)
+    if (evaluating) return
+    submit(currentLesson, prompt)
   }
 
   return (
@@ -80,7 +85,6 @@ export default function Challenge() {
           </h1>
         </header>
 
-        {/* Concept blurb — collapsible so repeat visitors can tuck it away */}
         <section className="rounded-xl border border-line bg-surface">
           <button
             onClick={() => setConceptOpen((v) => !v)}
@@ -109,14 +113,41 @@ export default function Challenge() {
       </div>
 
       {/* ---- RIGHT PANEL: type (sticky under the top bar on desktop) ---- */}
-      <div className="mt-5 lg:sticky lg:top-20 lg:mt-0 lg:self-start">
+      <div className="mt-5 space-y-4 lg:sticky lg:top-20 lg:mt-0 lg:self-start">
         <PromptInput
           value={prompt}
           onChange={setPrompt}
           onSubmit={handleSubmit}
           tokenBudget={currentLesson.tokenBudget}
+          disabled={evaluating}
         />
-        <p className="mt-3 hidden text-right font-mono text-xs text-faint lg:block">
+
+        {evaluating && <CurtainLoader />}
+
+        {/* TEMP — replaced by ResultsPanel in T4.1 */}
+        {status === 'done' && result && (
+          <div className="rounded-xl border border-line bg-surface p-4 font-mono text-sm">
+            <p className="text-cue">
+              score: {result.score}
+              {result.offline && (
+                <span className="ml-2 text-faint">
+                  (offline estimate · {errorCode})
+                </span>
+              )}
+            </p>
+            <p className="mt-1 text-muted">
+              +{award?.xpGained} XP{award?.leveledUp && ` · LEVEL UP → ${award.newLevel}`}
+            </p>
+          </div>
+        )}
+
+        {status === 'error' && (
+          <p className="font-mono text-sm text-over">
+            Something went wrong — try submitting again.
+          </p>
+        )}
+
+        <p className="hidden text-right font-mono text-xs text-faint lg:block">
           press ? for shortcuts
         </p>
       </div>
