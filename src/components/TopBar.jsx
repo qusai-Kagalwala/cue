@@ -1,10 +1,8 @@
 // src/components/TopBar.jsx
-// T0.3 — Sticky top bar: Fraunces logo, streak flame, XP/level pill, nav icons.
-// STUB values below are replaced by the useProgress hook in T1.4.
+// T0.3 shell → T1.4: STUB values replaced with live state from useProgress.
 
 import { SCREENS } from '../lib/screens'
-
-const STUB = { streak: 0, xp: 0, level: 1 }
+import { useProgress } from '../hooks/useProgress'
 
 function IconButton({ label, active, onClick, children }) {
   return (
@@ -24,6 +22,8 @@ function IconButton({ label, active, onClick, children }) {
 }
 
 export default function TopBar({ screen, onNavigate }) {
+  const { streak, xp, level } = useProgress()
+
   return (
     <header className="sticky top-0 z-10 border-b border-line bg-stage/90 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 lg:px-6">
@@ -40,22 +40,22 @@ export default function TopBar({ screen, onNavigate }) {
 
           {/* Streak pill — number hides below sm to save space */}
           <span
-            title={`${STUB.streak} day streak`}
+            title={`${streak} day streak`}
             className="flex items-center gap-1 rounded-full border border-line px-2.5 py-1 font-mono text-xs text-muted"
           >
             <svg
               viewBox="0 0 24 24"
-              className="h-3.5 w-3.5 fill-cue"
+              className={`h-3.5 w-3.5 ${streak > 0 ? 'fill-cue' : 'fill-faint'}`}
               aria-hidden="true"
             >
               <path d="M13.5 0.7c0.3 3.2-0.8 5.6-2.6 7.6-1.5 1.7-3.4 3.2-4.6 5.4C4.1 17.8 6.4 22.6 12 23.3c-2.2-1.5-2.9-4.6-1.2-6.7 0.6-0.8 1.5-1.4 2.1-2.4 0.5-0.8 0.8-1.8 0.7-2.8 2.6 1.9 4.4 4.8 3.4 8.1-0.4 1.5-1.4 2.7-2.5 3.7 4.6-1 7.3-4.9 7-9.1C21.2 8.5 17.3 3 13.5 0.7z" />
             </svg>
-            <span className="hidden sm:inline">{STUB.streak}</span>
+            <span className="hidden sm:inline">{streak}</span>
           </span>
 
           {/* XP / level pill */}
           <span className="rounded-full border border-cue-dim px-2.5 py-1 font-mono text-xs text-cue">
-            Lv {STUB.level} · {STUB.xp} XP
+            Lv {level} · {xp} XP
           </span>
 
           {/* Lesson map */}
@@ -96,7 +96,7 @@ export default function TopBar({ screen, onNavigate }) {
             >
               <circle cx="12" cy="12" r="3" />
               <path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.6-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3h0a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5h0a1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9v0a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z" />
-            </svg>
+          </svg>
           </IconButton>
         </div>
       </div>
