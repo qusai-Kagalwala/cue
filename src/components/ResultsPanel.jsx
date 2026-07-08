@@ -1,8 +1,7 @@
 // src/components/ResultsPanel.jsx
-// T4.1 — The feedback moment: dial, strengths, improvements, copyable
-// rewrite, XP toast. Renders in-place beside/below the prompt — never a
-// new page, the loop stays tight. Handles offline results honestly
-// (label shown, rewrite section omitted since heuristics can't rewrite).
+// T4.1 feedback panel + mode badge: shows which engine produced this
+// result — flash-lite (primary), flash (backup bucket), or offline.
+// Honest about the machinery without making noise about it.
 
 import { useState } from 'react'
 import ScoreDial from './ScoreDial'
@@ -24,6 +23,13 @@ function FeedbackList({ label, items, tone }) {
   )
 }
 
+function modeLabel(result) {
+  if (result.offline) return 'offline heuristic'
+  if (result.model === 'gemini-2.5-flash') return 'flash · backup'
+  if (result.model === 'gemini-2.5-flash-lite') return 'flash-lite'
+  return result.model // future-proof: show whatever the proxy reports
+}
+
 export default function ResultsPanel({ result, award }) {
   const [copied, setCopied] = useState(false)
   if (!result) return null
@@ -43,13 +49,21 @@ export default function ResultsPanel({ result, award }) {
       aria-label="Evaluation results"
       className="space-y-5 rounded-xl border border-line bg-surface p-4 sm:p-5"
     >
-      {/* Score + offline label */}
+      {/* Score + mode badge */}
       <div className="flex items-center gap-4">
         <ScoreDial score={result.score} offline={result.offline} />
         <div className="min-w-0">
-          <p className="font-display text-lg font-semibold">
-            {result.offline ? 'Offline estimate' : 'Your result'}
-          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-display text-lg font-semibold">
+              {result.offline ? 'Offline estimate' : 'Your result'}
+            </p>
+            <span
+              title="Which engine evaluated this prompt"
+              className="rounded-full border border-line px-2 py-0.5 font-mono text-[10px] text-faint"
+            >
+              {modeLabel(result)}
+            </span>
+          </div>
           {result.offline && (
             <p className="text-sm leading-snug text-muted">
               Couldn't reach the evaluator — this is a rough local check.

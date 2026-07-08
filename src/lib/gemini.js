@@ -1,8 +1,7 @@
 // src/lib/gemini.js
-// T3.1 thin client + T3.2 retry layer. Pure module, no React.
+// T3.1 thin client + T3.2 retry layer + model passthrough for the mode badge.
 // evaluatePrompt  = single attempt, throws typed EvalError
-// evaluateWithRetry = retries ONCE on transient failures (BAD_JSON/NETWORK),
-//                     then rethrows for the hook to catch → heuristic fallback.
+// evaluateWithRetry = retries ONCE on transient failures (BAD_JSON/NETWORK).
 
 /** Error codes: BAD_INPUT | RATE_LIMIT | TIMEOUT | BAD_JSON | NETWORK | UPSTREAM */
 export class EvalError extends Error {
@@ -63,7 +62,8 @@ export async function evaluatePrompt(lesson, userPrompt) {
     throw new EvalError('BAD_JSON')
   }
 
-  return r
+  // Which model answered — shown as the mode badge in the results panel.
+  return { ...r, model: body.model ?? null }
 }
 
 /**

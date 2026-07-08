@@ -1,11 +1,11 @@
 // api/evaluate.js
-// T3.1 — Serverless proxy. THE ONLY PLACE THE GEMINI KEY IS EVER USED.
-// Lives outside src/ so Vite never bundles it; Vercel deploys it as a function.
-// Client sends lesson fields + the learner's prompt; the system prompt
-// template lives HERE, server-side.
+// T3.1 proxy + model fallback chain. THE ONLY PLACE THE GEMINI KEY IS USED.
+// Chain: flash-lite (primary) → flash (separate free-tier quota bucket).
+// Only a 429 falls through to the next model — other failures return
+// immediately with a typed code. Response includes which model answered,
+// so the UI can show the active mode.
 
-const MODEL = 'gemini-2.5-flash'
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`
+const MODELS = ['gemini-2.5-flash-lite', 'gemini-2.5-flash']
 
 // What Gemini must return — enforced via responseSchema, not hope.
 const RESPONSE_SCHEMA = {
@@ -53,6 +53,25 @@ function validate(body) {
   return null
 }
 
+function callGemini(model, systemPrompt, userPrompt, signal) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
+  return fetch(`${url}?key=${process.env.GEMINI_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    signal,
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: systemPrompt }] },
+      contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+      generationConfig: {
+        responseMimeType: 'application/json',
+        responseSchema: RESPONSE_SCHEMA,
+        temperature: 0.3,
+        maxOutputTokens: 800,
+      },
+    }),
+  })
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'METHOD_NOT_ALLOWED' })
@@ -67,29 +86,28 @@ export default async function handler(req, res) {
   const systemPrompt = buildSystemPrompt(req.body)
 
   try {
+    // One 15s budget spans the whole chain — the client contract stays honest.
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 15_000)
 
-    const upstream = await fetch(`${GEMINI_URL}?key=${process.env.GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      signal: controller.signal,
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-        generationConfig: {
-          responseMimeType: 'application/json',
-          responseSchema: RESPONSE_SCHEMA,
-          temperature: 0.3,
-          maxOutputTokens: 800,
-        },
-      }),
-    })
+    let upstream = null
+    let servedBy = null
+    for (const model of MODELS) {
+      upstream = await callGemini(model, systemPrompt, userPrompt, controller.signal)
+      if (upstream.status !== 429) {
+        servedBy = model
+        break // success or a non-quota failure — either way, stop here
+      }
+      console.warn(`[cue/api] ${model} rate-limited, trying next model`)
+    }
     clearTimeout(timeout)
 
-    if (upstream.status === 429) return res.status(429).json({ error: 'RATE_LIMIT' })
+    if (upstream.status === 429) {
+      // Every model in the chain is out of quota.
+      return res.status(429).json({ error: 'RATE_LIMIT' })
+    }
     if (!upstream.ok) {
-      console.error('[cue/api] upstream', upstream.status, await upstream.text().catch(() => ''))
+      console.error('[cue/api] upstream', servedBy, upstream.status, await upstream.text().catch(() => ''))
       return res.status(502).json({ error: 'UPSTREAM' })
     }
 
@@ -97,7 +115,6 @@ export default async function handler(req, res) {
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
     if (!text) return res.status(502).json({ error: 'BAD_JSON' })
 
-    // Parse server-side so the client always receives clean JSON or a typed error.
     let result
     try {
       result = JSON.parse(text)
@@ -105,7 +122,7 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: 'BAD_JSON' })
     }
 
-    return res.status(200).json({ result })
+    return res.status(200).json({ result, model: servedBy })
   } catch (err) {
     const code = err.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK'
     return res.status(504).json({ error: code })
