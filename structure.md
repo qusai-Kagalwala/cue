@@ -1,93 +1,108 @@
 # Cue — Project File Structure
 
-The complete tree as it will look at submission (Phase 7). Files marked with the phase that creates them — anything unmarked exists already from Phase 0.
+The tree as it stands (v1 MVP live) plus files the v1 sprint will add,
+marked ⏳. Rule unchanged: **a file not on this tree gets questioned
+before an AI session may create it.**
 
 ```
 cue/
 ├── api/
-│   └── evaluate.js              # P3 · serverless proxy — the ONLY place the Gemini key is used
+│   └── evaluate.js              # serverless proxy — ONLY place the key is used;
+│                                #   model chain flash-lite → flash, responseSchema,
+│                                #   15s budget, typed errors, returns served model
 │
 ├── public/
-│   └── favicon.svg              # P6 · amber "C" mark (theatre motif, optional polish)
+│   └── favicon.svg
 │
 ├── src/
-│   ├── components/              # dumb, reusable UI pieces
-│   │   ├── TopBar.jsx           # ✅ logo, streak flame, XP pill, nav icons
-│   │   ├── TokenCounter.jsx     # P2 · live count, amber/red budget states
-│   │   ├── PersonaPicker.jsx    # P2 · inline first-visit chips
-│   │   ├── ScenarioCard.jsx     # P2 · scenario + task + hints display
-│   │   ├── PromptInput.jsx      # P2 · mono textarea + submit + shortcuts
-│   │   ├── ResultsPanel.jsx     # P4 · score, strengths, improvements, rewrite
-│   │   ├── ScoreDial.jsx        # P4 · the 0–100 visual
-│   │   ├── XPToast.jsx          # P4 · "+50 +32 XP" / level-up state
-│   │   ├── AutoContinue.jsx     # P4 · next button + 8s countdown + cancel
-│   │   ├── CurtainLoader.jsx    # P3 · amber shimmer line while evaluating
-│   │   └── ConfirmDialog.jsx    # P5 · used by settings reset
+│   ├── components/
+│   │   ├── TopBar.jsx           # logo, streak flame, XP pill (tiny-screen safe)
+│   │   ├── TokenCounter.jsx     # live est. tokens, budget states, aria-live
+│   │   ├── PersonaPicker.jsx    # inline first-visit chips
+│   │   ├── ScenarioCard.jsx     # scenario + task + reveal-on-tap hints
+│   │   ├── PromptInput.jsx      # mono textarea, 2000-char cap, Ctrl+Enter,
+│   │   │                        #   desktop-only autofocus
+│   │   ├── ShortcutOverlay.jsx  # `?` overlay, Esc/click-out close
+│   │   ├── CurtainLoader.jsx    # amber sweep + cold-start-aware label
+│   │   ├── ResultsPanel.jsx     # dial, feedback, copyable rewrite, mode badge
+│   │   ├── ScoreDial.jsx        # SVG 0–100 dial (gray when offline)
+│   │   ├── XPToast.jsx          # +XP breakdown, replay label, level-up banner
+│   │   ├── AutoContinue.jsx     # Next + 25s countdown (user-tested) + cancel
+│   │   └── ConfirmDialog.jsx    # destructive-action confirm, Enter=Cancel
 │   │
-│   ├── screens/                 # one component per route
-│   │   ├── Challenge.jsx        # ✅ stub → P2 real layout (mobile + two-panel)
-│   │   ├── LessonMap.jsx        # ✅ stub → P5 list/grid of 8 lesson cards
-│   │   ├── Settings.jsx         # ✅ stub → P5 persona switch + reset
-│   │   ├── Completion.jsx       # P4 · after lesson 8 — totals + replay CTA
-│   │   └── TokensDemo.jsx       # ✅ throwaway — DELETE in P2
+│   ├── screens/
+│   │   ├── Challenge.jsx        # THE landing screen: two-panel ≥1024px,
+│   │   │                        #   evaluation flow, sr-only live region
+│   │   ├── LessonMap.jsx        # 8 cards: done/current/locked, half-XP replays
+│   │   ├── Settings.jsx         # persona switch, dark-only note, reset
+│   │   └── Completion.jsx       # finale — ⏳ T-v1-5 upgrade + Audition slot
 │   │
 │   ├── data/
-│   │   └── lessons.js           # P1 stubs → P6 real content · 8 lessons × 3 variants
+│   │   └── lessons.js           # 24 real interview-sourced scenarios
+│   │                            #   ⏳ T-v1-4 adds `takeaway` ×8
 │   │
 │   ├── lib/                     # pure logic, no React imports
-│   │   ├── screens.js           # ✅ SCREENS routing constants (Fast Refresh rule)
-│   │   ├── storage.js           # P1 · localStorage blob under `cue:v1`
-│   │   ├── xp.js                # P1 · awardXP, levelFor, streak logic (pure fns)
-│   │   ├── tokens.js            # P2 · estimateTokens = ceil(len/4)
-│   │   ├── gemini.js            # P3 · thin client → POST /api/evaluate, typed EvalError
-│   │   └── heuristic.js         # P3 · offline fallback mini-score
+│   │   ├── screens.js           # SCREENS routing constants
+│   │   ├── storage.js           # cue:v1 blob, corrupt guard, in-memory fallback
+│   │   │                        #   ⏳ T-fix-1 adds attempts array
+│   │   ├── xp.js                # awardXP/levels/streaks — the tested core
+│   │   ├── tokens.js            # estimateTokens + budgetStatus
+│   │   ├── gemini.js            # thin client, typed EvalError, retry-once,
+│   │   │                        #   model passthrough — ⏳ T-fix-2: 12s timeout
+│   │   ├── heuristic.js         # offline scorer — ⏳ T-v1-3 rewrite (6 weighted
+│   │   │                        #   dimensions, reusable for v2 Audition/tiers)
+│   │   └── rubric.js            # ⏳ T-v1-3 (optional split: weights/templates)
 │   │
 │   ├── hooks/
-│   │   ├── useProgress.js       # P1 · single source of truth: persona, XP, streak, lesson index
-│   │   └── useEvaluation.js     # P3 · idle → evaluating → done | error state machine
+│   │   ├── useProgress.js       # useSyncExternalStore store: persona, XP,
+│   │   │                        #   streak, replay half-XP, goToLesson, reset
+│   │   └── useEvaluation.js     # idle→evaluating→done|error, double-submit
+│   │                            #   guard — ⏳ T-fix-1: transition-gated XP +
+│   │                            #   hash dedup + attempt logger
 │   │
-│   ├── App.jsx                  # ✅ state routing between screens
-│   ├── main.jsx                 # ✅ vite entry
-│   └── index.css                # ✅ tailwind v4 @theme — ALL design tokens live here
+│   ├── App.jsx                  # state routing, passes onNavigate
+│   ├── main.jsx
+│   └── index.css                # ALL design tokens (@theme), AA-passing faint,
+│                                #   focus rings, curtain keyframes
 │
 ├── tests/
-│   └── xp.test.js               # P1 · vitest — XP/level/streak pure functions
+│   └── xp.test.js               # 14 vitest tests — gamification engine
 │
-├── docs/                        # P7 · college submission material
-│   ├── SRS.md                   # scope, requirements, security design decision
-│   └── uml/
-│       ├── use-case.png
-│       ├── class-diagram.png
-│       └── sequence-evaluate.png   # the viva money slide
+├── docs/                        # ⏳ T-v1-7 (parked until after teacher demo)
+│   ├── SRS.md
+│   └── uml/                     #   use-case, class, sequence (evaluate flow)
 │
-├── .env                         # 🔒 gitignored · GEMINI_API_KEY=... (P3, local vercel dev)
-├── .env.example                 # GEMINI_API_KEY=your-key-here
+├── .vscode/settings.json        # tailwind v4 at-rules squiggle off
+├── .env                         # 🔒 gitignored · GEMINI_API_KEY (local vercel dev)
+├── .env.example
 ├── .gitignore                   # node_modules, dist, .env, .vercel
-├── index.html                   # ✅ fonts (Fraunces/Space Grotesk/JetBrains Mono), dark <html>
-├── vite.config.js               # ✅ react + tailwindcss plugins
-├── package.json
-├── README.md                    # ✅ v2
-├── task.md                      # ✅ v2 ticket backlog
+├── index.html                   # fonts, favicon, dark <html>, noscript fallback
+├── vite.config.js               # react + tailwindcss plugins (NO tailwind.config)
+├── eslint.config.js             # browser globals for src/, node globals for api/
+├── package.json                 # scripts: dev/build/lint/preview/test
+├── README.md
+├── task.md                      # execution layer (active tickets)
+├── roadmap.md                   # strategy layer (v1/v2/v3)
 └── LICENSE                      # MIT
 ```
 
 ## Rules the structure enforces
 
-- **`lib/` is React-free.** Pure functions only — this is what makes T1.3 unit-testable and gives the class diagram clean boxes.
-- **No component touches localStorage or fetch directly.** Screens/components → hooks → lib. One-way dependency flow; this IS the architecture section of your SRS.
-- **`api/` sits outside `src/`.** Vercel deploys it as a serverless function; Vite never bundles it — that separation is exactly why the key stays server-side.
-- **All colors/fonts live in `index.css` `@theme`.** If a hex code appears anywhere else, it's a bug.
-- **No Tailwind config file** — v4 is CSS-first; don't let an AI session "helpfully" create `tailwind.config.js`.
-- **~25 source files total.** If a ticket wants to create a file not on this tree, question it before accepting.
+- **`lib/` is React-free.** Pure functions only — testable, and clean UML boxes.
+- **One-way flow:** screens/components → hooks → lib. No component touches
+  localStorage or fetch directly. This IS the SRS architecture section.
+- **`api/` sits outside `src/`** — Vite never bundles it; that separation is
+  the reason the key stays server-side.
+- **All colors/fonts live in `index.css` `@theme`.** A hex code anywhere
+  else is a bug (this is how the AA contrast fix was one line).
+- **No `tailwind.config.js`** — v4 is CSS-first; reject any AI session that
+  "helpfully" creates one.
+- **ESLint knows the boundary:** `process` in `api/` is fine; `process` in
+  `src/` is an architecture alarm, not a lint annoyance.
 
-## Files per phase (session planning)
+## v2 additions (preview only — ticketized lazily, not yet on the tree)
 
-| Phase | Creates/edits |
-|---|---|
-| 1 | `data/lessons.js`, `lib/storage.js`, `lib/xp.js`, `hooks/useProgress.js`, `tests/xp.test.js` |
-| 2 | `lib/tokens.js`, `TokenCounter`, `PersonaPicker`, `ScenarioCard`, `PromptInput`, real `Challenge.jsx` (deletes `TokensDemo`) |
-| 3 | `api/evaluate.js`, `lib/gemini.js`, `lib/heuristic.js`, `hooks/useEvaluation.js`, `CurtainLoader` |
-| 4 | `ResultsPanel`, `ScoreDial`, `XPToast`, `AutoContinue`, `Completion.jsx` |
-| 5 | real `LessonMap.jsx`, real `Settings.jsx`, `ConfirmDialog` |
-| 6 | real content in `lessons.js`, `favicon.svg`, edge-state edits across screens |
-| 7 | `docs/` everything |
+Sandbox screen + Critic's Review proxy mode · Opening Act sequence ·
+practice-tier scenario files (`lessons.meta.js`, `scenarios.{solo,assisted,guided}.js`) ·
+Season Report + Playbill under "Your Progress" · share-card canvas util.
+None may be created until their ticket exists in task.md.

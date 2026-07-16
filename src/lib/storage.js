@@ -1,23 +1,25 @@
 // src/lib/storage.js
 // T1.2 — Single localStorage blob under `cue:v1`. Pure module, no React.
-// Rules: only this file touches localStorage. Corrupt/missing data never throws —
-// it resets to defaults with a console warning (AC: no white screens, ever).
+// T-fix-1 — attempt-history log under its own key `cue:attempts:v1`
+// (separate from the state blob: append-only data shouldn't ride through
+// the state merge logic, and the Season Report reads it independently).
 
 const KEY = 'cue:v1'
+const ATTEMPTS_KEY = 'cue:attempts:v1'
+const MAX_ATTEMPTS = 500 // cap so years of replays can't blow localStorage
 const VERSION = 1
 
 export const DEFAULT_STATE = Object.freeze({
   version: VERSION,
-  persona: null,                 // null → first visit → show persona picker (T2.3)
-  currentLessonIndex: 0,         // 0-based position in the flat queue
+  persona: null,                 // null → first visit → show persona picker
+  currentLessonIndex: 0,
   xp: 0,
   level: 1,
-  streak: { count: 0, lastActiveDate: null },   // date as 'YYYY-MM-DD'
-  lessonScores: {},              // { l1: 82, ... } — best score per lesson
-  settings: {},                  // reserved (persona lives top-level, theme is dark-only MVP)
+  streak: { count: 0, lastActiveDate: null },
+  lessonScores: {},
+  settings: {},
 })
 
-/** Deep-ish clone of defaults so callers can't mutate the frozen template. */
 function freshState() {
   return {
     ...DEFAULT_STATE,
@@ -27,7 +29,6 @@ function freshState() {
   }
 }
 
-/** True if the parsed blob looks like a usable state object. */
 function isValid(state) {
   return (
     state !== null &&
@@ -41,28 +42,22 @@ function isValid(state) {
   )
 }
 
-/**
- * Placeholder for future schema migrations. v1 is current, so any other
- * version resets. If a v2 ever ships, transform old shapes here instead.
- */
 function migrate(state) {
   if (state.version === VERSION) return state
   console.warn(`[cue] unknown state version ${state.version} — resetting.`)
   return freshState()
 }
 
-/** Load state. Never throws. Merges over defaults so new fields appear on old saves. */
 export function loadState() {
   let raw
   try {
     raw = localStorage.getItem(KEY)
   } catch {
-    // localStorage blocked (private mode / permissions) — run in-memory this session
     console.warn('[cue] localStorage unavailable — progress will not persist.')
     return freshState()
   }
 
-  if (raw === null) return freshState() // genuine first visit
+  if (raw === null) return freshState()
 
   try {
     const parsed = JSON.parse(raw)
@@ -75,7 +70,6 @@ export function loadState() {
   }
 }
 
-/** Save the full state object. Never throws (quota-full / blocked = warn and continue). */
 export function saveState(state) {
   try {
     localStorage.setItem(KEY, JSON.stringify(state))
@@ -86,19 +80,56 @@ export function saveState(state) {
   }
 }
 
-/** Merge a partial patch into stored state and persist. Returns the new state. */
 export function updateState(patch) {
   const next = { ...loadState(), ...patch }
   saveState(next)
   return next
 }
 
-/** Wipe everything — used by Settings → Reset progress (T5.2). */
 export function resetState() {
   try {
     localStorage.removeItem(KEY)
+    localStorage.removeItem(ATTEMPTS_KEY) // reset wipes history too
   } catch {
-    /* ignore — nothing to remove or storage blocked */
+    /* ignore */
   }
   return freshState()
+}
+
+// ---------- T-fix-1: attempt history (append-only) ----------
+
+/** Read the attempts array. Never throws; corrupt/missing → []. */
+export function loadAttempts() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(ATTEMPTS_KEY))
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Append one evaluation to history and return the stored entry.
+ * entry: { lessonId, score, engine } — timestamp + attemptNumber added here.
+ * attemptNumber counts prior attempts for the SAME lesson (1-based).
+ */
+export function appendAttempt({ lessonId, score, engine }) {
+  const attempts = loadAttempts()
+  const entry = {
+    lessonId,
+    score,
+    engine,
+    timestamp: new Date().toISOString(),
+    attemptNumber: attempts.filter((a) => a.lessonId === lessonId).length + 1,
+  }
+  attempts.push(entry)
+  try {
+    localStorage.setItem(
+      ATTEMPTS_KEY,
+      JSON.stringify(attempts.slice(-MAX_ATTEMPTS))
+    )
+  } catch (err) {
+    console.warn('[cue] could not save attempt history.', err)
+  }
+  return entry
 }
