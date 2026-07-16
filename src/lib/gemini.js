@@ -1,7 +1,16 @@
 // src/lib/gemini.js
-// T3.1 thin client + T3.2 retry layer + model passthrough for the mode badge.
-// evaluatePrompt  = single attempt, throws typed EvalError
-// evaluateWithRetry = retries ONCE on transient failures (BAD_JSON/NETWORK).
+// Thin client + retry layer + T-fix-2 cold-start handling.
+//
+// Timeout: 12s client-side (under the proxy's 15s, so the client's verdict
+// always lands first and the code is honest — a TIMEOUT means OUR deadline).
+//
+// Retry policy (T-fix-2):
+//   TIMEOUT / UPSTREAM / NETWORK / BAD_JSON → one retry with backoff.
+//     A cold serverless container is a *transient* condition — the first
+//     request thaws it, the retry usually succeeds.
+//   RATE_LIMIT → instant fallback, NO retry. Quota exhaustion is not
+//     transient; hammering it just burns the next bucket.
+//   BAD_INPUT → no retry. Bad input doesn't improve by asking twice.
 
 /** Error codes: BAD_INPUT | RATE_LIMIT | TIMEOUT | BAD_JSON | NETWORK | UPSTREAM */
 export class EvalError extends Error {
@@ -12,18 +21,38 @@ export class EvalError extends Error {
   }
 }
 
-const RETRYABLE = new Set(['BAD_JSON', 'NETWORK'])
-const RETRY_DELAY_MS = 700
+const CLIENT_TIMEOUT_MS = 12_000
+const RETRYABLE = new Set(['TIMEOUT', 'UPSTREAM', 'NETWORK', 'BAD_JSON'])
+const RETRY_BACKOFF_MS = 1500
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
+/**
+ * T-fix-2 — warm-up ping. Fire-and-forget on app mount: a bare GET thaws
+ * the serverless container (it boots, runs the handler, returns 405 —
+ * Gemini is never touched, quota cost is zero). By the time the learner
+ * finishes reading the scenario and typing, the container is warm and
+ * their first real submit doesn't eat the cold start.
+ */
+export function warmUpProxy() {
+  try {
+    fetch('/api/evaluate', { method: 'GET' }).catch(() => {})
+  } catch {
+    /* never let a warm-up failure surface anywhere */
+  }
+}
+
 /** Single evaluation attempt against our proxy. */
 export async function evaluatePrompt(lesson, userPrompt) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS)
+
   let res
   try {
     res = await fetch('/api/evaluate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
       body: JSON.stringify({
         title: lesson.title,
         concept: lesson.concept,
@@ -33,8 +62,10 @@ export async function evaluatePrompt(lesson, userPrompt) {
         userPrompt,
       }),
     })
-  } catch {
-    throw new EvalError('NETWORK')
+  } catch (err) {
+    throw new EvalError(err.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK')
+  } finally {
+    clearTimeout(timer)
   }
 
   let body
@@ -49,8 +80,6 @@ export async function evaluatePrompt(lesson, userPrompt) {
   }
 
   const r = body?.result
-  // Shape check — the proxy enforces the schema, but the client
-  // shouldn't trust the network any more than the XP system trusts scores.
   if (
     !r ||
     typeof r.score !== 'number' ||
@@ -62,15 +91,11 @@ export async function evaluatePrompt(lesson, userPrompt) {
     throw new EvalError('BAD_JSON')
   }
 
-  // Which model answered — shown as the mode badge in the results panel.
   return { ...r, model: body.model ?? null }
 }
 
 /**
- * T3.2 — evaluate with one retry on transient failures.
- * RATE_LIMIT / TIMEOUT / UPSTREAM / BAD_INPUT are NOT retried:
- * hammering a rate-limited or broken upstream only makes it worse,
- * and bad input won't become good input by asking twice.
+ * Evaluate with one retry on transient failures (see policy above).
  * @throws {EvalError} after the final attempt fails
  */
 export async function evaluateWithRetry(lesson, userPrompt) {
@@ -78,7 +103,7 @@ export async function evaluateWithRetry(lesson, userPrompt) {
     return await evaluatePrompt(lesson, userPrompt)
   } catch (err) {
     if (err instanceof EvalError && RETRYABLE.has(err.code)) {
-      await sleep(RETRY_DELAY_MS)
+      await sleep(RETRY_BACKOFF_MS)
       return evaluatePrompt(lesson, userPrompt) // second failure propagates
     }
     throw err

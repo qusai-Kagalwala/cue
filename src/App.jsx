@@ -1,9 +1,10 @@
 // src/App.jsx
-// T0.3 — App shell: state-based routing (no router lib needed for 3 screens).
-// SCREENS lives in lib/screens.js so this file exports only a component.
+// App shell: state-based routing + T-fix-2 warm-up ping on mount
+// (thaws the serverless container before the first real submit).
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { SCREENS } from './lib/screens'
+import { warmUpProxy } from './lib/gemini'
 import TopBar from './components/TopBar'
 import Challenge from './screens/Challenge'
 import LessonMap from './screens/LessonMap'
@@ -12,6 +13,10 @@ import Settings from './screens/Settings'
 export default function App() {
   const [screen, setScreen] = useState(SCREENS.CHALLENGE)
 
+  useEffect(() => {
+    warmUpProxy()
+  }, [])
+
   return (
     <div className="min-h-dvh bg-stage">
       <TopBar screen={screen} onNavigate={setScreen} />
@@ -19,7 +24,7 @@ export default function App() {
       <main className="mx-auto max-w-5xl px-4 pb-12 pt-6 lg:px-6">
         {screen === SCREENS.CHALLENGE && <Challenge onNavigate={setScreen} />}
         {screen === SCREENS.MAP && <LessonMap onNavigate={setScreen} />}
-        {screen === SCREENS.SETTINGS && <Settings />}
+        {screen === SCREENS.SETTINGS && <Settings onNavigate={setScreen} />}
       </main>
     </div>
   )
