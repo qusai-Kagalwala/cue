@@ -7,6 +7,7 @@
 import { useProgress } from '../hooks/useProgress'
 import { loadAttempts } from '../lib/storage'
 import { LESSONS } from '../data/lessons'
+import ShareCard from '../components/ShareCard'
 
 function Stat({ label, value, sub }) {
   return (
@@ -81,6 +82,9 @@ export default function Completion({ onGoToMap }) {
           })}
         </div>
       </div>
+
+      {/* v2-1 — journey share card */}
+      <ShareCard label="Share your run" />
 
       {/*
         ── v2 AUDITION CALLBACK SLOT ─────────────────────────────────

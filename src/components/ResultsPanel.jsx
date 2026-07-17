@@ -6,6 +6,7 @@
 import { useState } from 'react'
 import ScoreDial from './ScoreDial'
 import XPToast from './XPToast'
+import ShareCard from './ShareCard'
 
 function FeedbackList({ label, items, tone }) {
   if (!items?.length) return null
@@ -109,6 +110,10 @@ export default function ResultsPanel({ result, award, takeaway }) {
           {takeaway}
         </p>
       )}
+
+      {/* v2-1 — share this score (real evaluations only; an offline
+          estimate on a share card would misrepresent the result) */}
+      {!result.offline && <ShareCard score={result.score} label="Share this score" />}
 
       <XPToast award={award} />
     </section>
