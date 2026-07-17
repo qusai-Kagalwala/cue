@@ -1,7 +1,7 @@
 # Cue — Project File Structure
 
-The tree as it stands (v1 MVP live) plus files the v1 sprint will add,
-marked ⏳. Rule unchanged: **a file not on this tree gets questioned
+The tree as it stands (v1.0 shipped & teacher-approved) plus what the
+current phase will add, marked ⏳. Rule unchanged: **a file not on this tree gets questioned
 before an AI session may create it.**
 
 ```
@@ -35,30 +35,31 @@ cue/
 │   │   │                        #   evaluation flow, sr-only live region
 │   │   ├── LessonMap.jsx        # 8 cards: done/current/locked, half-XP replays
 │   │   ├── Settings.jsx         # persona switch, dark-only note, reset
-│   │   └── Completion.jsx       # finale — ⏳ T-v1-5 upgrade + Audition slot
+│   │   └── Completion.jsx       # finale: attempts, best-score strip,
+│   │                            #   marked v2 Audition slot
 │   │
 │   ├── data/
-│   │   └── lessons.js           # 24 real interview-sourced scenarios
-│   │                            #   ⏳ T-v1-4 adds `takeaway` ×8
+│   │   └── lessons.js           # 24 interview-sourced scenarios + takeaway ×8
 │   │
 │   ├── lib/                     # pure logic, no React imports
 │   │   ├── screens.js           # SCREENS routing constants
 │   │   ├── storage.js           # cue:v1 blob, corrupt guard, in-memory fallback
-│   │   │                        #   ⏳ T-fix-1 adds attempts array
+│   │   │                        #   + cue:attempts:v1 append-only history (cap 500)
 │   │   ├── xp.js                # awardXP/levels/streaks — the tested core
 │   │   ├── tokens.js            # estimateTokens + budgetStatus
-│   │   ├── gemini.js            # thin client, typed EvalError, retry-once,
-│   │   │                        #   model passthrough — ⏳ T-fix-2: 12s timeout
-│   │   ├── heuristic.js         # offline scorer — ⏳ T-v1-3 rewrite (6 weighted
-│   │   │                        #   dimensions, reusable for v2 Audition/tiers)
-│   │   └── rubric.js            # ⏳ T-v1-3 (optional split: weights/templates)
+│   │   ├── gemini.js            # thin client, 12s timeout, cold-start retry
+│   │   │                        #   routing, warm-up ping, model passthrough
+│   │   ├── heuristic.js         # thin wrapper over rubric (stable import path)
+│   │   └── rubric.js            # THE PLATFORM: 6 weighted dimensions,
+│   │                            #   per-lesson weights, seeded templates,
+│   │                            #   dimensions breakdown for v2 checklist
 │   │
 │   ├── hooks/
 │   │   ├── useProgress.js       # useSyncExternalStore store: persona, XP,
 │   │   │                        #   streak, replay half-XP, goToLesson, reset
 │   │   └── useEvaluation.js     # idle→evaluating→done|error, double-submit
-│   │                            #   guard — ⏳ T-fix-1: transition-gated XP +
-│   │                            #   hash dedup + attempt logger
+│   │                            #   guard, transition-gated XP, hash dedup,
+│   │                            #   attempt logging
 │   │
 │   ├── App.jsx                  # state routing, passes onNavigate
 │   ├── main.jsx
@@ -68,9 +69,10 @@ cue/
 ├── tests/
 │   └── xp.test.js               # 14 vitest tests — gamification engine
 │
-├── docs/                        # ⏳ T-v1-7 (parked until after teacher demo)
-│   ├── SRS.md
-│   └── uml/                     #   use-case, class, sequence (evaluate flow)
+├── docs/                        # FINAL PHASE (after v2 + v3 drafts)
+│   ├── decisions.md             # ⏳ start NOW: one line per v2 decision
+│   ├── SRS.md                   # ⏳ assembled last from living docs
+│   └── uml/                     # ⏳ use-case, class, sequence (evaluate flow)
 │
 ├── .vscode/settings.json        # tailwind v4 at-rules squiggle off
 ├── .env                         # 🔒 gitignored · GEMINI_API_KEY (local vercel dev)
