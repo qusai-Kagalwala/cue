@@ -156,7 +156,7 @@ export default function Challenge({ onNavigate }) {
 
         {status === 'done' && (
           <>
-            <ResultsPanel result={result} award={award} />
+            <ResultsPanel result={result} award={award} takeaway={currentLesson.takeaway} />
             <AutoContinue
               onNext={handleNext}
               isLast={currentLessonIndex === totalLessons - 1}

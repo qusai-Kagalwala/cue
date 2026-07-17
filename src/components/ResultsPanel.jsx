@@ -30,7 +30,7 @@ function modeLabel(result) {
   return result.model // future-proof: show whatever the proxy reports
 }
 
-export default function ResultsPanel({ result, award }) {
+export default function ResultsPanel({ result, award, takeaway }) {
   const [copied, setCopied] = useState(false)
   if (!result) return null
 
@@ -97,6 +97,17 @@ export default function ResultsPanel({ result, award }) {
             {result.rewrittenExample}
           </p>
         </div>
+      )}
+
+      {/* T-v1-4 — the one-line lesson takeaway: renders on EVERY result,
+          real or offline (it comes from the lesson, not the evaluation) */}
+      {takeaway && (
+        <p className="border-l-2 border-cue-dim pl-3 text-sm italic leading-relaxed text-muted">
+          <span className="not-italic font-mono text-xs uppercase tracking-widest text-faint">
+            the takeaway ·{' '}
+          </span>
+          {takeaway}
+        </p>
       )}
 
       <XPToast award={award} />
