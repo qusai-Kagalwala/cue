@@ -79,6 +79,20 @@ export default function TopBar({ screen, onNavigate }) {
             </svg>
           </IconButton>
 
+          {/* Sandbox */}
+          <IconButton
+            label="The Sandbox"
+            active={screen === SCREENS.SANDBOX}
+            onClick={() => onNavigate(SCREENS.SANDBOX)}
+          >
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor"
+              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M10 2v6L4.5 18a2 2 0 001.8 3h11.4a2 2 0 001.8-3L14 8V2" />
+              <path d="M8.5 2h7" />
+              <path d="M7 15h10" />
+            </svg>
+          </IconButton>
+
           {/* Settings */}
           <IconButton
             label="Settings"

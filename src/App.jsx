@@ -8,6 +8,7 @@ import { warmUpProxy } from './lib/gemini'
 import TopBar from './components/TopBar'
 import Challenge from './screens/Challenge'
 import LessonMap from './screens/LessonMap'
+import Sandbox from './screens/Sandbox'
 import Settings from './screens/Settings'
 
 export default function App() {
@@ -24,6 +25,7 @@ export default function App() {
       <main className="mx-auto max-w-5xl px-4 pb-12 pt-6 lg:px-6">
         {screen === SCREENS.CHALLENGE && <Challenge onNavigate={setScreen} />}
         {screen === SCREENS.MAP && <LessonMap onNavigate={setScreen} />}
+        {screen === SCREENS.SANDBOX && <Sandbox />}
         {screen === SCREENS.SETTINGS && <Settings onNavigate={setScreen} />}
       </main>
     </div>
