@@ -1,12 +1,18 @@
 // src/screens/Completion.jsx
-// T4.2 finale → T-v1-5 upgrade: fuller summary (XP + next-level progress,
-// streak, per-lesson best scores, attempt count from the history log) and
-// the marked slot where the v2 Audition callback will land.
-// No speculative logic — the slot is a location, not a feature.
+// T-v1-5 finale + v2-3d name echo + v2-4a: the Audition callback fills
+// the marked slot. Post-Audition users get one parallel prompt task
+// (same scenario, rubric-scored, zero quota); the "after" attempt is
+// stored and the before/after rank line renders. Skipped-audition users
+// see no slot — absence is the default, as designed in v2-3c.
+// The word-level diff view arrives in v2-4b.
 
+import { useState } from 'react'
 import { useProgress } from '../hooks/useProgress'
-import { loadAttempts } from '../lib/storage'
+import { loadAttempts, loadState, updateState } from '../lib/storage'
 import { LESSONS } from '../data/lessons'
+import { AUDITION_TASK } from '../data/audition'
+import { scoreWithRubric } from '../lib/rubric'
+import { rankForLevel } from '../lib/ranks'
 import ShareCard from '../components/ShareCard'
 
 function Stat({ label, value, sub }) {
@@ -18,6 +24,87 @@ function Stat({ label, value, sub }) {
       </p>
       {sub && <p className="mt-0.5 font-mono text-[10px] text-faint">{sub}</p>}
     </div>
+  )
+}
+
+// ---- v2-4a: The Callback -------------------------------------------------
+function CallbackSlot({ level }) {
+  // Read once; local state carries the session's changes.
+  const [audition] = useState(() => loadState().auditionAttempt)
+  const [callback, setCallback] = useState(() => loadState().callbackAttempt)
+  const [prompt, setPrompt] = useState('')
+
+  // No audition = no callback. Absence is the default (v2-3c).
+  if (!audition) return null
+
+  function submit() {
+    const rubric = scoreWithRubric(AUDITION_TASK, prompt) // zero quota
+    const attempt = {
+      taskPrompt: prompt.trim(),
+      taskScore: rubric.score,
+      rank: rankForLevel(level), // closing-night rank = the one XP earned
+      timestamp: new Date().toISOString(),
+    }
+    updateState({ callbackAttempt: attempt })
+    setCallback(attempt)
+  }
+
+  if (callback) {
+    const improved = callback.taskScore > audition.taskScore
+    return (
+      <section className="space-y-3 rounded-xl border border-cue-dim bg-cue/5 p-5 text-left">
+        <p className="font-mono text-xs uppercase tracking-widest text-faint">
+          the callback
+        </p>
+        <p className="font-display text-xl font-semibold leading-snug">
+          Your audition: <span className="text-muted">{audition.rank}</span>.
+          <br />
+          Your closing night: <span className="text-cue">{callback.rank}</span>.
+        </p>
+        <p className="font-mono text-xs text-muted">
+          same task, then and now — prompt score {audition.taskScore} →{' '}
+          <span className={improved ? 'text-good' : 'text-ink'}>
+            {callback.taskScore}
+          </span>
+        </p>
+      </section>
+    )
+  }
+
+  return (
+    <section className="space-y-4 rounded-xl border border-cue-dim bg-cue/5 p-5 text-left">
+      <div className="space-y-1">
+        <p className="font-mono text-xs uppercase tracking-widest text-faint">
+          the callback · one last audition
+        </p>
+        <p className="text-sm leading-relaxed text-muted">
+          Before Lesson 1, you auditioned with this exact task. Eight lessons
+          later — same stage, same scene. Show what changed.
+        </p>
+      </div>
+      <div className="rounded-lg border border-line bg-surface p-4 text-sm leading-relaxed">
+        <p className="text-muted">{AUDITION_TASK.scenario}</p>
+        <p className="mt-2 text-cue">{AUDITION_TASK.task}</p>
+      </div>
+      <textarea
+        rows={4}
+        value={prompt}
+        maxLength={1000}
+        onChange={(e) => setPrompt(e.target.value)}
+        placeholder="Write it the way you would now…"
+        className="w-full resize-none rounded-xl border border-line bg-raised p-3 font-mono text-sm leading-relaxed placeholder:text-faint focus:border-cue-dim"
+        aria-label="Your callback prompt"
+      />
+      <div className="flex justify-end">
+        <button
+          onClick={submit}
+          disabled={prompt.trim().length === 0}
+          className="rounded-lg bg-cue px-6 py-2.5 font-medium text-stage transition-colors hover:bg-cue-bright disabled:cursor-not-allowed disabled:bg-raised disabled:text-faint"
+        >
+          Take the callback →
+        </button>
+      </div>
+    </section>
   )
 }
 
@@ -86,15 +173,8 @@ export default function Completion({ onGoToMap }) {
       {/* v2-1 — journey share card */}
       <ShareCard label="Share your run" />
 
-      {/*
-        ── v2 AUDITION CALLBACK SLOT ─────────────────────────────────
-        The Opening Act's audition attempt gets its callback here:
-        parallel prompt task + before/after diff — "Your audition:
-        Understudy. Your closing night: Lead." Renders between the
-        best-scores strip and the replay CTA. Until v2 ships, this
-        slot is intentionally empty.
-        ──────────────────────────────────────────────────────────────
-      */}
+      {/* v2-4a — the Audition callback (renders only post-Audition) */}
+      <CallbackSlot level={level} />
 
       <button
         onClick={onGoToMap}
