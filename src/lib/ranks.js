@@ -16,3 +16,10 @@ export function nextRank(level) {
   const idx = Math.min(RANKS.length - 1, Math.max(0, (level ?? 1) - 1))
   return idx < RANKS.length - 1 ? RANKS[idx + 1] : null
 }
+
+/** v2-3c — starting rank from the combined Audition score (caps at Lead). */
+export function auditionRank(combined) {
+  if (combined >= 55) return 'Lead'
+  if (combined >= 35) return 'Ensemble'
+  return 'Understudy'
+}

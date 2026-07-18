@@ -9,6 +9,9 @@ import { BEATS } from '../lib/screens'
 import { PERSONAS } from '../data/lessons'
 import { updateState } from '../lib/storage'
 import { setPersona } from '../hooks/useProgress'
+import { scoreWithRubric } from '../lib/rubric'
+import { auditionRank } from '../lib/ranks'
+import { AUDITION_MCQS, AUDITION_TASK } from '../data/audition'
 
 const reducedMotion =
   typeof window !== 'undefined' &&
@@ -50,15 +53,141 @@ function TitleBeat({ onNext }) {
   )
 }
 
-// ---- Beat 3 placeholder (v2-3c) -----------------------------------------
-function AuditionPlaceholder({ onNext }) {
+// ---- Beat 3: The Audition (v2-3c) ---------------------------------------
+// Skip note: the shell's "skip this" advances WITHOUT saving an attempt —
+// downstream (share card, v2-4a callback) treats a missing auditionAttempt
+// as skipped → Understudy. Absence IS the default.
+function AuditionBeat({ onNext }) {
+  const [phase, setPhase] = useState('mcq') // mcq | task | reveal
+  const [mcqIndex, setMcqIndex] = useState(0)
+  const [correct, setCorrect] = useState(0)
+  const [picked, setPicked] = useState(null) // index picked this question
+  const [taskPrompt, setTaskPrompt] = useState('')
+  const [outcome, setOutcome] = useState(null)
+
+  const mcq = AUDITION_MCQS[mcqIndex]
+
+  function pick(i) {
+    if (picked !== null) return
+    setPicked(i)
+    if (mcq.pair[i].better) setCorrect((c) => c + 1)
+  }
+
+  function nextMcq() {
+    setPicked(null)
+    if (mcqIndex < AUDITION_MCQS.length - 1) setMcqIndex((i) => i + 1)
+    else setPhase('task')
+  }
+
+  function submitTask() {
+    const rubric = scoreWithRubric(AUDITION_TASK, taskPrompt) // zero quota
+    const mcqScore = Math.round((correct / AUDITION_MCQS.length) * 100)
+    const combined = Math.round(mcqScore * 0.5 + rubric.score * 0.5)
+    const rank = auditionRank(combined)
+    const attempt = {
+      mcqCorrect: correct,
+      mcqTotal: AUDITION_MCQS.length,
+      taskPrompt: taskPrompt.trim(),
+      taskScore: rubric.score,
+      combined,
+      rank,
+      timestamp: new Date().toISOString(),
+    }
+    updateState({ auditionAttempt: attempt }) // v2-4a callback reads this
+    setOutcome(attempt)
+    setPhase('reveal')
+  }
+
+  if (phase === 'mcq') {
+    return (
+      <div className="space-y-4">
+        <p className="text-center font-mono text-xs uppercase tracking-widest text-faint">
+          the audition · {mcqIndex + 1} / {AUDITION_MCQS.length}
+        </p>
+        <h2 className="text-center font-display text-xl font-semibold">
+          {mcq.question}
+        </h2>
+        <div className="space-y-2">
+          {mcq.pair.map((option, i) => {
+            const chosen = picked === i
+            const showState = picked !== null
+            return (
+              <button
+                key={i}
+                onClick={() => pick(i)}
+                disabled={picked !== null}
+                className={`w-full rounded-xl border p-3 text-left font-mono text-sm leading-relaxed transition-colors ${
+                  showState && option.better
+                    ? 'border-good text-ink'
+                    : chosen
+                      ? 'border-over text-muted'
+                      : 'border-line bg-raised text-ink hover:border-cue-dim'
+                }`}
+              >
+                {option.text}
+              </button>
+            )
+          })}
+        </div>
+        {picked !== null && (
+          <div className="space-y-3">
+            <p className="text-sm leading-relaxed text-muted">{mcq.why}</p>
+            <div className="flex justify-center">
+              <Continue onClick={nextMcq}>
+                {mcqIndex < AUDITION_MCQS.length - 1 ? 'Next →' : 'One last thing →'}
+              </Continue>
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  if (phase === 'task') {
+    return (
+      <div className="space-y-4">
+        <p className="text-center font-mono text-xs uppercase tracking-widest text-faint">
+          the audition · your turn
+        </p>
+        <div className="rounded-xl border border-line bg-surface p-4 text-sm leading-relaxed">
+          <p className="text-muted">{AUDITION_TASK.scenario}</p>
+          <p className="mt-2 text-cue">{AUDITION_TASK.task}</p>
+        </div>
+        <textarea
+          rows={4}
+          value={taskPrompt}
+          maxLength={1000}
+          onChange={(e) => setTaskPrompt(e.target.value)}
+          placeholder="Write your prompt…"
+          className="w-full resize-none rounded-xl border border-line bg-raised p-3 font-mono text-sm leading-relaxed placeholder:text-faint focus:border-cue-dim"
+          aria-label="Your audition prompt"
+        />
+        <div className="flex justify-center">
+          <Continue onClick={submitTask}>
+            {taskPrompt.trim().length > 0 ? 'Take the audition →' : 'Submit blank (brave) →'}
+          </Continue>
+        </div>
+      </div>
+    )
+  }
+
+  // reveal
   return (
-    <div className="space-y-3 text-center">
-      <h2 className="font-display text-2xl font-semibold text-cue">
-        The Audition
+    <div className="space-y-4 text-center">
+      <p className="font-mono text-xs uppercase tracking-widest text-faint">
+        the verdict
+      </p>
+      <h2 className="font-display text-3xl font-bold text-cue">
+        {outcome.rank}
       </h2>
-      <p className="font-mono text-xs text-faint">arrives in v2-3c</p>
-      <Continue onClick={onNext} />
+      <p className="text-sm text-muted">
+        {outcome.mcqCorrect}/{outcome.mcqTotal} picks · prompt scored{' '}
+        {outcome.taskScore} — your starting rank. Eight lessons from now,
+        we'll see how far you've climbed.
+      </p>
+      <div className="flex justify-center">
+        <Continue onClick={onNext} />
+      </div>
     </div>
   )
 }
@@ -166,7 +295,7 @@ export default function OpeningAct({ onComplete }) {
     name: (
       <NameBeatWrapper onDone={nextFromName} />
     ),
-    audition: <AuditionPlaceholder onNext={next} />,
+    audition: <AuditionBeat onNext={next} />,
     why: <WhyBeat onNext={next} />,
     persona: <PersonaBeat onNext={next} />,
     curtain: <CurtainBeat onComplete={onComplete} name={name} />,
