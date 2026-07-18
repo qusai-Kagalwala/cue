@@ -30,14 +30,22 @@ function TitleBeat({ onNext }) {
       <h1 className="font-display text-4xl font-bold text-cue sm:text-5xl">
         Cue
       </h1>
-      <p
-        className={`mx-auto font-mono text-lg text-ink ${
-          reducedMotion ? '' : 'cue-typewriter'
-        }`}
-      >
-        Your cue to ask better.
-      </p>
-      <Continue onClick={onNext} />
+
+      {/* Explicit flex centering: the typewriter's width animates, so
+          text-center alone re-centers every frame — anchor it instead */}
+      <div className="flex justify-center">
+        <p
+          className={`font-mono text-lg text-ink ${
+            reducedMotion ? '' : 'cue-typewriter'
+          }`}
+        >
+          Your cue to ask better.
+        </p>
+      </div>
+
+      <div className="flex justify-center">
+        <Continue onClick={onNext} />
+      </div>
     </div>
   )
 }
