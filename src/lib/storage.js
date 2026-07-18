@@ -14,6 +14,8 @@ export const DEFAULT_STATE = Object.freeze({
   persona: null,                 // null → first visit → show persona picker
   name: null,                    // v2-3a — captured in Opening Act beat 2
   openingActDone: false,         // v2-3a — the act never repeats once true
+  auditionAttempt: null,         // v2-3c — the "before" (null = skipped)
+  callbackAttempt: null,         // v2-4a — the "after", written on the finale
   currentLessonIndex: 0,
   xp: 0,
   level: 1,
