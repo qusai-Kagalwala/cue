@@ -94,6 +94,7 @@ export function resetState() {
   try {
     localStorage.removeItem(KEY)
     localStorage.removeItem(ATTEMPTS_KEY) // reset wipes history too
+    localStorage.removeItem('cue:sandbox:v1') // sandbox quota resets with everything else
   } catch {
     /* ignore */
   }

@@ -12,7 +12,7 @@ import { useState } from 'react'
 import { useProgress } from '../hooks/useProgress'
 import { evaluateWithRetry } from '../lib/gemini'
 import { heuristicEvaluate } from '../lib/heuristic'
-import { remainingToday, spendOne, dailyAllowance } from '../lib/sandboxQuota'
+import { remainingToday, spendOne, refundOne, dailyAllowance } from '../lib/sandboxQuota'
 import PromptInput from '../components/PromptInput'
 import CurtainLoader from '../components/CurtainLoader'
 import ResultsPanel from '../components/ResultsPanel'
@@ -126,13 +126,7 @@ export default function Sandbox() {
     } catch {
       // No honest offline verdict exists for a pair — refund the spend.
       setRvStatus('error')
-      const raw = JSON.parse(localStorage.getItem('cue:sandbox:v1') ?? '{}')
-      if (Number.isInteger(raw.used) && raw.used > 0) {
-        localStorage.setItem(
-          'cue:sandbox:v1',
-          JSON.stringify({ ...raw, used: raw.used - 1 })
-        )
-      }
+      refundOne()
     }
   }
 

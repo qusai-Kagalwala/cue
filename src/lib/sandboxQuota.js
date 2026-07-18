@@ -40,3 +40,9 @@ export function spendOne(level) {
   save({ date: state.date, used: state.used + 1 })
   return true
 }
+
+/** Refund one (failed review — nothing was delivered). */
+export function refundOne() {
+  const state = load()
+  if (state.used > 0) save({ date: state.date, used: state.used - 1 })
+}
