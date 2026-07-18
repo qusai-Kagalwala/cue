@@ -106,6 +106,7 @@ export function useProgress() {
   return {
     // state
     persona: s.persona,
+    name: s.name ?? null,          // v2-3d — echoes across toast/finale/card
     currentLessonIndex: s.currentLessonIndex,
     currentLesson,          // merged with persona variant, null when all done
     isComplete,
