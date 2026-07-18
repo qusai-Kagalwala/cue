@@ -12,6 +12,8 @@ const VERSION = 1
 export const DEFAULT_STATE = Object.freeze({
   version: VERSION,
   persona: null,                 // null → first visit → show persona picker
+  name: null,                    // v2-3a — captured in Opening Act beat 2
+  openingActDone: false,         // v2-3a — the act never repeats once true
   currentLessonIndex: 0,
   xp: 0,
   level: 1,

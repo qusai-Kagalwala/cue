@@ -5,6 +5,8 @@
 import { useEffect, useState } from 'react'
 import { SCREENS } from './lib/screens'
 import { warmUpProxy } from './lib/gemini'
+import { loadState, updateState } from './lib/storage'
+import OpeningAct from './screens/OpeningAct'
 import TopBar from './components/TopBar'
 import Challenge from './screens/Challenge'
 import LessonMap from './screens/LessonMap'
@@ -13,10 +15,23 @@ import Settings from './screens/Settings'
 
 export default function App() {
   const [screen, setScreen] = useState(SCREENS.CHALLENGE)
+  // v2-3a — read once at mount; completing the act flips both.
+  const [showOpening, setShowOpening] = useState(
+    () => !loadState().openingActDone
+  )
 
   useEffect(() => {
     warmUpProxy()
   }, [])
+
+  function completeOpeningAct() {
+    updateState({ openingActDone: true })
+    setShowOpening(false)
+  }
+
+  if (showOpening) {
+    return <OpeningAct onComplete={completeOpeningAct} />
+  }
 
   return (
     <div className="min-h-dvh bg-stage">

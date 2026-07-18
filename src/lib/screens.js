@@ -8,3 +8,6 @@ export const SCREENS = {
   SANDBOX: 'sandbox',
   SETTINGS: 'settings',
 }
+
+// v2-3a — Opening Act beat order (the product spec; v2-3b/3c import this)
+export const BEATS = ['title', 'name', 'audition', 'why', 'persona', 'curtain']
