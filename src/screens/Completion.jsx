@@ -22,7 +22,7 @@ function Stat({ label, value, sub }) {
 }
 
 export default function Completion({ onGoToMap }) {
-  const { xp, level, xpToNext, streak, lessonScores, totalLessons } =
+  const { xp, level, xpToNext, streak, lessonScores, totalLessons, name } =
     useProgress()
   const attemptCount = loadAttempts().length
 
@@ -33,7 +33,7 @@ export default function Completion({ onGoToMap }) {
           all {totalLessons} lessons complete
         </p>
         <h1 className="font-display text-3xl font-bold text-cue sm:text-4xl">
-          That's a wrap 🎭
+          That's a wrap{name ? `, ${name}` : ''} 🎭
         </h1>
         <p className="mx-auto max-w-[48ch] leading-relaxed text-muted">
           {attemptCount > 0
