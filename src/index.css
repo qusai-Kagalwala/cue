@@ -68,3 +68,36 @@ body {
     transform: translateX(300%);
   }
 }
+
+/* v2-3b — Opening Act: typewriter with a glowing (spotlit) caret.
+   CSS-only; the .cue-typewriter class is simply absent under
+   prefers-reduced-motion (JS branch), so no motion query needed here. */
+.cue-typewriter {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 24ch;
+  border-right: 3px solid var(--color-cue);
+  /* the "spotlight follows the caret": the glow rides the border edge */
+  box-shadow: 12px 0 28px -6px rgba(245, 185, 66, 0.55);
+  animation:
+    cue-type 2.2s steps(24, end) 0.3s both,
+    cue-blink 0.9s step-end 2.5s infinite;
+}
+
+@keyframes cue-type {
+  from {
+    max-width: 0;
+  }
+
+  to {
+    max-width: 24ch;
+  }
+}
+
+@keyframes cue-blink {
+  50% {
+    border-color: transparent;
+    box-shadow: none;
+  }
+}
