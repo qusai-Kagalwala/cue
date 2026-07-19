@@ -11,7 +11,9 @@ export default function XPToast({ award }) {
   const bonus = award.xpGained - BASE_XP
   // Replays halve the award; practice pays a small fixed reward —
   // neither fits the base+bonus breakdown.
-  const breakdown = award.practice
+  const breakdown = award.encore
+    ? '100 base + bonus · the encore'
+    : award.practice
     ? 'practice reward · first time only'
     : award.isReplay
       ? 'replay · half XP'

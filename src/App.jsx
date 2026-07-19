@@ -12,6 +12,7 @@ import Challenge from './screens/Challenge'
 import LessonMap from './screens/LessonMap'
 import Sandbox from './screens/Sandbox'
 import GuidedPrompt from './components/GuidedPrompt'
+import Encore from './screens/Encore'
 import AssistedPrompt from './components/AssistedPrompt'
 import Settings from './screens/Settings'
 
@@ -55,6 +56,9 @@ export default function App() {
             lessonId={practiceLessonId}
             onExit={() => setScreen(SCREENS.MAP)}
           />
+        )}
+        {screen === SCREENS.ENCORE && (
+          <Encore onExit={() => setScreen(SCREENS.MAP)} />
         )}
         {screen === SCREENS.ASSISTED && practiceLessonId && (
           <AssistedPrompt

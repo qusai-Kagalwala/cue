@@ -8,6 +8,7 @@ export const SCREENS = {
   SANDBOX: 'sandbox',
   GUIDED: 'guided',
   ASSISTED: 'assisted',
+  ENCORE: 'encore',
   SETTINGS: 'settings',
 }
 

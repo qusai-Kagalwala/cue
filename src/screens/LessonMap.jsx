@@ -21,7 +21,7 @@ function LockIcon() {
 }
 
 export default function LessonMap({ onNavigate, onPractice }) {
-  const { currentLessonIndex, lessonScores } = useProgress()
+  const { currentLessonIndex, lessonScores, level } = useProgress()
 
   // Highest done index +1 stays unlocked even if the queue pointer
   // has been moved back by a replay.
@@ -129,6 +129,22 @@ export default function LessonMap({ onNavigate, onPractice }) {
           )
         })}
       </ol>
+
+      {/* v2-9 — The Encore: the daily boss, gated at Level 4 */}
+      <button
+        onClick={() => onNavigate(SCREENS.ENCORE)}
+        className="mt-4 w-full rounded-xl border border-cue-dim bg-cue/5 p-4 text-left transition-colors hover:border-cue"
+      >
+        <p className="font-mono text-xs uppercase tracking-widest text-faint">
+          the encore · daily boss
+        </p>
+        <p className="mt-1 font-display text-lg font-semibold text-cue">
+          {level >= 4 ? "Tonight's challenge awaits 🎭" : '🔒 Unlocks at Level 4'}
+        </p>
+        <p className="mt-0.5 text-sm text-muted">
+          Every skill at once, tight token budget, 100 base XP — one bow per day.
+        </p>
+      </button>
     </div>
   )
 }

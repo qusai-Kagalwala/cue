@@ -108,6 +108,28 @@ export function completePractice(lessonId, tier) {
   return { xpGained, leveledUp, newLevel: level, isReplay: false, practice: true }
 }
 
+/**
+ * v2-9 — The Encore's payday: 100 base + round(score/2) bonus, ONCE per
+ * day (encoreDone stores the claimed dateKey). Returns an XPToast-shaped
+ * award, or null when today's bow is already taken. Streak counts.
+ */
+const ENCORE_BASE_XP = 100
+
+export function completeEncore(score) {
+  const today = todayKey()
+  if (state.encoreDone === today) return null
+
+  const bonus = Math.round((Math.min(100, Math.max(0, Number(score) || 0))) / 2)
+  const xpGained = ENCORE_BASE_XP + bonus
+  const xp = state.xp + xpGained
+  const level = levelFor(xp)
+  const leveledUp = level > state.level
+  const streak = applyStreak(state.streak, todayKey())
+
+  setState({ xp, level, streak, encoreDone: today })
+  return { xpGained, leveledUp, newLevel: level, isReplay: false, encore: true }
+}
+
 /** Set the current lesson's flow stage: 'guided' | 'assisted' | 'solo'. */
 export function setLessonStage(stage) {
   setState({ lessonStage: stage })
@@ -152,12 +174,14 @@ export function useProgress() {
     streak: s.streak.count,
     lessonScores: s.lessonScores,
     totalLessons: TOTAL_LESSONS,
+    encoreDoneToday: s.encoreDone === todayKey(),
     // actions
     setPersona,
     completeLesson,
     advanceLesson,
     setLessonStage,
     completePractice,
+    completeEncore,
     goToLesson,
     resetProgress,
   }
