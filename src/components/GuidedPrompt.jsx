@@ -76,6 +76,19 @@ export default function GuidedPrompt({ lessonId, onExit, onDone, flowLabel }) {
         </p>
       </header>
 
+      {/* Plain-language guide — readable by a child or an elder */}
+      {!result && (
+        <div className="rounded-xl border border-cue-dim bg-cue/5 p-4 text-sm leading-relaxed">
+          <p className="text-ink">
+            <span className="font-semibold text-cue">How this works:</span>{' '}
+            We wrote most of the message for you. Fill in the empty boxes
+            with your details — the grey text inside each box tells you what
+            goes there. When every box is filled, press{' '}
+            <span className="text-cue">Check my prompt</span>.
+          </p>
+        </div>
+      )}
+
       {/* Scenario */}
       <div className="rounded-xl border border-line bg-surface p-4 text-sm leading-relaxed">
         <p className="text-muted">{content.scenario}</p>

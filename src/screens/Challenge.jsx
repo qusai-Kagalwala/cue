@@ -142,6 +142,18 @@ export default function Challenge({ onNavigate }) {
           </h1>
         </header>
 
+        {/* Plain-language guide — the real attempt, explained simply */}
+        {status === 'idle' && (
+          <div className="rounded-xl border border-cue-dim bg-cue/5 p-4 text-sm leading-relaxed">
+            <p className="text-ink">
+              <span className="font-semibold text-cue">The real attempt:</span>{' '}
+              You practiced twice — now write your best message on your own.
+              The AI will read it, give it a score out of 100, and show you
+              how to make it even better. This one earns XP. Take your time.
+            </p>
+          </div>
+        )}
+
         <section className="rounded-xl border border-line bg-surface">
           <button
             onClick={() => setConceptOpen((v) => !v)}

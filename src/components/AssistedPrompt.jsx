@@ -54,6 +54,20 @@ export default function AssistedPrompt({ lessonId, onExit, onDone, flowLabel }) 
         </p>
       </header>
 
+      {/* Plain-language guide — readable by a child or an elder */}
+      {!result && (
+        <div className="rounded-xl border border-cue-dim bg-cue/5 p-4 text-sm leading-relaxed">
+          <p className="text-ink">
+            <span className="font-semibold text-cue">How this works:</span>{' '}
+            This time you write the whole message yourself. As you type,
+            watch the checklist below the box — circles turn into{' '}
+            <span className="text-good">✓</span> ticks as your message gets
+            better. The <span className="text-cue">★</span> shows what this
+            lesson cares about most. Press Check when you're happy.
+          </p>
+        </div>
+      )}
+
       {/* Scenario */}
       <div className="rounded-xl border border-line bg-surface p-4 text-sm leading-relaxed">
         <p className="text-muted">{content.scenario}</p>
