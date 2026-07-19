@@ -20,12 +20,13 @@ export default function Playbill() {
       </p>
 
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {playbill.map((a) => (
+        {playbill.map((a, i) => (
           <li
             key={a.id}
+            style={a.earned ? { '--stamp-i': i } : undefined}
             className={`rounded-xl border p-3 text-center transition-colors ${
               a.earned
-                ? 'border-cue-dim bg-cue/5'
+                ? 'cue-stamp border-cue-dim bg-cue/5'
                 : 'border-line bg-surface opacity-60'
             }`}
           >

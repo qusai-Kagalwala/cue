@@ -132,3 +132,97 @@ body {
     box-shadow: none;
   }
 }
+
+/* v2-16 — Animations. CSS-only, transform/opacity only (zero layout
+   shift), and the ENTIRE block lives inside no-preference: with
+   prefers-reduced-motion set, none of these exist and everything
+   renders instantly in its final state. */
+@media (prefers-reduced-motion: no-preference) {
+
+  /* Score reveal: arc draws from empty to the score (ScoreDial sets
+     --dial-circ and --dial-gap inline); number rises in after. */
+  .cue-dial-arc {
+    stroke-dasharray: 0 var(--dial-circ);
+    animation: cue-dial-fill 800ms cubic-bezier(0.22, 1, 0.36, 1) 150ms forwards;
+  }
+
+  @keyframes cue-dial-fill {
+    to {
+      stroke-dasharray: var(--dial-fill) var(--dial-gap);
+    }
+  }
+
+  .cue-dial-num {
+    opacity: 0;
+    transform: translateY(4px);
+    animation: cue-rise 400ms ease-out 500ms forwards;
+  }
+
+  /* XP toast: pop in, then the amount nudges up once. */
+  .cue-toast {
+    opacity: 0;
+    transform: scale(0.92);
+    animation: cue-pop 350ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .cue-xp-amount {
+    display: inline-block;
+    animation: cue-tick 500ms ease-out 350ms backwards;
+  }
+
+  @keyframes cue-tick {
+    0% {
+      transform: translateY(8px);
+      opacity: 0;
+    }
+
+    60% {
+      transform: translateY(-2px);
+      opacity: 1;
+    }
+
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  /* Playbill: earned stickers stamp down, staggered via --stamp-i. */
+  .cue-stamp {
+    opacity: 0;
+    transform: scale(1.35) rotate(-4deg);
+    animation: cue-stamp-in 400ms cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+    animation-delay: calc(var(--stamp-i, 0) * 70ms);
+  }
+
+  @keyframes cue-stamp-in {
+    to {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
+  /* Curtain transition: each screen enters with a soft rise. */
+  .cue-screen-enter {
+    animation: cue-rise 280ms ease-out;
+  }
+
+  /* Shared */
+  @keyframes cue-rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes cue-pop {
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}

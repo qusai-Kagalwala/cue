@@ -22,7 +22,7 @@ export default function XPToast({ award }) {
 
   if (award.leveledUp) {
     return (
-      <div className="rounded-xl border border-cue bg-cue/10 px-4 py-3 text-center">
+      <div className="cue-toast rounded-xl border border-cue bg-cue/10 px-4 py-3 text-center">
         <p className="font-display text-lg font-bold text-cue">
           Level {award.newLevel}{name ? `, ${name}` : ''} 🎭
         </p>
@@ -34,8 +34,8 @@ export default function XPToast({ award }) {
   }
 
   return (
-    <p className="text-center font-mono text-sm text-cue">
-      +{award.xpGained} XP
+    <p className="cue-toast text-center font-mono text-sm text-cue">
+      <span className="cue-xp-amount">+{award.xpGained} XP</span>
       <span className="text-muted"> · {breakdown}</span>
     </p>
   )

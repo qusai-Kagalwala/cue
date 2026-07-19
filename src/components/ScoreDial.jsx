@@ -16,17 +16,25 @@ export default function ScoreDial({ score, offline = false }) {
     <div className="relative h-24 w-24 shrink-0" role="img" aria-label={`Score ${clamped} out of 100`}>
       <svg viewBox="0 0 80 80" className="h-full w-full -rotate-90">
         <circle cx="40" cy="40" r={R} fill="none" stroke="var(--color-raised)" strokeWidth="6" />
+        {/* v2-16 — the reveal: CSS animates dasharray from empty to the
+            score using the vars below; under reduced-motion the class
+            does nothing and the inline dasharray renders instantly. */}
         <circle
+          className="cue-dial-arc"
           cx="40" cy="40" r={R} fill="none"
           stroke={offline ? 'var(--color-faint)' : tone}
           strokeWidth="6"
           strokeLinecap="round"
           strokeDasharray={`${filled} ${CIRC - filled}`}
-          style={{ transition: 'stroke-dasharray 700ms ease-out' }}
+          style={{
+            '--dial-circ': CIRC,
+            '--dial-fill': filled,
+            '--dial-gap': CIRC - filled,
+          }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-display text-2xl font-bold">{clamped}</span>
+        <span className="cue-dial-num font-display text-2xl font-bold">{clamped}</span>
         <span className="font-mono text-[10px] text-faint">/ 100</span>
       </div>
     </div>
