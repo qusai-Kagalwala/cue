@@ -7,7 +7,7 @@
 import { useState } from 'react'
 import { BEATS } from '../lib/screens'
 import { PERSONAS } from '../data/lessons'
-import { updateState } from '../lib/storage'
+import { loadState, updateState } from '../lib/storage'
 import { setPersona } from '../hooks/useProgress'
 import { scoreWithRubric } from '../lib/rubric'
 import { auditionRank } from '../lib/ranks'
@@ -224,18 +224,78 @@ function WhyBeat({ onNext }) {
   )
 }
 
-// ---- Beat 5: persona pick (merges with T2.3's flow) ---------------------
+// ---- Beat 5: persona pick + v2-7 matcher (one Gemini call, once ever) ----
 function PersonaBeat({ onNext }) {
+  const [description, setDescription] = useState('')
+  const [matching, setMatching] = useState(false)
+  const [matchFailed, setMatchFailed] = useState(false)
+  // Once-ever flag: read at mount; ANY attempt (success or fail) sets it.
+  const [matcherAvailable] = useState(() => !loadState().matcherUsed)
+
   function pick(id) {
     setPersona(id) // same store action the inline picker uses — the
     onNext()       // Challenge picker then never shows (persona !== null)
   }
+
+  async function matchMe() {
+    if (matching || description.trim().length < 3) return
+    setMatching(true)
+    updateState({ matcherUsed: true }) // burn the flag BEFORE the call —
+    // a refresh mid-flight must not grant a second shot
+    try {
+      const res = await fetch('/api/evaluate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'persona', selfDescription: description }),
+      })
+      const body = await res.json()
+      const p = body?.result?.persona
+      if (!res.ok || !['student', 'everyday', 'professional'].includes(p)) {
+        throw new Error('bad classification')
+      }
+      pick(p) // classified → set + advance, same path as a manual tap
+    } catch {
+      setMatchFailed(true) // chips below are the fallback — always visible
+      setMatching(false)
+    }
+  }
+
   return (
     <div className="space-y-5 text-center">
       <h2 className="font-display text-2xl font-semibold">
         Who’s taking the stage tonight?
       </h2>
       <p className="text-sm text-muted">Examples read better in your world.</p>
+
+      {/* v2-7 — the matcher: describe yourself, let the AI pick the track */}
+      {matcherAvailable && !matchFailed && (
+        <div className="space-y-2">
+          <input
+            value={description}
+            maxLength={300}
+            onChange={(e) => setDescription(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && matchMe()}
+            placeholder="One line about your life — e.g. 'retired teacher, love cooking'"
+            aria-label="Describe yourself for track matching, optional"
+            className="w-full rounded-xl border border-line bg-raised p-3 text-center font-mono text-sm placeholder:text-faint focus:border-cue-dim"
+          />
+          <button
+            onClick={matchMe}
+            disabled={matching || description.trim().length < 3}
+            className="rounded-lg border border-cue-dim px-5 py-2 text-sm text-cue transition-colors hover:bg-cue/10 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {matching ? 'reading the room…' : '✨ Match me to a track'}
+          </button>
+          <p className="font-mono text-[10px] text-faint">
+            or pick for yourself below
+          </p>
+        </div>
+      )}
+      {matchFailed && (
+        <p className="font-mono text-xs text-muted">
+          The matcher couldn't decide — pick your track below.
+        </p>
+      )}
       <div className="flex flex-wrap justify-center gap-2">
         {PERSONAS.map((p) => (
           <button

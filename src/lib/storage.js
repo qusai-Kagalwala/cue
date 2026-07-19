@@ -19,6 +19,7 @@ export const DEFAULT_STATE = Object.freeze({
   currentLessonIndex: 0,
   lessonStage: 'guided',         // flow: guided → assisted → solo (assessment)
   practicePaid: [],              // 'l1:guided' entries — each tier pays ONCE ever
+  matcherUsed: false,            // v2-7 — the persona matcher fires once, ever
   xp: 0,
   level: 1,
   streak: { count: 0, lastActiveDate: null },
