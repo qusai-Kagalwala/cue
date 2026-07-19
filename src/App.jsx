@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { SCREENS } from './lib/screens'
 import { warmUpProxy } from './lib/gemini'
 import { loadState, updateState } from './lib/storage'
+import { useProgress } from './hooks/useProgress'
 import OpeningAct from './screens/OpeningAct'
 import TopBar from './components/TopBar'
 import Challenge from './screens/Challenge'
@@ -20,6 +21,12 @@ import Settings from './screens/Settings'
 
 export default function App() {
   const [screen, setScreen] = useState(SCREENS.CHALLENGE)
+  const { theme } = useProgress()
+
+  // v2-15 — the theme rides on <html data-theme>; CSS does the rest
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme === 'light' ? 'light' : ''
+  }, [theme])
   const [practiceLessonId, setPracticeLessonId] = useState(null) // v2-5c
 
   function openPractice(lessonId, tier) {

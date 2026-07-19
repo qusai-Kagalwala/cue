@@ -11,7 +11,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import { downloadExport, validateImport, applyImport } from '../lib/portability'
 
 export default function Settings({ onNavigate }) {
-  const { persona, setPersona, resetProgress } = useProgress()
+  const { persona, setPersona, resetProgress, level, theme, setTheme } = useProgress()
   const [confirming, setConfirming] = useState(false)
   const [importError, setImportError] = useState(null)
   const [importReady, setImportReady] = useState(null) // validated file waiting for confirm
@@ -103,12 +103,41 @@ export default function Settings({ onNavigate }) {
         )}
       </section>
 
-      {/* Theme */}
-      <section className="space-y-1">
-        <h2 className="font-display font-semibold">Theme</h2>
-        <p className="text-sm text-muted">
-          Dark only — the house lights stay down. 🎭
-        </p>
+      {/* v2-15 — Theme: light is the Level 3 unlock */}
+      <section className="space-y-3">
+        <div>
+          <h2 className="font-display font-semibold">Theme</h2>
+          <p className="text-sm text-muted">
+            {level >= 3
+              ? 'House lights up or down — your call.'
+              : 'The light theme unlocks at Level 3. Dark suits the stage until then.'}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {[
+            ['dark', '🌙 Dark', true],
+            ['light', '☀️ Light', level >= 3],
+          ].map(([id, label, unlocked]) => {
+            const active = theme === id
+            return (
+              <button
+                key={id}
+                onClick={() => unlocked && setTheme(id)}
+                disabled={!unlocked}
+                aria-pressed={active}
+                className={`rounded-full border px-4 py-2 text-sm transition-colors ${
+                  active
+                    ? 'border-cue bg-cue/10 text-cue'
+                    : unlocked
+                      ? 'border-line bg-raised text-ink hover:border-cue-dim hover:text-cue'
+                      : 'cursor-not-allowed border-line bg-surface text-faint'
+                }`}
+              >
+                {unlocked ? label : `🔒 ${label.split(' ')[1]} · Lv 3`}
+              </button>
+            )
+          })}
+        </div>
       </section>
 
       {/* Danger zone */}

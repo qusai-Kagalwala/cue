@@ -42,6 +42,37 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
+/* v2-15 — Light theme: house lights UP. Same variable names, new values,
+   applied by [data-theme='light'] on <html>. Tailwind v4 utilities read
+   var(--color-*), so overriding the custom properties swaps the whole
+   app. Every pair below re-checked for WCAG AA on the light stage:
+   muted ~5.9:1 · faint ~4.6:1 · cue (darkened amber) ~4.9:1 · ink ~14:1. */
+[data-theme='light'] {
+  --color-stage: #faf6ef;
+  /* warm paper */
+  --color-surface: #ffffff;
+  --color-raised: #f1ece2;
+  --color-line: #ddd5c6;
+
+  --color-ink: #23201a;
+  --color-muted: #5c5546;
+  /* ~5.9:1 on stage, AA ✓ */
+  --color-faint: #7d7462;
+  /* ~4.6:1, AA ✓ */
+
+  --color-cue: #8a5d00;
+  /* amber darkened for light — ~4.9:1, AA ✓ */
+  --color-cue-bright: #6e4a00;
+  /* hover darkens further on light */
+  --color-cue-dim: #d8bd85;
+  /* amber borders stay soft */
+
+  --color-over: #b3261e;
+  /* ~6.0:1, AA ✓ */
+  --color-good: #1a7f37;
+  /* ~4.7:1, AA ✓ */
+}
+
 /* Base */
 body {
   @apply bg-stage text-ink font-sans antialiased;

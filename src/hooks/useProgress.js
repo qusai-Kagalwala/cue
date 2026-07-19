@@ -148,6 +148,14 @@ export function completeEncore(score) {
   return { xpGained, leveledUp, newLevel: level, isReplay: false, encore: true }
 }
 
+/** v2-15 — theme switch. Light is a Level 3 unlock (the XP sink):
+    below the gate the request is ignored, dark stays. */
+export function setTheme(theme) {
+  if (theme === 'light' && state.level < 3) return
+  if (theme !== 'light' && theme !== 'dark') return
+  setState({ theme })
+}
+
 /** Set the current lesson's flow stage: 'guided' | 'assisted' | 'solo'. */
 export function setLessonStage(stage) {
   setState({ lessonStage: stage })
@@ -194,6 +202,7 @@ export function useProgress() {
     totalLessons: TOTAL_LESSONS,
     encoreDoneToday: s.encoreDone === todayKey(),
     dailyDoneToday: s.dailyDone === todayKey(),
+    theme: s.theme ?? 'dark',
     dailyLessonIndex: dailyLessonIndexFor(todayKey(), TOTAL_LESSONS),
     // actions
     setPersona,
@@ -202,6 +211,7 @@ export function useProgress() {
     setLessonStage,
     completePractice,
     completeEncore,
+    setTheme,
     goToLesson,
     resetProgress,
   }
