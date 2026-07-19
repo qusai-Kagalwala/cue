@@ -100,10 +100,63 @@ export function resetState() {
     localStorage.removeItem(KEY)
     localStorage.removeItem(ATTEMPTS_KEY) // reset wipes history too
     localStorage.removeItem('cue:sandbox:v1') // sandbox quota resets with everything else
+    localStorage.removeItem('cue:library:v1') // the library goes with everything else
   } catch {
     /* ignore */
   }
   return freshState()
+}
+
+// ---------- v2-11: prompt library (best work, kept) ----------
+
+const LIBRARY_KEY = 'cue:library:v1'
+const MAX_LIBRARY = 50
+export const LIBRARY_THRESHOLD = 58 // the rubric's "high" band floor
+
+/** Read the library, newest first. Never throws; corrupt/missing → []. */
+export function loadLibrary() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(LIBRARY_KEY))
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Save a winning prompt. Dedupes on exact prompt text (replays of the
+ * same words don't multiply); cap enforced OLDEST-OUT (slice keeps the
+ * newest 50). Returns true if saved, false if duplicate/failed.
+ */
+export function saveToLibrary({ lessonId, title, prompt, score }) {
+  const library = loadLibrary()
+  const text = (prompt ?? '').trim()
+  if (!text) return false
+  if (library.some((e) => e.prompt === text)) return false
+  library.unshift({
+    lessonId,
+    title,
+    prompt: text,
+    score,
+    timestamp: new Date().toISOString(),
+  })
+  try {
+    localStorage.setItem(LIBRARY_KEY, JSON.stringify(library.slice(0, MAX_LIBRARY)))
+    return true
+  } catch (err) {
+    console.warn('[cue] could not save to library.', err)
+    return false
+  }
+}
+
+/** Remove one entry by its timestamp (the stable id). */
+export function removeFromLibrary(timestamp) {
+  const library = loadLibrary().filter((e) => e.timestamp !== timestamp)
+  try {
+    localStorage.setItem(LIBRARY_KEY, JSON.stringify(library))
+  } catch {
+    /* ignore */
+  }
 }
 
 // ---------- T-fix-1: attempt history (append-only) ----------

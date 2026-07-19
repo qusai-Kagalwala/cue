@@ -12,7 +12,7 @@
 import { useRef, useState } from 'react'
 import { evaluateWithRetry } from '../lib/gemini'
 import { heuristicEvaluate } from '../lib/heuristic'
-import { appendAttempt } from '../lib/storage'
+import { appendAttempt, saveToLibrary, LIBRARY_THRESHOLD } from '../lib/storage'
 import { completeLesson } from './useProgress'
 
 /** djb2 — tiny, fast, plenty for dedup (not crypto, doesn't need to be). */
@@ -71,6 +71,16 @@ export function useEvaluation() {
         score: evaluation.score,
         engine: evaluation.offline ? 'heuristic' : (evaluation.model ?? 'unknown'),
       })
+      // v2-11 — real high scores earn a place in the library (never
+      // heuristic estimates: the library canonizes judged work only)
+      if (!evaluation.offline && evaluation.score >= LIBRARY_THRESHOLD) {
+        saveToLibrary({
+          lessonId: lesson.id,
+          title: lesson.title,
+          prompt: userPrompt,
+          score: evaluation.score,
+        })
+      }
       lastEval.current = { hash, result: evaluation, award: xpAward }
 
       setResult(evaluation)

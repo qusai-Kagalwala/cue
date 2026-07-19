@@ -9,6 +9,7 @@ export const SCREENS = {
   GUIDED: 'guided',
   ASSISTED: 'assisted',
   ENCORE: 'encore',
+  LIBRARY: 'library',
   SETTINGS: 'settings',
 }
 

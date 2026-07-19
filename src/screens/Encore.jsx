@@ -9,7 +9,7 @@ import { todayKey } from '../lib/xp'
 import { encoreForDate } from '../data/encore'
 import { evaluateWithRetry } from '../lib/gemini'
 import { heuristicEvaluate } from '../lib/heuristic'
-import { appendAttempt } from '../lib/storage'
+import { appendAttempt, saveToLibrary, LIBRARY_THRESHOLD } from '../lib/storage'
 import PromptInput from '../components/PromptInput'
 import CurtainLoader from '../components/CurtainLoader'
 import ResultsPanel from '../components/ResultsPanel'
@@ -76,6 +76,14 @@ export default function Encore({ onExit }) {
       score: evaluation.score,
       engine: evaluation.offline ? 'heuristic' : (evaluation.model ?? 'unknown'),
     })
+    if (!evaluation.offline && evaluation.score >= LIBRARY_THRESHOLD) {
+      saveToLibrary({
+        lessonId: 'encore',
+        title: `Encore · ${boss.title}`,
+        prompt,
+        score: evaluation.score,
+      })
+    }
     // 100 base + bonus, ONCE per day (null if already claimed today)
     setAward(completeEncore(evaluation.offline ? 0 : evaluation.score))
     setResult(evaluation)

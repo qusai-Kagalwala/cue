@@ -13,6 +13,7 @@ import LessonMap from './screens/LessonMap'
 import Sandbox from './screens/Sandbox'
 import GuidedPrompt from './components/GuidedPrompt'
 import Encore from './screens/Encore'
+import Library from './screens/Library'
 import AssistedPrompt from './components/AssistedPrompt'
 import Settings from './screens/Settings'
 
@@ -57,6 +58,7 @@ export default function App() {
             onExit={() => setScreen(SCREENS.MAP)}
           />
         )}
+        {screen === SCREENS.LIBRARY && <Library />}
         {screen === SCREENS.ENCORE && (
           <Encore onExit={() => setScreen(SCREENS.MAP)} />
         )}
