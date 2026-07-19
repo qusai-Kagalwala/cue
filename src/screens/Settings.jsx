@@ -141,6 +141,23 @@ export default function Settings({ onNavigate }) {
       </section>
 
       {/* Danger zone */}
+      {/* v2-18 — The Programme */}
+      <section className="space-y-2">
+        <div>
+          <h2 className="font-display font-semibold">About Cue</h2>
+          <p className="text-sm text-muted">
+            New here, or showing someone around? The Programme is the full
+            guide — every feature, where to find it, how to use it.
+          </p>
+        </div>
+        <button
+          onClick={() => onNavigate(SCREENS.PROGRAMME)}
+          className="rounded-lg border border-cue-dim px-5 py-2 text-sm text-cue transition-colors hover:bg-cue/10"
+        >
+          🎭 Open the Programme
+        </button>
+      </section>
+
       {/* v2-14 — Your data: export / import */}
       <section className="space-y-3">
         <div>

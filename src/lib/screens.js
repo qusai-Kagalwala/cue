@@ -11,6 +11,7 @@ export const SCREENS = {
   ENCORE: 'encore',
   LIBRARY: 'library',
   PROGRESS: 'progress',
+  PROGRAMME: 'programme',
   SETTINGS: 'settings',
 }
 

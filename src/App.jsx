@@ -16,6 +16,7 @@ import GuidedPrompt from './components/GuidedPrompt'
 import Encore from './screens/Encore'
 import Library from './screens/Library'
 import SeasonReport from './screens/SeasonReport'
+import Programme from './screens/Programme'
 import AssistedPrompt from './components/AssistedPrompt'
 import Settings from './screens/Settings'
 
@@ -55,7 +56,10 @@ export default function App() {
     <div className="min-h-dvh bg-stage">
       <TopBar screen={screen} onNavigate={setScreen} />
 
-      <main className="mx-auto max-w-5xl px-4 pb-12 pt-6 lg:px-6">
+      <main
+        key={screen}
+        className="cue-screen-enter mx-auto max-w-5xl px-4 pb-12 pt-6 lg:px-6"
+      >
         {screen === SCREENS.CHALLENGE && <Challenge onNavigate={setScreen} />}
         {screen === SCREENS.MAP && (
           <LessonMap onNavigate={setScreen} onPractice={openPractice} />
@@ -68,6 +72,7 @@ export default function App() {
         )}
         {screen === SCREENS.LIBRARY && <Library />}
         {screen === SCREENS.PROGRESS && <SeasonReport />}
+        {screen === SCREENS.PROGRAMME && <Programme />}
         {screen === SCREENS.ENCORE && (
           <Encore onExit={() => setScreen(SCREENS.MAP)} />
         )}

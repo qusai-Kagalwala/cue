@@ -219,6 +219,9 @@ export default function Completion({ onGoToMap }) {
         Replay any lesson →
       </button>
       <p className="font-mono text-xs text-faint">
+        wondering what else Cue can do? Settings → 🎭 the Programme
+      </p>
+      <p className="font-mono text-xs text-faint">
         replays can raise your best scores · half XP
       </p>
     </div>
