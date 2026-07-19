@@ -54,6 +54,25 @@ export default function AssistedPrompt({ lessonId, onExit, onDone, flowLabel }) 
         </p>
       </header>
 
+      {/* The idea — same teaching point the assessment shows, here from
+          the first rung. Concept + the takeaway rule to remember. */}
+      <section className="rounded-xl border border-line bg-surface p-4 sm:px-5">
+        <p className="mb-1 text-xs uppercase tracking-widest text-faint">
+          The idea
+        </p>
+        <p className="max-w-[65ch] leading-relaxed text-muted">
+          {meta.concept}
+        </p>
+        {meta.takeaway && (
+          <p className="mt-2 border-l-2 border-cue-dim pl-3 text-sm italic leading-relaxed text-muted">
+            <span className="not-italic font-mono text-xs uppercase tracking-widest text-faint">
+              remember ·{' '}
+            </span>
+            {meta.takeaway}
+          </p>
+        )}
+      </section>
+
       {/* Plain-language guide — readable by a child or an elder */}
       {!result && (
         <div className="rounded-xl border border-cue-dim bg-cue/5 p-4 text-sm leading-relaxed">
