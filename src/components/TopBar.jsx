@@ -106,6 +106,19 @@ export default function TopBar({ screen, onNavigate }) {
             </svg>
           </IconButton>
 
+          {/* Your Progress */}
+          <IconButton
+            label="Your progress"
+            active={screen === SCREENS.PROGRESS}
+            onClick={() => onNavigate(SCREENS.PROGRESS)}
+          >
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor"
+              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M3 3v18h18" />
+              <path d="M7 14l4-4 3 3 5-6" />
+            </svg>
+          </IconButton>
+
           {/* Settings */}
           <IconButton
             label="Settings"

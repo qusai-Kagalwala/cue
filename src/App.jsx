@@ -14,6 +14,7 @@ import Sandbox from './screens/Sandbox'
 import GuidedPrompt from './components/GuidedPrompt'
 import Encore from './screens/Encore'
 import Library from './screens/Library'
+import SeasonReport from './screens/SeasonReport'
 import AssistedPrompt from './components/AssistedPrompt'
 import Settings from './screens/Settings'
 
@@ -59,6 +60,7 @@ export default function App() {
           />
         )}
         {screen === SCREENS.LIBRARY && <Library />}
+        {screen === SCREENS.PROGRESS && <SeasonReport />}
         {screen === SCREENS.ENCORE && (
           <Encore onExit={() => setScreen(SCREENS.MAP)} />
         )}
