@@ -11,6 +11,7 @@ import { useProgress } from '../hooks/useProgress'
 import { loadAttempts, loadState, updateState } from '../lib/storage'
 import { LESSONS } from '../data/lessons'
 import { AUDITION_TASK } from '../data/audition'
+import { RESOURCES } from '../data/resources'
 import { scoreWithRubric } from '../lib/rubric'
 import { rankForLevel } from '../lib/ranks'
 import ShareCard from '../components/ShareCard'
@@ -113,7 +114,7 @@ function CallbackSlot({ level }) {
 }
 
 export default function Completion({ onGoToMap }) {
-  const { xp, level, xpToNext, streak, lessonScores, totalLessons, name } =
+  const { xp, level, xpToNext, streak, lessonScores, totalLessons, name, persona } =
     useProgress()
   const attemptCount = loadAttempts().length
 
@@ -179,6 +180,37 @@ export default function Completion({ onGoToMap }) {
 
       {/* v2-4a — the Audition callback (renders only post-Audition) */}
       <CallbackSlot level={level} />
+
+      {/* v2-6 — keep learning: curated next steps for YOUR persona */}
+      <section className="space-y-3 text-left">
+        <p className="text-center font-mono text-xs uppercase tracking-widest text-faint">
+          keep learning
+        </p>
+        <ul className="space-y-2">
+          {(RESOURCES[persona] ?? RESOURCES.everyday).map((r) => (
+            <li key={r.url}>
+              <a
+                href={r.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block rounded-xl border border-line bg-surface p-4 transition-colors hover:border-cue-dim"
+              >
+                <p className="font-medium text-ink">
+                  {r.title}{' '}
+                  <span className="font-mono text-xs text-faint">↗</span>
+                </p>
+                <p className="font-mono text-xs text-cue">{r.provider}</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted">
+                  {r.note}
+                </p>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p className="text-center font-mono text-[10px] text-faint">
+          free or free-to-audit · picked for the {persona ?? 'everyday'} track
+        </p>
+      </section>
 
       <button
         onClick={onGoToMap}
