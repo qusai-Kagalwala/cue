@@ -11,10 +11,17 @@ import TopBar from './components/TopBar'
 import Challenge from './screens/Challenge'
 import LessonMap from './screens/LessonMap'
 import Sandbox from './screens/Sandbox'
+import GuidedPrompt from './components/GuidedPrompt'
 import Settings from './screens/Settings'
 
 export default function App() {
   const [screen, setScreen] = useState(SCREENS.CHALLENGE)
+  const [practiceLessonId, setPracticeLessonId] = useState(null) // v2-5c
+
+  function openGuided(lessonId) {
+    setPracticeLessonId(lessonId)
+    setScreen(SCREENS.GUIDED)
+  }
   // v2-3a — read once at mount; completing the act flips both.
   const [showOpening, setShowOpening] = useState(
     () => !loadState().openingActDone
@@ -39,7 +46,15 @@ export default function App() {
 
       <main className="mx-auto max-w-5xl px-4 pb-12 pt-6 lg:px-6">
         {screen === SCREENS.CHALLENGE && <Challenge onNavigate={setScreen} />}
-        {screen === SCREENS.MAP && <LessonMap onNavigate={setScreen} />}
+        {screen === SCREENS.MAP && (
+          <LessonMap onNavigate={setScreen} onPractice={openGuided} />
+        )}
+        {screen === SCREENS.GUIDED && practiceLessonId && (
+          <GuidedPrompt
+            lessonId={practiceLessonId}
+            onExit={() => setScreen(SCREENS.MAP)}
+          />
+        )}
         {screen === SCREENS.SANDBOX && <Sandbox />}
         {screen === SCREENS.SETTINGS && <Settings onNavigate={setScreen} />}
       </main>

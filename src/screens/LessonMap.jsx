@@ -20,7 +20,7 @@ function LockIcon() {
   )
 }
 
-export default function LessonMap({ onNavigate }) {
+export default function LessonMap({ onNavigate, onPractice }) {
   const { currentLessonIndex, lessonScores } = useProgress()
 
   // Highest done index +1 stays unlocked even if the queue pointer
@@ -56,7 +56,7 @@ export default function LessonMap({ onNavigate }) {
           const locked = !done && i > unlockedThrough
 
           return (
-            <li key={lesson.id}>
+            <li key={lesson.id} className="space-y-1.5">
               <button
                 onClick={() => !locked && handleReplay(i)}
                 disabled={locked}
@@ -107,6 +107,18 @@ export default function LessonMap({ onNavigate }) {
                   </span>
                 )}
               </button>
+
+              {/* v2-5c — practice tiers (no XP); assisted joins in v2-5d */}
+              {!locked && onPractice && (
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => onPractice(lesson.id)}
+                    className="rounded-full border border-line px-3 py-1 font-mono text-[11px] text-muted transition-colors hover:border-cue-dim hover:text-cue"
+                  >
+                    ✎ guided practice
+                  </button>
+                </div>
+              )}
             </li>
           )
         })}

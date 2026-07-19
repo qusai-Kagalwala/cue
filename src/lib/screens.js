@@ -6,6 +6,7 @@ export const SCREENS = {
   CHALLENGE: 'challenge',
   MAP: 'map',
   SANDBOX: 'sandbox',
+  GUIDED: 'guided',
   SETTINGS: 'settings',
 }
 
