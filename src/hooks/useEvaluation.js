@@ -70,6 +70,7 @@ export function useEvaluation() {
         lessonId: lesson.id,
         score: evaluation.score,
         engine: evaluation.offline ? 'heuristic' : (evaluation.model ?? 'unknown'),
+        prompt: userPrompt,
       })
       // v2-11 — real high scores earn a place in the library (never
       // heuristic estimates: the library canonizes judged work only)

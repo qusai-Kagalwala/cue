@@ -75,6 +75,7 @@ export default function Encore({ onExit }) {
       lessonId: 'encore',
       score: evaluation.score,
       engine: evaluation.offline ? 'heuristic' : (evaluation.model ?? 'unknown'),
+      prompt,
     })
     if (!evaluation.offline && evaluation.score >= LIBRARY_THRESHOLD) {
       saveToLibrary({

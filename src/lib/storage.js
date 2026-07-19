@@ -178,12 +178,15 @@ export function loadAttempts() {
  * entry: { lessonId, score, engine } — timestamp + attemptNumber added here.
  * attemptNumber counts prior attempts for the SAME lesson (1-based).
  */
-export function appendAttempt({ lessonId, score, engine }) {
+export function appendAttempt({ lessonId, score, engine, prompt = null }) {
   const attempts = loadAttempts()
   const entry = {
     lessonId,
     score,
     engine,
+    // v2-17a rider — truncated prompt makes history calibratable; the
+    // original logger skipped it (storage weight) and calibration paid.
+    ...(prompt ? { prompt: String(prompt).slice(0, 500) } : {}),
     timestamp: new Date().toISOString(),
     attemptNumber: attempts.filter((a) => a.lessonId === lessonId).length + 1,
   }
