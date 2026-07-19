@@ -18,6 +18,7 @@ export const DEFAULT_STATE = Object.freeze({
   callbackAttempt: null,         // v2-4a — the "after", written on the finale
   currentLessonIndex: 0,
   lessonStage: 'guided',         // flow: guided → assisted → solo (assessment)
+  practicePaid: [],              // 'l1:guided' entries — each tier pays ONCE ever
   xp: 0,
   level: 1,
   streak: { count: 0, lastActiveDate: null },

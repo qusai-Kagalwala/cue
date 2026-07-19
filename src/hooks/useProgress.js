@@ -84,6 +84,30 @@ export function advanceLesson() {
   }
 }
 
+/**
+ * Small completion reward for practice tiers: +5 guided, +10 assisted,
+ * paid ONCE per lesson per tier, ever (anti-farming: repeat checks and
+ * "try different fills" pay nothing). No score bonus — this rewards the
+ * achievement of finishing, not the number. Streak counts: practice is
+ * real activity. Returns an XPToast-shaped award, or null if already paid.
+ */
+const PRACTICE_XP = { guided: 5, assisted: 10 }
+
+export function completePractice(lessonId, tier) {
+  const key = `${lessonId}:${tier}`
+  const paid = state.practicePaid ?? []
+  if (paid.includes(key)) return null
+
+  const xpGained = PRACTICE_XP[tier] ?? 0
+  const xp = state.xp + xpGained
+  const level = levelFor(xp)
+  const leveledUp = level > state.level
+  const streak = applyStreak(state.streak, todayKey())
+
+  setState({ xp, level, streak, practicePaid: [...paid, key] })
+  return { xpGained, leveledUp, newLevel: level, isReplay: false, practice: true }
+}
+
 /** Set the current lesson's flow stage: 'guided' | 'assisted' | 'solo'. */
 export function setLessonStage(stage) {
   setState({ lessonStage: stage })
@@ -133,6 +157,7 @@ export function useProgress() {
     completeLesson,
     advanceLesson,
     setLessonStage,
+    completePractice,
     goToLesson,
     resetProgress,
   }

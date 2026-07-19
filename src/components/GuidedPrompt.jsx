@@ -6,7 +6,7 @@
 // logged — practice tiers leave no trace in the economy (tripwire).
 
 import { useState } from 'react'
-import { useProgress } from '../hooks/useProgress'
+import { useProgress, completePractice } from '../hooks/useProgress'
 import { getLesson } from '../data/lessons'
 import { GUIDED } from '../data/scenarios.guided'
 import { scoreWithRubric } from '../lib/rubric'
@@ -21,6 +21,7 @@ export default function GuidedPrompt({ lessonId, onExit, onDone, flowLabel }) {
   const blanks = content.skeleton.filter((p) => p.blank)
   const [values, setValues] = useState(() => blanks.map(() => ''))
   const [result, setResult] = useState(null)
+  const [award, setAward] = useState(null)
 
   if (!meta || !content) return null
 
@@ -44,7 +45,9 @@ export default function GuidedPrompt({ lessonId, onExit, onDone, flowLabel }) {
       tokenBudget: null,
     }
     setResult(scoreWithRubric(shell, assembled())) // zero quota
-    // NO completeLesson, NO appendAttempt — guided leaves no trace.
+    // Small completion reward — once per lesson, ever (null after that).
+    setAward(completePractice(lessonId, 'guided'))
+    // NO completeLesson, NO appendAttempt — the Solo economy stays pure.
   }
 
   function tryAgain() {
@@ -167,7 +170,7 @@ export default function GuidedPrompt({ lessonId, onExit, onDone, flowLabel }) {
         </>
       ) : (
         <>
-          <ResultsPanel result={result} award={null} />
+          <ResultsPanel result={result} award={award} />
           <div className="flex items-center justify-center gap-3">
             <button
               onClick={tryAgain}

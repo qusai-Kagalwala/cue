@@ -9,10 +9,13 @@ export default function XPToast({ award }) {
   const { name } = useProgress()
   if (!award) return null
   const bonus = award.xpGained - BASE_XP
-  // Replays halve the award, so the base+bonus breakdown doesn't apply.
-  const breakdown = award.isReplay
-    ? 'replay · half XP'
-    : `${BASE_XP} base${bonus > 0 ? ` + ${bonus} bonus` : ''}`
+  // Replays halve the award; practice pays a small fixed reward —
+  // neither fits the base+bonus breakdown.
+  const breakdown = award.practice
+    ? 'practice reward · first time only'
+    : award.isReplay
+      ? 'replay · half XP'
+      : `${BASE_XP} base${bonus > 0 ? ` + ${bonus} bonus` : ''}`
 
   if (award.leveledUp) {
     return (

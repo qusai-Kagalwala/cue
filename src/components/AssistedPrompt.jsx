@@ -5,7 +5,7 @@
 // Zero quota, NO XP, no attempt logged (practice tiers leave no trace).
 
 import { useState } from 'react'
-import { useProgress } from '../hooks/useProgress'
+import { useProgress, completePractice } from '../hooks/useProgress'
 import { getLesson } from '../data/lessons'
 import { ASSISTED } from '../data/scenarios.assisted'
 import { scoreWithRubric } from '../lib/rubric'
@@ -21,6 +21,7 @@ export default function AssistedPrompt({ lessonId, onExit, onDone, flowLabel }) 
 
   const [prompt, setPrompt] = useState('')
   const [result, setResult] = useState(null)
+  const [award, setAward] = useState(null)
 
   if (!meta || !content) return null
 
@@ -35,7 +36,9 @@ export default function AssistedPrompt({ lessonId, onExit, onDone, flowLabel }) 
 
   function check() {
     setResult(scoreWithRubric(shell, prompt)) // zero quota
-    // NO completeLesson, NO appendAttempt — assisted leaves no trace.
+    // Small completion reward — once per lesson, ever (null after that).
+    setAward(completePractice(lessonId, 'assisted'))
+    // NO completeLesson, NO appendAttempt — the Solo economy stays pure.
   }
 
   return (
@@ -111,7 +114,7 @@ export default function AssistedPrompt({ lessonId, onExit, onDone, flowLabel }) 
         </>
       ) : (
         <>
-          <ResultsPanel result={result} award={null} />
+          <ResultsPanel result={result} award={award} />
           <div className="flex items-center justify-center gap-3">
             <button
               onClick={() => setResult(null)}
