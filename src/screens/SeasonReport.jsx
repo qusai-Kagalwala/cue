@@ -6,7 +6,9 @@
 // The "Your Progress" shell carries tabs — the Playbill (v2-13) is the
 // sibling; its tab sits here waiting.
 
+import { useState } from 'react'
 import { loadAttempts } from '../lib/storage'
+import Playbill from './Playbill'
 import { LESSONS } from '../data/lessons'
 import {
   coreAttempts,
@@ -89,6 +91,7 @@ function ScoreChart({ attempts }) {
 
 // ---- The report ----------------------------------------------------------
 export default function SeasonReport() {
+  const [tab, setTab] = useState('report') // report | playbill
   const attempts = loadAttempts()
   const chrono = coreAttempts(attempts)
   const trend = trendHeadline(attempts)
@@ -103,20 +106,29 @@ export default function SeasonReport() {
           your progress
         </p>
         {/* Sibling tabs — the Playbill (v2-13) lands beside this */}
-        <div className="flex gap-1 rounded-xl border border-line bg-surface p-1">
-          <span className="flex-1 rounded-lg bg-raised px-3 py-2 text-center text-sm text-cue">
-            Season Report
-          </span>
-          <span
-            className="flex-1 cursor-not-allowed rounded-lg px-3 py-2 text-center text-sm text-faint"
-            title="The Playbill — coming soon"
-          >
-            The Playbill · soon
-          </span>
+        <div role="tablist" aria-label="Your progress" className="flex gap-1 rounded-xl border border-line bg-surface p-1">
+          {[
+            ['report', 'Season Report'],
+            ['playbill', 'The Playbill'],
+          ].map(([id, label]) => (
+            <button
+              key={id}
+              role="tab"
+              aria-selected={tab === id}
+              onClick={() => setTab(id)}
+              className={`flex-1 rounded-lg px-3 py-2 text-center text-sm transition-colors ${
+                tab === id ? 'bg-raised text-cue' : 'text-muted hover:text-ink'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </header>
 
-      {chrono.length === 0 ? (
+      {tab === 'playbill' && <Playbill />}
+
+      {tab === 'report' && (chrono.length === 0 ? (
         <div className="rounded-xl border border-line bg-surface p-6 text-center">
           <p className="text-muted">No performances on record yet.</p>
           <p className="mt-1 font-mono text-xs text-faint">
@@ -184,7 +196,7 @@ export default function SeasonReport() {
             </p>
           )}
         </>
-      )}
+      ))}
     </div>
   )
 }

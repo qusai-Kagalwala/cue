@@ -101,6 +101,7 @@ export function resetState() {
     localStorage.removeItem(ATTEMPTS_KEY) // reset wipes history too
     localStorage.removeItem('cue:sandbox:v1') // sandbox quota resets with everything else
     localStorage.removeItem('cue:library:v1') // the library goes with everything else
+    localStorage.removeItem('cue:playbill:v1') // stickers too — a reset is a reset
   } catch {
     /* ignore */
   }
