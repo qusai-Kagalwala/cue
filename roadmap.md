@@ -1,126 +1,73 @@
 # Cue — Complete Roadmap
 
-**Layers:** this file is strategy · `task.md` is execution (active tickets) ·
-`structure.md` is the file-tree scope fence. v2 items are ticketized lazily,
-one at a time, the day each is built.
+**Layers:** this file is strategy · `task.md` is execution · `structure.md`
+is the file-tree scope fence.
 
 ---
 
-## ✅ v1.0 — SHIPPED, DEMOED, TEACHER-APPROVED (tagged)
+## ✅ v1.0 — SHIPPED, DEMOED, TEACHER-APPROVED
 
-**Core experience**
-- Monkeytype-style zero-friction UX — landing screen IS the challenge screen
-- 8 core lessons × 3 persona variants = 24 hand-written scenarios, Indian
-  everyday contexts, sourced from user interviews
-- Flat lesson queue with auto-continue (25s, tuned from user testing);
-  lesson map secondary with half-XP replays
-- Lesson 8 = Prompt Economy with token budgets; live token counter (chars/4)
-- Per-lesson takeaway line on every result
+Zero-friction core: landing = challenge · 8 lessons × 3 personas, 24
+interview-sourced Indian-context scenarios · serverless Gemini proxy with
+two-model fallback + strict responseSchema · six-dimension rubric scorer
+(the platform) · cold-start handling, dedup, transition-gated XP ·
+attempt-history logger · XP/levels/streaks (tested) · WCAG AA · mobile-
+first with first-class desktop. Full detail in git history at tag `v1.0`.
 
-**Evaluation**
-- Gemini via stateless Vercel serverless proxy (`api/evaluate.js`, key server-side)
-- Two-model fallback chain: `gemini-2.5-flash-lite` → `gemini-2.5-flash` on 429
-- Strict JSON via `responseSchema`; engine mode badge on every result
-- **Rubric scorer (the platform):** six weighted dimensions
-  (role/context/constraints/format/specificity/length), per-lesson weights,
-  seeded feedback templates, dimensions breakdown exposed for v2
-- Cold-start handling: 12s client timeout, warm-up ping on mount,
-  429 → instant fallback, timeout/5xx → one retry with backoff
-- Duplicate-XP fix: transition-gated award + prompt-hash dedup (saves quota)
-- **Attempt-history logger** — {lessonId, score, timestamp, engine,
-  attemptNumber} per evaluation; history accumulating since day one
+## ✅ v2.0 — COMPLETE
 
-**Gamification & platform**
-- XP (50 base + score bonus, Solo only), levels at 100/250/500/1000/2000,
-  streaks; 14 Vitest tests
-- React 19 (Vite) + Tailwind v4, localStorage only, no backend/auth
-- Mobile-first; desktop two-panel ≥1024px, keyboard shortcuts
-- Dark default, amber accent, theatre motif; WCAG AA pass; noscript,
-  tiny-screen, and private-mode edge states handled
+1. **Share cards** — canvas, client-side, theatre rank ladder ✅
+2. **The Sandbox** — Freeplay + The Critic's Review (data-not-instructions
+   framing), one leveled daily quota ✅
+3. **The Opening Act** — 5 skippable beats, typewriter title, name
+   capture, The Audition (rubric-scored, zero quota, sets starting rank),
+   persona pick ✅
+4. **Audition callback + prompt diff** — before/after ranks + hand-rolled
+   LCS word diff on the finale ✅
+5. **Graded practice** — 48 curated scenarios; **amended into the teaching
+   ladder:** guided → assisted → assessment as the main flow, per lesson,
+   with plain-language guides, idea+takeaway per rung, skip link, and
+   once-ever practice XP (+5/+10) ✅
+6. **Resources** — 4 per persona, free/auditable, on the finale ✅
+7. **Persona matcher** — one enum-locked Gemini call, once ever, chips as
+   the permanent floor ✅
+8. **Voice input** — Web Speech, en-IN/हिंदी, hidden unsupported ✅
+9. **The Encore** — 6-boss pool, date-seeded, L4 gate, 100 base XP ✅
+10. **Daily challenge** — same picker (salted), starred lesson, +20 rider ✅
+11. **Prompt library** — ≥58 real scores auto-saved, copy/remove, cap 50 ✅
+12. **The Season Report** — pure tested stats + hand-rolled SVG chart,
+    honest about offline estimates ✅
+13. **The Playbill** — 8 derived achievements, persisted earns ✅
+14. **Import/export** — full-account validated round-trip ✅
+15. **Light theme** — variable swap, AA-checked, Level 3 unlock ✅
+16. **Animations** — CSS-only, reduced-motion disables by non-existence ✅
+17. **Calibration** — offline Python pipeline (ridge, confidence-blended,
+    refuses tiny data) + logger rider; **weight swap deferred until real
+    data clears n=15** — the refusal is the feature ✅
 
----
+## 🔨 v3 — Drafts (ACTIVE NEXT — notes, not builds)
 
-## 🔨 v2 — Post-MVP Build Order (ACTIVE)
-
-1. **Shareable result cards** ← NEXT — canvas-generated, client-side
-   - *XP sink:* rank titles on card — Understudy → Ensemble → Lead → Director → Playwright
-2. **The Sandbox** — two tabs, shared localStorage daily quota:
-   - **Freeplay:** evaluate any prompt
-   - **The Critic's Review:** paste your prompt + the answer it produced
-     (~2,000-char cap) → one Gemini call judges the answer, traces its
-     weaknesses back to prompt weaknesses, suggests a rewrite. New
-     `mode: "review"` proxy system prompt with data-not-instructions framing
-   - *XP sink:* levels earn bonus daily evaluations across both tabs
-3. **The Opening Act** — first-visit sequence, skippable every beat,
-   `prefers-reduced-motion` fallback:
-   - Beat 1: typewriter title card, spotlight follows the caret
-   - Beat 2: name ask — "Every performance needs a name on the programme."
-   - Beat 3 — **The Audition:** 3–4 pick-the-better-prompt MCQs + one mini
-     prompt task scored by the rubric (zero API cost); sets starting rank;
-     skip = Understudy; attempt saved for the callback
-   - Beat 4: what & why prompting (2 cards)
-   - Beat 5: persona pick
-   - Curtain up: "Places, [Name]." — name echoes across greeting,
-     level-ups, finale, Encore, share cards
-4. **Audition callback + prompt diff view** — fills the marked finale slot:
-   parallel prompt task, before/after side by side — "Your audition:
-   Understudy. Your closing night: Lead."
-5. **Graded practice mode — Guided → Assisted → Solo:**
-   - Guided: simpler generated scenario + fill-in-the-blank skeleton, rubric-checked
-   - Assisted: medium scenario, free textarea + live rubric checklist
-     (keystroke debounce, powered by the dimensions breakdown)
-   - Solo: original 24 hand-written scenarios, Gemini-evaluated, XP awarded
-   - One-time offline pipeline: seeded generation → 48 practice scenarios →
-     hand-curated → static files: `lessons.meta.js` · `scenarios.solo.js` ·
-     `scenarios.assisted.js` · `scenarios.guided.js` (with `skeleton` field)
-6. **AI courses resources page** — 8–12 curated links by persona, on the finale
-7. **Custom persona onboarding (tier-1 matcher)** — one Gemini call
-   classifies track; upgrades Beat 5, personalizes courses
-8. **Voice input** — Web Speech API, `hi-IN`/`en-IN`, hidden if unsupported
-9. **The Encore** — boss challenge: all rubric dimensions + tight token
-   budget, 100 base XP, gated at Level 4, date-seeded scenario picker
-10. **Daily challenge** — reuses the Encore's date-seeded picker, hooks streaks
-11. **Prompt library** — best-scoring prompts saved locally, copy buttons
-12. **The Season Report** — user-facing analytics on the attempt-history
-    log: average per lesson, first-vs-best, improvement trend headline,
-    hand-rolled SVG chart (~60 lines, no library). Zero quota, zero privacy
-    disclosure — the user's own data shown back to them
-13. **The Playbill (achievements)** — sticker grid, localStorage flags:
-    *Audition Complete · First Curtain · Full House (20+) · Act One (1–4) ·
-    Closing Night (all 8) · Encore! · Week's Run (7-day streak) · Playwright*.
-    Sibling to the Season Report under "Your Progress"
-14. **Import/export** — JSON download of all progress (history included) +
-    validated restore
-15. **One light theme** — Tailwind v4 CSS variables · *XP sink:* Level 3 unlock
-16. **Animations** — CSS-only: score reveal, XP tick-up, sticker stamp-in,
-    curtain transitions
-17. **Python heuristic calibration** — offline regression against real Gemini
-    scores from the attempt log; learned weights ship as new
-    `LESSON_WEIGHTS` constants; also validates Audition scoring
-
-## ⏭ v3 — Long Horizon (drafts after v2)
-
-1. Full content localization (multilingual lessons + evaluation)
-2. AI-generated adaptive learning tracks (runtime custom scenarios)
-3. Sound — one on-brand curtain-up cue, autoplay-policy safe
+1. **Localization** — multilingual lessons + evaluation; Hindi-first sketch
+2. **Adaptive tracks** — runtime custom scenarios; quota/safety/curation study
+3. **Sound** — one curtain-up cue, autoplay-safe, off by default
 
 ## 📄 Final Phase — Docs & Submission (deliberately last)
 
-SRS + UML assembled from living docs (`roadmap.md`, `task.md`,
-`docs/decisions.md`, ticket-tagged commits) → final tag → GitHub Release →
-submission links the Release.
-**Standing rule:** `docs/decisions.md` gets one line per architectural
-decision at the moment it's made — assembly, not archaeology.
+SRS + UML assembled from the living docs (this file, decisions.md,
+calibration-findings.md, ticket-tagged commits, teacher feedback) →
+final a11y/responsive re-audit → final tag → GitHub Release → submission.
 
 ---
 
-## XP & Rank Economy
+## XP & Rank Economy (as shipped)
 
-- **Earn:** 50 base + score bonus (Solo only — practice tiers award
-  nothing) · 100 base Encore · streak multiplier
-- **Ranks:** one theatre ladder; Audition sets starting rank, XP advances it
-- **Unlock:** Level 3 → light theme · Level 4 → Encore · every level →
-  rank title + Sandbox bonus evaluations
+- **Earn:** 50 base + score bonus on assessments (replays half) · +5/+10
+  once-ever practice completions · 100 base + bonus Encore (daily) ·
+  +20 daily-lesson rider · streaks on any evaluation
+- **Ranks:** Understudy → Ensemble → Lead → Director → Playwright;
+  Audition sets the starting rank (caps at Lead), XP climbs the rest
+- **Unlocks:** Level 3 → light theme · Level 4 → the Encore · every
+  level → +1 daily sandbox evaluation
 - **Never:** currency/shop, leaderboards, XP-gating core lessons
 
 ## Permanently Out of Scope
@@ -130,9 +77,9 @@ translate-page toggle, site-visitor analytics.
 
 ---
 
-**Quota architecture:** Gemini touched only by Solo finals, the Sandbox
-(capped, both tabs), the persona matcher (once ever), Encore, and daily
-challenge. Audition, practice tiers, checklist, diff view, Season Report,
-and Playbill run free on the rubric or localStorage. Two-model fallback
-chain doubles the daily ceiling underneath (~40/day). Development runs
-offline against the rubric; no billing on the Gemini account — ever.
+**Quota architecture (as shipped):** Gemini is touched only by assessments,
+the Sandbox (both tabs, capped, leveled), the persona matcher (once ever),
+the Encore, and the daily lesson's normal evaluation. The Audition, both
+practice tiers, the live checklist, the diff, the Season Report, and the
+Playbill run free on the rubric or localStorage. Two-model fallback chain
+underneath; heuristic floor under everything; no billing — ever.
