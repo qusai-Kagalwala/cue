@@ -39,6 +39,9 @@ shared date picker, +20 rider (v2-10) · prompt library, ≥58 auto-saved
 w/ hand-rolled SVG chart (v2-12b) · The Playbill, derived achievements
 (v2-13) → tagged `v1.3 — progress`
 
+**Guide** — The Programme: user-facing feature guide under an altitude
+rule (what/where, never how); Settings + finale entries (v2-18)
+
 **Platform** — import/export, validated round-trip (v2-14) · light theme,
 AA-checked, L3 unlock (v2-15) · CSS-only animations, reduced-motion-safe
 (v2-16) · calibration pipeline: script + logger rider (v2-17a) ·
@@ -47,26 +50,29 @@ n=15 pairs; shipped weights retained; re-run scheduled post-usage
 
 ---
 
-## 🔨 NEXT — v3 Drafts (light, exploratory)
+## 🔨 NEXT — v3: STAGES (the flagship) + drafts
 
-Draft-level only — feasibility notes and design sketches, not builds,
-unless one graduates by explicit decision:
+**The Stages vision:** Cue's whole machine — Opening Act, the
+guided→assisted→assessment ladder, 8 lessons, XP, Encore, Report —
+becomes a repeatable pattern. A "stage" (mode) = a new content pack
+(8 lessons ×3 personas + 48 practice + weights table + one proxy prompt
+variant) through the SAME untouched machine. Text is the main stage;
+image, video, audio are new stages. ~90% content, ~10% code per stage.
 
-### v3-1 — Localization exploration
-Deliverable: docs/v3-localization.md
-- What full lesson localization needs (content ×N languages, evaluation
-  language, rubric detectors per language); Hindi-first scope sketch
-**AC:** an honest cost/approach note the SRS can cite as future scope.
+### v3-0 — Stages vision & architecture note (BEFORE docs phase)
+Deliverable: docs/v3-stages.md
+- The mode contract (what a stage must supply) · text→image dimension
+  mapping table · shared identity vs per-stage progress decision framed ·
+  honest cost per stage
+**AC:** SRS-citable future-scope note; the "where next?" viva answer.
 
-### v3-2 — Adaptive tracks exploration
-Deliverable: docs/v3-adaptive.md
-- Runtime scenario generation: quota cost, safety, caching, curation loss
-**AC:** same — a real feasibility note, not a promise.
+### v3-1 — Image Stage (POST-SUBMISSION build)
+Content sprint (v2-5a scale) + short code sprint (mode field, data files
+keyed per stage, stage picker). Ticketized when its turn comes.
 
-### v3-3 — The sound cue
-Deliverable: docs/v3-sound.md (or a 1-session build if trivially safe)
-- One curtain-up cue, autoplay-policy-safe, off by default
-**AC:** decision documented: build now or defer with reason.
+### v3-2/3/4 — Drafts (demoted below Stages)
+Localization note · adaptive-tracks note · sound cue note — each one
+docs/v3-*.md, feasibility only.
 
 ## 📄 FINAL PHASE — Docs & Submission
 

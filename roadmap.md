@@ -44,12 +44,25 @@ first with first-class desktop. Full detail in git history at tag `v1.0`.
 17. **Calibration** — offline Python pipeline (ridge, confidence-blended,
     refuses tiny data) + logger rider; **weight swap deferred until real
     data clears n=15** — the refusal is the feature ✅
+18. **The Programme** — built-in user guide under an altitude rule
+    (what/where, never how) — the demo companion ✅
 
-## 🔨 v3 — Drafts (ACTIVE NEXT — notes, not builds)
+## 🔨 v3 — STAGES (ACTIVE NEXT — the flagship)
 
-1. **Localization** — multilingual lessons + evaluation; Hindi-first sketch
-2. **Adaptive tracks** — runtime custom scenarios; quota/safety/curation study
-3. **Sound** — one curtain-up cue, autoplay-safe, off by default
+**Stages:** the entire shipped machine, repeated as modes. A stage = a
+content pack (8 lessons ×3 personas, 48 practice scenarios, a dimension
+weights table, one proxy prompt variant) through the SAME code — ladder,
+XP, Encore, Report all untouched. Text is the main stage. Coming stages:
+**Image** (subject/scene/composition/technical controls/style refs/
+economy — the six dimensions survive, renamed) → Video → Audio → Code.
+Shared identity (name, rank, streak); per-stage progress. ~90% content,
+~10% code per stage.
+
+0. **v3-0 — Stages note** (docs/v3-stages.md, pre-docs-phase): mode
+   contract + dimension mapping + cost — the SRS future-scope anchor
+1. **v3-1 — Image Stage** (post-submission): first proof of the pattern
+2. Localization · adaptive tracks · sound cue — demoted to notes below
+   Stages
 
 ## 📄 Final Phase — Docs & Submission (deliberately last)
 

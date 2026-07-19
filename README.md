@@ -33,6 +33,8 @@ Cue is an interactive web app that teaches anyone — students, everyday users, 
 
 **Yours, portably** — everything lives in localStorage; one-button export/import moves the whole account as a single JSON file.
 
+**The Programme** — a built-in user guide (Settings → 🎭): every feature, where to find it, how to use it — the booklet at the theatre door.
+
 ## 🛠️ Stack
 
 | Layer | Choice |
@@ -78,7 +80,7 @@ Each in three persona variants, each with a one-line takeaway, each climbable in
 
 ## 🗺️ Status
 
-**✅ v2.0 complete.** v1.0 shipped and teacher-approved; the full v2 board (17 items, ~30 tickets) is built and live. Next: v3 drafts, then docs (SRS + UML) as the final pre-submission phase. See [`task.md`](./task.md) and [`roadmap.md`](./roadmap.md).
+**✅ v2.0 complete** (17 items + the Programme guide, ~31 tickets), v1.0 teacher-approved. **Next:** the v3 flagship — **Stages**: the same three-step ladder and 8-lesson arc, repeated as modes for image, video, and audio prompting (one machine, new content packs). Docs (SRS + UML) land as the final pre-submission phase. See [`task.md`](./task.md) and [`roadmap.md`](./roadmap.md).
 
 ## 📄 About
 
