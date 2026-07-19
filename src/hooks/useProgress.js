@@ -73,17 +73,28 @@ export function completeLesson(score) {
   return { xpGained, leveledUp, newLevel: level, isReplay }
 }
 
-/** Move to the next lesson in the flat queue (called by auto-continue). */
+/** Move to the next lesson in the flat queue (called by auto-continue).
+    Each new lesson starts at the guided stage — the teaching ladder. */
 export function advanceLesson() {
   if (state.currentLessonIndex < TOTAL_LESSONS) {
-    setState({ currentLessonIndex: state.currentLessonIndex + 1 })
+    setState({
+      currentLessonIndex: state.currentLessonIndex + 1,
+      lessonStage: 'guided',
+    })
   }
 }
 
-/** Jump to a specific lesson (lesson map replay, T5.1). */
+/** Set the current lesson's flow stage: 'guided' | 'assisted' | 'solo'. */
+export function setLessonStage(stage) {
+  setState({ lessonStage: stage })
+}
+
+/** Jump to a specific lesson (lesson map replay, T5.1).
+    Replays go straight to the assessment — the ladder is for first runs;
+    the map's practice chips remain the way to re-practice tiers. */
 export function goToLesson(index) {
   if (index >= 0 && index < TOTAL_LESSONS) {
-    setState({ currentLessonIndex: index })
+    setState({ currentLessonIndex: index, lessonStage: 'solo' })
   }
 }
 
@@ -108,6 +119,7 @@ export function useProgress() {
     persona: s.persona,
     name: s.name ?? null,          // v2-3d — echoes across toast/finale/card
     currentLessonIndex: s.currentLessonIndex,
+    lessonStage: s.lessonStage ?? 'guided',
     currentLesson,          // merged with persona variant, null when all done
     isComplete,
     xp: s.xp,
@@ -120,6 +132,7 @@ export function useProgress() {
     setPersona,
     completeLesson,
     advanceLesson,
+    setLessonStage,
     goToLesson,
     resetProgress,
   }

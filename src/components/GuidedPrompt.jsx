@@ -12,7 +12,7 @@ import { GUIDED } from '../data/scenarios.guided'
 import { scoreWithRubric } from '../lib/rubric'
 import ResultsPanel from './ResultsPanel'
 
-export default function GuidedPrompt({ lessonId, onExit }) {
+export default function GuidedPrompt({ lessonId, onExit, onDone, flowLabel }) {
   const { persona } = useProgress()
   const meta = getLesson(lessonId, persona ?? 'everyday')
   const content =
@@ -63,14 +63,16 @@ export default function GuidedPrompt({ lessonId, onExit }) {
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <header className="space-y-1">
-        <button
-          onClick={onExit}
-          className="font-mono text-xs text-muted underline-offset-4 hover:text-ink hover:underline"
-        >
-          ← lesson map
-        </button>
+        {onExit && (
+          <button
+            onClick={onExit}
+            className="font-mono text-xs text-muted underline-offset-4 hover:text-ink hover:underline"
+          >
+            ← lesson map
+          </button>
+        )}
         <p className="font-mono text-xs uppercase tracking-widest text-faint">
-          guided practice · L{meta.order} {meta.title} · no XP, just reps
+          {flowLabel ?? `guided practice · L${meta.order} ${meta.title} · no XP, just reps`}
         </p>
       </header>
 
@@ -136,10 +138,10 @@ export default function GuidedPrompt({ lessonId, onExit }) {
               Try different fills
             </button>
             <button
-              onClick={onExit}
+              onClick={onDone ?? onExit}
               className="rounded-lg bg-cue px-5 py-2 text-sm font-medium text-stage transition-colors hover:bg-cue-bright"
             >
-              Back to the map →
+              {onDone ? 'Continue →' : 'Back to the map →'}
             </button>
           </div>
         </>

@@ -5,7 +5,7 @@
 // T4.1 results + T4.2 auto-continue + T4.3 budget mode (Lesson 8).
 
 import { useEffect, useState } from 'react'
-import { useProgress, advanceLesson } from '../hooks/useProgress'
+import { useProgress, advanceLesson, setLessonStage } from '../hooks/useProgress'
 import { useEvaluation } from '../hooks/useEvaluation'
 import PersonaPicker from '../components/PersonaPicker'
 import ScenarioCard from '../components/ScenarioCard'
@@ -14,6 +14,8 @@ import ShortcutOverlay from '../components/ShortcutOverlay'
 import CurtainLoader from '../components/CurtainLoader'
 import ResultsPanel from '../components/ResultsPanel'
 import AutoContinue from '../components/AutoContinue'
+import GuidedPrompt from '../components/GuidedPrompt'
+import AssistedPrompt from '../components/AssistedPrompt'
 import Completion from './Completion'
 import { SCREENS } from '../lib/screens'
 
@@ -25,6 +27,7 @@ export default function Challenge({ onNavigate }) {
     currentLessonIndex,
     totalLessons,
     isComplete,
+    lessonStage,
   } = useProgress()
   const { status, result, award, submit, reset } = useEvaluation()
   const [prompt, setPrompt] = useState('')
@@ -61,6 +64,43 @@ export default function Challenge({ onNavigate }) {
     return <Completion onGoToMap={() => onNavigate(SCREENS.MAP)} />
   }
 
+  // ---- The teaching ladder: guided → assisted → solo (assessment). ----
+  // Practice stages render once a persona exists (they need its content);
+  // each stage hands off to the next, XP stays solo-only, and a skip link
+  // keeps the zero-friction promise for confident learners.
+  if (persona !== null && lessonStage !== 'solo') {
+    const isGuided = lessonStage === 'guided'
+    return (
+      <div className="space-y-3">
+        <div className="mx-auto flex max-w-2xl items-center justify-between">
+          <p className="font-mono text-xs uppercase tracking-widest text-faint">
+            Lesson {currentLessonIndex + 1} of {totalLessons} ·{' '}
+            {currentLesson.title}
+          </p>
+          <button
+            onClick={() => setLessonStage('solo')}
+            className="font-mono text-xs text-muted underline-offset-4 hover:text-ink hover:underline"
+          >
+            skip to assessment →
+          </button>
+        </div>
+        {isGuided ? (
+          <GuidedPrompt
+            lessonId={currentLesson.id}
+            onDone={() => setLessonStage('assisted')}
+            flowLabel={`step 1 of 3 · guided warm-up · no XP, just reps`}
+          />
+        ) : (
+          <AssistedPrompt
+            lessonId={currentLesson.id}
+            onDone={() => setLessonStage('solo')}
+            flowLabel={`step 2 of 3 · assisted rehearsal · no XP, just reps`}
+          />
+        )}
+      </div>
+    )
+  }
+
   function handleSubmit() {
     if (evaluating) return
     submit(currentLesson, prompt)
@@ -94,7 +134,8 @@ export default function Challenge({ onNavigate }) {
       <div className="space-y-5">
         <header className="space-y-1">
           <p className="font-mono text-xs uppercase tracking-widest text-faint">
-            Lesson {currentLessonIndex + 1} of {totalLessons}
+            Lesson {currentLessonIndex + 1} of {totalLessons} · step 3 of 3 ·
+            the assessment
           </p>
           <h1 className="font-display text-2xl font-semibold sm:text-3xl">
             {currentLesson.title}

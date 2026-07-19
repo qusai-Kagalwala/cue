@@ -13,7 +13,7 @@ import PromptInput from './PromptInput'
 import RubricChecklist from './RubricChecklist'
 import ResultsPanel from './ResultsPanel'
 
-export default function AssistedPrompt({ lessonId, onExit }) {
+export default function AssistedPrompt({ lessonId, onExit, onDone, flowLabel }) {
   const { persona } = useProgress()
   const meta = getLesson(lessonId, persona ?? 'everyday')
   const content =
@@ -41,14 +41,16 @@ export default function AssistedPrompt({ lessonId, onExit }) {
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <header className="space-y-1">
-        <button
-          onClick={onExit}
-          className="font-mono text-xs text-muted underline-offset-4 hover:text-ink hover:underline"
-        >
-          ← lesson map
-        </button>
+        {onExit && (
+          <button
+            onClick={onExit}
+            className="font-mono text-xs text-muted underline-offset-4 hover:text-ink hover:underline"
+          >
+            ← lesson map
+          </button>
+        )}
         <p className="font-mono text-xs uppercase tracking-widest text-faint">
-          assisted practice · L{meta.order} {meta.title} · no XP, just reps
+          {flowLabel ?? `assisted practice · L${meta.order} ${meta.title} · no XP, just reps`}
         </p>
       </header>
 
@@ -79,10 +81,10 @@ export default function AssistedPrompt({ lessonId, onExit }) {
               Revise my prompt
             </button>
             <button
-              onClick={onExit}
+              onClick={onDone ?? onExit}
               className="rounded-lg bg-cue px-5 py-2 text-sm font-medium text-stage transition-colors hover:bg-cue-bright"
             >
-              Back to the map →
+              {onDone ? 'Continue →' : 'Back to the map →'}
             </button>
           </div>
         </>

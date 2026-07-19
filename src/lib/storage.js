@@ -17,6 +17,7 @@ export const DEFAULT_STATE = Object.freeze({
   auditionAttempt: null,         // v2-3c — the "before" (null = skipped)
   callbackAttempt: null,         // v2-4a — the "after", written on the finale
   currentLessonIndex: 0,
+  lessonStage: 'guided',         // flow: guided → assisted → solo (assessment)
   xp: 0,
   level: 1,
   streak: { count: 0, lastActiveDate: null },
