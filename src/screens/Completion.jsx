@@ -4,7 +4,7 @@
 // (same scenario, rubric-scored, zero quota); the "after" attempt is
 // stored and the before/after rank line renders. Skipped-audition users
 // see no slot — absence is the default, as designed in v2-3c.
-// The word-level diff view arrives in v2-4b.
+// v2-4b — word-level diff of the two prompts renders in the comparison.
 
 import { useState } from 'react'
 import { useProgress } from '../hooks/useProgress'
@@ -14,6 +14,7 @@ import { AUDITION_TASK } from '../data/audition'
 import { scoreWithRubric } from '../lib/rubric'
 import { rankForLevel } from '../lib/ranks'
 import ShareCard from '../components/ShareCard'
+import PromptDiff from '../components/PromptDiff'
 
 function Stat({ label, value, sub }) {
   return (
@@ -67,6 +68,9 @@ function CallbackSlot({ level }) {
             {callback.taskScore}
           </span>
         </p>
+
+        {/* v2-4b — what actually changed, word by word */}
+        <PromptDiff before={audition.taskPrompt} after={callback.taskPrompt} />
       </section>
     )
   }
