@@ -39,7 +39,9 @@ export default function AssistedPrompt({ lessonId, onExit, onDone, flowLabel }) 
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-5">
+    <div className="mx-auto max-w-2xl space-y-5 lg:max-w-none lg:grid lg:grid-cols-2 lg:items-start lg:gap-10 lg:space-y-0">
+      {/* ---- LEFT PANEL: read ---- */}
+      <div className="space-y-5">
       <header className="space-y-1">
         {onExit && (
           <button
@@ -93,6 +95,10 @@ export default function AssistedPrompt({ lessonId, onExit, onDone, flowLabel }) 
         <p className="mt-2 text-cue">{content.task}</p>
       </div>
 
+      </div>
+
+      {/* ---- RIGHT PANEL: act (sticky on desktop, like the assessment) ---- */}
+      <div className="mt-5 space-y-5 lg:mt-0 lg:sticky lg:top-6">
       {!result ? (
         <>
           <PromptInput
@@ -122,6 +128,7 @@ export default function AssistedPrompt({ lessonId, onExit, onDone, flowLabel }) 
           </div>
         </>
       )}
+      </div>
     </div>
   )
 }
