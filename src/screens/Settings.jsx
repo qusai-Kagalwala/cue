@@ -8,10 +8,48 @@ import { useProgress } from '../hooks/useProgress'
 import { PERSONAS } from '../data/lessons'
 import { SCREENS } from '../lib/screens'
 import ConfirmDialog from '../components/ConfirmDialog'
+import { downloadExport, validateImport, applyImport } from '../lib/portability'
 
 export default function Settings({ onNavigate }) {
   const { persona, setPersona, resetProgress } = useProgress()
   const [confirming, setConfirming] = useState(false)
+  const [importError, setImportError] = useState(null)
+  const [importReady, setImportReady] = useState(null) // validated file waiting for confirm
+
+  // v2-14 — read the chosen file, validate, stage for confirmation
+  function handleImportFile(e) {
+    setImportError(null)
+    const file = e.target.files?.[0]
+    e.target.value = '' // same file can be re-picked after an error
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      let parsed
+      try {
+        parsed = JSON.parse(reader.result)
+      } catch {
+        setImportError("That file isn't valid JSON.")
+        return
+      }
+      const verdict = validateImport(parsed)
+      if (!verdict.ok) {
+        setImportError(verdict.error)
+        return
+      }
+      setImportReady(parsed) // → ConfirmDialog takes it from here
+    }
+    reader.onerror = () => setImportError('Could not read the file.')
+    reader.readAsText(file)
+  }
+
+  function confirmImport() {
+    if (importReady && applyImport(importReady)) {
+      window.location.reload() // store re-initialises from storage on boot
+    } else {
+      setImportError('Import failed while writing — nothing was changed.')
+      setImportReady(null)
+    }
+  }
 
   function handleReset() {
     resetProgress()
@@ -74,6 +112,40 @@ export default function Settings({ onNavigate }) {
       </section>
 
       {/* Danger zone */}
+      {/* v2-14 — Your data: export / import */}
+      <section className="space-y-3">
+        <div>
+          <h2 className="font-display font-semibold">Your data</h2>
+          <p className="text-sm text-muted">
+            Everything lives on this device. Download it as one file to back
+            up or move to another browser — progress, history, library, and
+            stickers all included.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={downloadExport}
+            className="rounded-lg border border-cue-dim px-5 py-2 text-sm text-cue transition-colors hover:bg-cue/10"
+          >
+            ⬇ Export my data
+          </button>
+          <label className="cursor-pointer rounded-lg border border-line px-5 py-2 text-sm text-muted transition-colors hover:border-cue-dim hover:text-cue">
+            ⬆ Import from file
+            <input
+              type="file"
+              accept="application/json,.json"
+              onChange={handleImportFile}
+              className="sr-only"
+            />
+          </label>
+        </div>
+        {importError && (
+          <p className="font-mono text-xs text-over" role="alert">
+            {importError}
+          </p>
+        )}
+      </section>
+
       <section className="space-y-3 rounded-xl border border-over/30 p-4">
         <div>
           <h2 className="font-display font-semibold text-over">
@@ -91,6 +163,16 @@ export default function Settings({ onNavigate }) {
           Reset everything
         </button>
       </section>
+
+      {importReady && (
+        <ConfirmDialog
+          title="Replace everything with this file?"
+          body="Your current progress on this device will be overwritten by the imported file. This cannot be undone."
+          confirmLabel="Import & replace"
+          onConfirm={confirmImport}
+          onCancel={() => setImportReady(null)}
+        />
+      )}
 
       {confirming && (
         <ConfirmDialog
