@@ -100,6 +100,11 @@ const LESSON_WEIGHTS = {
 
 const DEFAULT_WEIGHTS = { role: 0.1, context: 0.2, constraints: 0.15, format: 0.15, specificity: 0.25, length: 0.15 }
 
+/** v2-5d — weights for a lesson id (the live checklist orders by these). */
+export function weightsFor(lessonId) {
+  return LESSON_WEIGHTS[lessonId] ?? DEFAULT_WEIGHTS
+}
+
 // ------------------------------------------------------- feedback templates
 
 // Seeded pick: same prompt → same wording; different prompts → variety.

@@ -108,14 +108,20 @@ export default function LessonMap({ onNavigate, onPractice }) {
                 )}
               </button>
 
-              {/* v2-5c — practice tiers (no XP); assisted joins in v2-5d */}
+              {/* v2-5c/5d — practice tiers (no XP, no quota) */}
               {!locked && onPractice && (
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-1.5">
                   <button
-                    onClick={() => onPractice(lesson.id)}
+                    onClick={() => onPractice(lesson.id, 'guided')}
                     className="rounded-full border border-line px-3 py-1 font-mono text-[11px] text-muted transition-colors hover:border-cue-dim hover:text-cue"
                   >
-                    ✎ guided practice
+                    ✎ guided
+                  </button>
+                  <button
+                    onClick={() => onPractice(lesson.id, 'assisted')}
+                    className="rounded-full border border-line px-3 py-1 font-mono text-[11px] text-muted transition-colors hover:border-cue-dim hover:text-cue"
+                  >
+                    ✎ assisted
                   </button>
                 </div>
               )}

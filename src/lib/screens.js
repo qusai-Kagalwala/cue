@@ -7,6 +7,7 @@ export const SCREENS = {
   MAP: 'map',
   SANDBOX: 'sandbox',
   GUIDED: 'guided',
+  ASSISTED: 'assisted',
   SETTINGS: 'settings',
 }
 

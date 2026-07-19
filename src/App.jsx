@@ -12,15 +12,16 @@ import Challenge from './screens/Challenge'
 import LessonMap from './screens/LessonMap'
 import Sandbox from './screens/Sandbox'
 import GuidedPrompt from './components/GuidedPrompt'
+import AssistedPrompt from './components/AssistedPrompt'
 import Settings from './screens/Settings'
 
 export default function App() {
   const [screen, setScreen] = useState(SCREENS.CHALLENGE)
   const [practiceLessonId, setPracticeLessonId] = useState(null) // v2-5c
 
-  function openGuided(lessonId) {
+  function openPractice(lessonId, tier) {
     setPracticeLessonId(lessonId)
-    setScreen(SCREENS.GUIDED)
+    setScreen(tier === 'assisted' ? SCREENS.ASSISTED : SCREENS.GUIDED)
   }
   // v2-3a — read once at mount; completing the act flips both.
   const [showOpening, setShowOpening] = useState(
@@ -47,10 +48,16 @@ export default function App() {
       <main className="mx-auto max-w-5xl px-4 pb-12 pt-6 lg:px-6">
         {screen === SCREENS.CHALLENGE && <Challenge onNavigate={setScreen} />}
         {screen === SCREENS.MAP && (
-          <LessonMap onNavigate={setScreen} onPractice={openGuided} />
+          <LessonMap onNavigate={setScreen} onPractice={openPractice} />
         )}
         {screen === SCREENS.GUIDED && practiceLessonId && (
           <GuidedPrompt
+            lessonId={practiceLessonId}
+            onExit={() => setScreen(SCREENS.MAP)}
+          />
+        )}
+        {screen === SCREENS.ASSISTED && practiceLessonId && (
+          <AssistedPrompt
             lessonId={practiceLessonId}
             onExit={() => setScreen(SCREENS.MAP)}
           />
