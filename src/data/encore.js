@@ -55,11 +55,23 @@ export const ENCORE_POOL = [
   },
 ]
 
-/** Tiny date hash → stable index. Same scenario all day, new one tomorrow. */
-export function encoreForDate(dateKey) {
+/** Tiny date hash → stable index into any pool size. The one picker
+    both the Encore and the daily challenge (v2-10) share. */
+export function dateIndexFor(dateKey, poolSize) {
   let h = 0
   for (let i = 0; i < dateKey.length; i++) {
     h = (h * 31 + dateKey.charCodeAt(i)) | 0
   }
-  return ENCORE_POOL[Math.abs(h) % ENCORE_POOL.length]
+  return Math.abs(h) % poolSize
+}
+
+/** Same scenario all day, new one tomorrow. */
+export function encoreForDate(dateKey) {
+  return ENCORE_POOL[dateIndexFor(dateKey, ENCORE_POOL.length)]
+}
+
+/** v2-10 — today's daily lesson index (offset so the daily and the
+    Encore don't sync onto the same hash rhythm). */
+export function dailyLessonIndexFor(dateKey, totalLessons) {
+  return dateIndexFor(dateKey + ':daily', totalLessons)
 }

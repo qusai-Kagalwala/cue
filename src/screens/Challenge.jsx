@@ -14,6 +14,7 @@ import ShortcutOverlay from '../components/ShortcutOverlay'
 import CurtainLoader from '../components/CurtainLoader'
 import ResultsPanel from '../components/ResultsPanel'
 import AutoContinue from '../components/AutoContinue'
+import DailyCard from '../components/DailyCard'
 import GuidedPrompt from '../components/GuidedPrompt'
 import AssistedPrompt from '../components/AssistedPrompt'
 import Completion from './Completion'
@@ -141,6 +142,9 @@ export default function Challenge({ onNavigate }) {
             {currentLesson.title}
           </h1>
         </header>
+
+        {/* v2-10 — today's daily, one line, only while idle */}
+        {status === 'idle' && <DailyCard />}
 
         {/* Plain-language guide — the real attempt, explained simply */}
         {status === 'idle' && (

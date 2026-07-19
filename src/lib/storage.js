@@ -21,6 +21,7 @@ export const DEFAULT_STATE = Object.freeze({
   practicePaid: [],              // 'l1:guided' entries — each tier pays ONCE ever
   matcherUsed: false,            // v2-7 — the persona matcher fires once, ever
   encoreDone: null,              // v2-9 — dateKey of the last claimed Encore
+  dailyDone: null,               // v2-10 — dateKey of the last daily bonus
   xp: 0,
   level: 1,
   streak: { count: 0, lastActiveDate: null },

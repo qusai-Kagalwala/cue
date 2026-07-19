@@ -19,6 +19,7 @@ import {
   todayKey,
 } from '../lib/xp'
 import { LESSONS, TOTAL_LESSONS, getLessonByIndex } from '../data/lessons'
+import { dailyLessonIndexFor } from '../data/encore'
 
 // ---------- store (module scope: shared by every hook instance) ----------
 
@@ -57,7 +58,18 @@ export function completeLesson(score) {
   // Keeps the economy honest: mastery pays once, practice pays a little.
   const lesson = LESSONS[state.currentLessonIndex]
   const isReplay = lesson ? state.lessonScores[lesson.id] != null : false
-  const xpGained = isReplay ? Math.round(awardXP(score) / 2) : awardXP(score)
+  let xpGained = isReplay ? Math.round(awardXP(score) / 2) : awardXP(score)
+
+  // v2-10 — daily challenge: if THIS lesson is today's daily and the
+  // bonus hasn't been claimed, +20 rides along. Once per day; streak
+  // already applies below (any evaluation is streak activity).
+  const today = todayKey()
+  const isDaily =
+    lesson &&
+    state.currentLessonIndex === dailyLessonIndexFor(today, TOTAL_LESSONS)
+  const dailyBonus = isDaily && state.dailyDone !== today ? 20 : 0
+  xpGained += dailyBonus
+
   const xp = state.xp + xpGained
   const level = levelFor(xp)
   const leveledUp = level > state.level
@@ -69,8 +81,14 @@ export function completeLesson(score) {
     lessonScores[lesson.id] = Math.max(lessonScores[lesson.id] ?? 0, clamped)
   }
 
-  setState({ xp, level, streak, lessonScores })
-  return { xpGained, leveledUp, newLevel: level, isReplay }
+  setState({
+    xp,
+    level,
+    streak,
+    lessonScores,
+    ...(dailyBonus > 0 ? { dailyDone: today } : {}),
+  })
+  return { xpGained, leveledUp, newLevel: level, isReplay, dailyBonus }
 }
 
 /** Move to the next lesson in the flat queue (called by auto-continue).
@@ -175,6 +193,8 @@ export function useProgress() {
     lessonScores: s.lessonScores,
     totalLessons: TOTAL_LESSONS,
     encoreDoneToday: s.encoreDone === todayKey(),
+    dailyDoneToday: s.dailyDone === todayKey(),
+    dailyLessonIndex: dailyLessonIndexFor(todayKey(), TOTAL_LESSONS),
     // actions
     setPersona,
     completeLesson,

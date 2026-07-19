@@ -11,13 +11,14 @@ export default function XPToast({ award }) {
   const bonus = award.xpGained - BASE_XP
   // Replays halve the award; practice pays a small fixed reward —
   // neither fits the base+bonus breakdown.
+  const dailyTag = award.dailyBonus > 0 ? ' + 20 daily ★' : ''
   const breakdown = award.encore
     ? '100 base + bonus · the encore'
     : award.practice
     ? 'practice reward · first time only'
     : award.isReplay
       ? 'replay · half XP'
-      : `${BASE_XP} base${bonus > 0 ? ` + ${bonus} bonus` : ''}`
+      : `${BASE_XP} base${bonus - (award.dailyBonus ?? 0) > 0 ? ` + ${bonus - (award.dailyBonus ?? 0)} bonus` : ''}${dailyTag}`
 
   if (award.leveledUp) {
     return (
