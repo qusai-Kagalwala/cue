@@ -3,8 +3,63 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cue — your cue to ask better</title>
+
+    <!-- v-seo — identity -->
+    <title>Cue — Learn to Talk to AI | Free Prompt Practice, No Signup</title>
+    <meta
+      name="description"
+      content="Cue teaches you to write better AI prompts through hands-on practice. Real-life Indian scenarios, instant AI feedback, XP and ranks — free, no account, works on any phone."
+    />
+    <link rel="canonical" href="https://cue-orpin-five.vercel.app/" />
+    <meta name="theme-color" content="#0e0d0b" />
+
+    <!-- v-seo — social cards -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Cue" />
+    <meta property="og:title" content="Cue — your cue to ask better" />
+    <meta
+      property="og:description"
+      content="Learn to talk to AI through hands-on practice. Guided lessons, instant feedback, theatre ranks. Free, no signup."
+    />
+    <meta property="og:url" content="https://cue-orpin-five.vercel.app/" />
+    <meta property="og:image" content="https://cue-orpin-five.vercel.app/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Cue — your cue to ask better" />
+    <meta
+      name="twitter:description"
+      content="Learn to talk to AI through hands-on practice. Free, no signup."
+    />
+    <meta name="twitter:image" content="https://cue-orpin-five.vercel.app/og.png" />
+
+    <!-- v-seo — icons & manifest -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- v-seo — structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Cue",
+        "alternateName": "Cue — your cue to ask better",
+        "url": "https://cue-orpin-five.vercel.app/",
+        "description": "An interactive web app that teaches prompt writing for AI through guided practice, instant feedback, and gamified progress. Free, no account required.",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Any (web browser)",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+        "author": {
+          "@type": "Person",
+          "name": "Qusai Kagalwala",
+          "url": "https://github.com/qusai-Kagalwala"
+        },
+        "inLanguage": "en",
+        "isAccessibleForFree": true
+      }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -13,8 +68,9 @@
     />
   </head>
   <body>
-    <!-- T6.2 — no-JS fallback. Inline styles on purpose: Tailwind's
-         classes don't exist when the JS bundle never loads. -->
+    <!-- T6.2 no-JS fallback + v-seo: real descriptive content — this is
+         what non-rendering crawlers and social scrapers read. Legitimate
+         noscript, not cloaking: it honestly describes the app. -->
     <noscript>
       <div
         style="
@@ -29,12 +85,22 @@
           padding: 2rem;
         "
       >
-        <p style="line-height: 1.7">
-          <strong style="color: #f5b942">Cue</strong> needs JavaScript to
-          run.<br />
-          Please enable it and reload — the stage can't open without the
-          crew. 🎭
-        </p>
+        <div style="max-width: 42rem; line-height: 1.8">
+          <h1 style="color: #f5b942; font-size: 2rem">Cue</h1>
+          <p><strong>Your cue to ask better.</strong></p>
+          <p>
+            Cue is a free web app that teaches you to talk to AI clearly —
+            students, everyday users, and professionals practice on
+            real-life scenarios, get instant AI feedback with a score and a
+            stronger rewrite, and climb theatre ranks from Understudy to
+            Playwright. Eight lessons, three difficulty steps each, no
+            account needed, everything stays on your device.
+          </p>
+          <p>
+            Cue needs JavaScript to run. Please enable it and reload — the
+            stage can't open without the crew. 🎭
+          </p>
+        </div>
       </div>
     </noscript>
 

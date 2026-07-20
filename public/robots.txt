@@ -1,0 +1,5 @@
+# Cue — https://cue-orpin-five.vercel.app
+User-agent: *
+Allow: /
+
+Sitemap: https://cue-orpin-five.vercel.app/sitemap.xml
