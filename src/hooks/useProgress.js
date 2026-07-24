@@ -8,8 +8,10 @@
 import { useSyncExternalStore } from 'react'
 import {
   loadState,
-  saveState,
-  resetState as wipeStorage,
+  updateState,
+  resetState,
+  getStageProgress,
+  patchStageProgress,
 } from '../lib/storage'
 import {
   awardXP,
@@ -36,8 +38,23 @@ function getSnapshot() {
 }
 
 function setState(patch) {
-  state = { ...state, ...patch }
-  saveState(state)
+  state = updateState(patch)
+  listeners.forEach((l) => l())
+}
+
+// v3-1a — journey fields (currentLessonIndex, lessonStage, lessonScores,
+// practicePaid) live PER STAGE; identity (xp/level/streak/name/…) stays
+// shared. These two helpers are the ONLY code that knows that split.
+
+/** The active stage's progress block. */
+function journey() {
+  return getStageProgress(state, state.activeStage ?? 'text')
+}
+
+/** Merge a patch into the ACTIVE stage's progress and persist. */
+function setJourney(patch) {
+  const next = patchStageProgress(state, state.activeStage ?? 'text', patch)
+  state = updateState({ stageProgress: next.stageProgress })
   listeners.forEach((l) => l())
 }
 
@@ -56,8 +73,9 @@ export function setPersona(personaId) {
 export function completeLesson(score) {
   // T5.1 — replays (lesson already has a best score) earn HALF XP.
   // Keeps the economy honest: mastery pays once, practice pays a little.
-  const lesson = LESSONS[state.currentLessonIndex]
-  const isReplay = lesson ? state.lessonScores[lesson.id] != null : false
+  const j = journey()
+  const lesson = LESSONS[j.currentLessonIndex]
+  const isReplay = lesson ? j.lessonScores[lesson.id] != null : false
   let xpGained = isReplay ? Math.round(awardXP(score) / 2) : awardXP(score)
 
   // v2-10 — daily challenge: if THIS lesson is today's daily and the
@@ -66,7 +84,7 @@ export function completeLesson(score) {
   const today = todayKey()
   const isDaily =
     lesson &&
-    state.currentLessonIndex === dailyLessonIndexFor(today, TOTAL_LESSONS)
+    j.currentLessonIndex === dailyLessonIndexFor(today, TOTAL_LESSONS)
   const dailyBonus = isDaily && state.dailyDone !== today ? 20 : 0
   xpGained += dailyBonus
 
@@ -75,17 +93,17 @@ export function completeLesson(score) {
   const leveledUp = level > state.level
   const streak = applyStreak(state.streak, todayKey())
 
-  const lessonScores = { ...state.lessonScores }
+  const lessonScores = { ...j.lessonScores }
   if (lesson) {
     const clamped = Math.min(100, Math.max(0, Number(score) || 0))
     lessonScores[lesson.id] = Math.max(lessonScores[lesson.id] ?? 0, clamped)
   }
 
-  setState({
+  setJourney({ lessonScores })        // per-stage
+  setState({                          // shared identity
     xp,
     level,
     streak,
-    lessonScores,
     ...(dailyBonus > 0 ? { dailyDone: today } : {}),
   })
   return { xpGained, leveledUp, newLevel: level, isReplay, dailyBonus }
@@ -94,9 +112,10 @@ export function completeLesson(score) {
 /** Move to the next lesson in the flat queue (called by auto-continue).
     Each new lesson starts at the guided stage — the teaching ladder. */
 export function advanceLesson() {
-  if (state.currentLessonIndex < TOTAL_LESSONS) {
-    setState({
-      currentLessonIndex: state.currentLessonIndex + 1,
+  const j = journey()
+  if (j.currentLessonIndex < TOTAL_LESSONS) {
+    setJourney({
+      currentLessonIndex: j.currentLessonIndex + 1,
       lessonStage: 'guided',
     })
   }
@@ -113,7 +132,7 @@ const PRACTICE_XP = { guided: 5, assisted: 10 }
 
 export function completePractice(lessonId, tier) {
   const key = `${lessonId}:${tier}`
-  const paid = state.practicePaid ?? []
+  const paid = journey().practicePaid ?? []
   if (paid.includes(key)) return null
 
   const xpGained = PRACTICE_XP[tier] ?? 0
@@ -122,7 +141,8 @@ export function completePractice(lessonId, tier) {
   const leveledUp = level > state.level
   const streak = applyStreak(state.streak, todayKey())
 
-  setState({ xp, level, streak, practicePaid: [...paid, key] })
+  setJourney({ practicePaid: [...paid, key] })   // per-stage
+  setState({ xp, level, streak })                // shared identity
   return { xpGained, leveledUp, newLevel: level, isReplay: false, practice: true }
 }
 
@@ -158,7 +178,7 @@ export function setTheme(theme) {
 
 /** Set the current lesson's flow stage: 'guided' | 'assisted' | 'solo'. */
 export function setLessonStage(stage) {
-  setState({ lessonStage: stage })
+  setJourney({ lessonStage: stage })
 }
 
 /** Jump to a specific lesson (lesson map replay, T5.1).
@@ -166,13 +186,13 @@ export function setLessonStage(stage) {
     the map's practice chips remain the way to re-practice tiers. */
 export function goToLesson(index) {
   if (index >= 0 && index < TOTAL_LESSONS) {
-    setState({ currentLessonIndex: index, lessonStage: 'solo' })
+    setJourney({ currentLessonIndex: index, lessonStage: 'solo' })
   }
 }
 
 /** Full wipe — Settings → Reset progress (T5.2). */
 export function resetProgress() {
-  state = wipeStorage()
+  state = resetState()
   listeners.forEach((l) => l())
 }
 
@@ -190,15 +210,16 @@ export function useProgress() {
     // state
     persona: s.persona,
     name: s.name ?? null,          // v2-3d — echoes across toast/finale/card
-    currentLessonIndex: s.currentLessonIndex,
-    lessonStage: s.lessonStage ?? 'guided',
+    activeStage: s.activeStage ?? 'text',
+    currentLessonIndex: getStageProgress(s, s.activeStage ?? 'text').currentLessonIndex,
+    lessonStage: getStageProgress(s, s.activeStage ?? 'text').lessonStage ?? 'guided',
     currentLesson,          // merged with persona variant, null when all done
     isComplete,
     xp: s.xp,
     level: s.level,
     xpToNext: xpToNextLevel(s.xp),
     streak: s.streak.count,
-    lessonScores: s.lessonScores,
+    lessonScores: getStageProgress(s, s.activeStage ?? 'text').lessonScores,
     totalLessons: TOTAL_LESSONS,
     encoreDoneToday: s.encoreDone === todayKey(),
     dailyDoneToday: s.dailyDone === todayKey(),

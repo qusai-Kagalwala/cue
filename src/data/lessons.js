@@ -1,31 +1,56 @@
 // src/data/lessons.js
-// v2-5b — RE-EXPORT SHIM. The data moved:
-//   lessons.meta.js       → PERSONAS, LESSON_META, TOTAL_LESSONS
-//   scenarios.solo.js     → the original 24 (Gemini-evaluated, XP)
-//   scenarios.assisted.js → 24 medium practice scenarios (no XP)
-//   scenarios.guided.js   → 24 simple scenarios + skeletons (no XP)
-// This file rebuilds the OLD public surface so every existing import
-// keeps working unchanged. New code (v2-5c/5d) imports the new files
-// directly; old consumers migrate lazily or never.
+// v2-5b re-export shim → v3-1a stage-aware.
+// The public surface screens use is UNCHANGED: LESSONS, getLesson,
+// getLessonByIndex, PERSONAS, TOTAL_LESSONS. What changed underneath is
+// that each function now resolves content from the ACTIVE STAGE.
+//
+// Screens never pass a stage id and never import stages.js — they ask
+// for "the current lesson" and this shim answers from whichever stage is
+// active. That indirection IS the stages architecture.
 
-import { PERSONAS, LESSON_META, TOTAL_LESSONS } from './lessons.meta'
-import { SOLO } from './scenarios.solo'
+import { resolveStage, DEFAULT_STAGE, PERSONAS, TOTAL_LESSONS } from './stages'
+import { getActiveStage } from '../lib/storage'
 
 export { PERSONAS, TOTAL_LESSONS }
 
-/** The old LESSONS shape: meta + solo variants, exactly as before. */
-export const LESSONS = LESSON_META.map((meta) => ({
-  ...meta,
-  variants: SOLO[meta.id],
-}))
+/** Content of the active stage (defensive: falls back to text). */
+function active() {
+  return resolveStage(getActiveStage?.() ?? DEFAULT_STAGE)
+}
+
+/**
+ * The old LESSONS shape, from the active stage: meta + solo variants.
+ * Recomputed per access so a stage switch is reflected immediately —
+ * cheap (8 objects) and avoids a stale-module-cache class of bug.
+ */
+export function getLessons() {
+  const stage = active()
+  return stage.lessons.map((meta) => ({
+    ...meta,
+    variants: stage.scenarios.solo[meta.id],
+  }))
+}
+
+/** Back-compat: LESSONS as a live getter, so existing imports keep working. */
+export const LESSONS = new Proxy([], {
+  get(_t, prop) {
+    const list = getLessons()
+    const value = list[prop]
+    return typeof value === 'function' ? value.bind(list) : value
+  },
+  has: (_t, prop) => prop in getLessons(),
+  ownKeys: () => Reflect.ownKeys(getLessons()),
+  getOwnPropertyDescriptor: (_t, prop) =>
+    Object.getOwnPropertyDescriptor(getLessons(), prop),
+})
 
 /**
  * Get a lesson merged with the chosen persona's variant.
- * Returns null for unknown ids; falls back to 'everyday' for unknown personas
- * (defensive — corrupt localStorage should never white-screen the app).
+ * Unknown id → null; unknown persona → 'everyday' (corrupt localStorage
+ * must never white-screen the app).
  */
 export function getLesson(id, persona = 'everyday') {
-  const lesson = LESSONS.find((l) => l.id === id)
+  const lesson = getLessons().find((l) => l.id === id)
   if (!lesson) return null
   const variant = lesson.variants[persona] ?? lesson.variants.everyday
   return {
@@ -35,12 +60,18 @@ export function getLesson(id, persona = 'everyday') {
     concept: lesson.concept,
     takeaway: lesson.takeaway,
     tokenBudget: lesson.tokenBudget,
-    ...variant, // scenario, task, exampleBad, hints
+    ...variant,
   }
 }
 
-/** Get a lesson by queue position (0-based) — used by the auto-continue flow. */
+/** Get a lesson by queue position (0-based) — the auto-continue flow. */
 export function getLessonByIndex(index, persona = 'everyday') {
-  const lesson = LESSONS[index]
+  const lesson = getLessons()[index]
   return lesson ? getLesson(lesson.id, persona) : null
+}
+
+/** Practice-tier content for the active stage (v2-5c/5d consumers). */
+export function getPracticeContent(tier, lessonId, persona = 'everyday') {
+  const pack = active().scenarios[tier]
+  return pack?.[lessonId]?.[persona] ?? pack?.[lessonId]?.everyday ?? null
 }

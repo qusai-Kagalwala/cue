@@ -16,9 +16,18 @@ export const DEFAULT_STATE = Object.freeze({
   openingActDone: false,         // v2-3a — the act never repeats once true
   auditionAttempt: null,         // v2-3c — the "before" (null = skipped)
   callbackAttempt: null,         // v2-4a — the "after", written on the finale
-  currentLessonIndex: 0,
-  lessonStage: 'guided',         // flow: guided → assisted → solo (assessment)
-  practicePaid: [],              // 'l1:guided' entries — each tier pays ONCE ever
+  activeStage: 'text',           // v3-1a — which stage is being played
+  // v3-1a — PER-STAGE progress. Identity (name/xp/level/streak/playbill/
+  // theme/persona/audition) stays SHARED above; only the lesson journey
+  // is keyed by stage. See docs/v3-stages.md §2.
+  stageProgress: {
+    text: {
+      currentLessonIndex: 0,
+      lessonStage: 'guided',     // flow: guided → assisted → solo
+      lessonScores: {},
+      practicePaid: [],          // 'l1:guided' — each tier pays ONCE ever
+    },
+  },
   matcherUsed: false,            // v2-7 — the persona matcher fires once, ever
   encoreDone: null,              // v2-9 — dateKey of the last claimed Encore
   dailyDone: null,               // v2-10 — dateKey of the last daily bonus
@@ -26,34 +35,79 @@ export const DEFAULT_STATE = Object.freeze({
   xp: 0,
   level: 1,
   streak: { count: 0, lastActiveDate: null },
-  lessonScores: {},
   settings: {},
 })
+
+/** v3-1a — a fresh per-stage progress block. */
+export function freshStageProgress() {
+  return {
+    currentLessonIndex: 0,
+    lessonStage: 'guided',
+    lessonScores: {},
+    practicePaid: [],
+  }
+}
 
 function freshState() {
   return {
     ...DEFAULT_STATE,
     streak: { ...DEFAULT_STATE.streak },
-    lessonScores: {},
     settings: {},
+    activeStage: 'text',
+    stageProgress: { text: freshStageProgress() },
   }
 }
 
 function isValid(state) {
-  return (
+  // v3-1a — accepts BOTH shapes: pre-v3 flat saves (migrated below) and
+  // v3 staged saves. Either must carry identity + a lesson journey.
+  const hasIdentity =
     state !== null &&
     typeof state === 'object' &&
     typeof state.version === 'number' &&
     typeof state.xp === 'number' &&
-    typeof state.currentLessonIndex === 'number' &&
     state.streak !== null &&
-    typeof state.streak === 'object' &&
+    typeof state.streak === 'object'
+  if (!hasIdentity) return false
+  const flat =
+    typeof state.currentLessonIndex === 'number' &&
     typeof state.lessonScores === 'object'
-  )
+  const staged =
+    state.stageProgress !== null && typeof state.stageProgress === 'object'
+  return flat || staged
+}
+
+/**
+ * v3-1a — fold a pre-v3 flat save into the staged shape. Lossless and
+ * one-way: the four journey fields move into stageProgress.text, the
+ * flat copies are dropped, identity is untouched. Idempotent — a save
+ * that already has stageProgress passes through unchanged.
+ */
+function migrateToStages(state) {
+  if (state.stageProgress && typeof state.stageProgress === 'object') {
+    // already staged; just make sure text exists
+    if (!state.stageProgress.text) {
+      state.stageProgress = { ...state.stageProgress, text: freshStageProgress() }
+    }
+    return state
+  }
+  const folded = {
+    currentLessonIndex: state.currentLessonIndex ?? 0,
+    lessonStage: state.lessonStage ?? 'guided',
+    lessonScores: state.lessonScores ?? {},
+    practicePaid: state.practicePaid ?? [],
+  }
+  const next = { ...state, activeStage: 'text', stageProgress: { text: folded } }
+  delete next.currentLessonIndex
+  delete next.lessonStage
+  delete next.lessonScores
+  delete next.practicePaid
+  console.info('[cue] progress migrated into the Text stage.')
+  return next
 }
 
 function migrate(state) {
-  if (state.version === VERSION) return state
+  if (state.version === VERSION) return migrateToStages(state)
   console.warn(`[cue] unknown state version ${state.version} — resetting.`)
   return freshState()
 }
@@ -72,7 +126,16 @@ export function loadState() {
   try {
     const parsed = JSON.parse(raw)
     if (!isValid(parsed)) throw new Error('invalid shape')
-    return { ...freshState(), ...migrate(parsed), streak: { ...DEFAULT_STATE.streak, ...parsed.streak } }
+    const migrated = migrate(parsed)
+    return {
+      ...freshState(),
+      ...migrated,
+      streak: { ...DEFAULT_STATE.streak, ...parsed.streak },
+      stageProgress: {
+        text: freshStageProgress(),
+        ...(migrated.stageProgress ?? {}),
+      },
+    }
   } catch (err) {
     console.warn('[cue] corrupt saved state — resetting to defaults.', err)
     saveState(freshState())
@@ -107,6 +170,35 @@ export function resetState() {
     /* ignore */
   }
   return freshState()
+}
+
+// ---------- v3-1a: stage accessors ----------
+
+/** Active stage id — read by the lessons shim on every content access. */
+export function getActiveStage() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(KEY))
+    return typeof parsed?.activeStage === 'string' ? parsed.activeStage : 'text'
+  } catch {
+    return 'text'
+  }
+}
+
+/** Progress block for a stage, always a valid object. */
+export function getStageProgress(state, stageId) {
+  return state?.stageProgress?.[stageId] ?? freshStageProgress()
+}
+
+/** Merge a patch into ONE stage's progress; returns the next full state. */
+export function patchStageProgress(state, stageId, patch) {
+  const current = getStageProgress(state, stageId)
+  return {
+    ...state,
+    stageProgress: {
+      ...state.stageProgress,
+      [stageId]: { ...current, ...patch },
+    },
+  }
 }
 
 // ---------- v2-11: prompt library (best work, kept) ----------
