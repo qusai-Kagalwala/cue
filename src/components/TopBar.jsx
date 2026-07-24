@@ -2,6 +2,7 @@
 // T0.3 shell → T1.4: STUB values replaced with live state from useProgress.
 
 import { SCREENS } from '../lib/screens'
+import { STAGES } from '../data/stages'
 import { useProgress } from '../hooks/useProgress'
 
 function IconButton({ label, active, onClick, children }) {
@@ -22,7 +23,7 @@ function IconButton({ label, active, onClick, children }) {
 }
 
 export default function TopBar({ screen, onNavigate }) {
-  const { streak, xp, level } = useProgress()
+  const { streak, xp, level, activeStage: stage } = useProgress()
 
   return (
     <header className="sticky top-0 z-10 border-b border-line bg-stage/90 backdrop-blur">
@@ -92,6 +93,15 @@ export default function TopBar({ screen, onNavigate }) {
               <path d="M7 15h10" />
             </svg>
           </IconButton>
+
+          {/* v3-1c — current stage chip (hidden on tiny screens) */}
+          <button
+            onClick={() => onNavigate(SCREENS.MAP)}
+            title="Switch stage"
+            className="hidden rounded-full border border-line px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-muted transition-colors hover:border-cue-dim hover:text-cue sm:inline-block"
+          >
+            {(STAGES[stage] ?? STAGES.text).label}
+          </button>
 
           {/* Library */}
           <IconButton

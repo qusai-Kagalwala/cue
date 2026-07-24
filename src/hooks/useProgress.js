@@ -12,6 +12,7 @@ import {
   resetState,
   getStageProgress,
   patchStageProgress,
+  freshStageProgress,
 } from '../lib/storage'
 import {
   awardXP,
@@ -21,6 +22,7 @@ import {
   todayKey,
 } from '../lib/xp'
 import { LESSONS, TOTAL_LESSONS, getLessonByIndex } from '../data/lessons'
+import { isStagePlayable } from '../data/stages'
 import { dailyLessonIndexFor } from '../data/encore'
 
 // ---------- store (module scope: shared by every hook instance) ----------
@@ -59,6 +61,31 @@ function setJourney(patch) {
 }
 
 // ---------- actions (stable module functions — safe in deps arrays) ----------
+
+/**
+ * v3-1c — switch the active stage. Refuses unplayable stages (locked or
+ * content-less) so a teased stage can never render an empty lesson.
+ * Each stage's own progress block is untouched by switching — the
+ * journey resumes exactly where that stage left off.
+ */
+export function setActiveStage(stageId) {
+  if (!isStagePlayable(stageId)) return false
+  if (state.activeStage === stageId) return true
+  setState({
+    activeStage: stageId,
+    // ensure the stage has a progress block the first time it's entered
+    stageProgress: {
+      ...state.stageProgress,
+      [stageId]: state.stageProgress?.[stageId] ?? freshStageProgress(),
+    },
+  })
+  return true
+}
+
+/** v3-1b — the active stage id, for evaluation calls outside React. */
+export function getActiveStageId() {
+  return state.activeStage ?? 'text'
+}
 
 export function setPersona(personaId) {
   setState({ persona: personaId })

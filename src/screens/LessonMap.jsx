@@ -9,6 +9,7 @@
 import { useProgress, goToLesson } from '../hooks/useProgress'
 import { LESSONS } from '../data/lessons'
 import { SCREENS } from '../lib/screens'
+import StagePicker from '../components/StagePicker'
 
 function LockIcon() {
   return (
@@ -47,6 +48,11 @@ export default function LessonMap({ onNavigate, onPractice }) {
           replaying a finished lesson can raise your best score · replays earn half XP
         </p>
       </header>
+      {/* v3-1c — stage switcher; locked stages teased, never hidden */}
+      <div className="mb-5">
+        <StagePicker />
+      </div>
+
 
       <ol className="grid gap-3 lg:grid-cols-2">
         {LESSONS.map((lesson, i) => {
