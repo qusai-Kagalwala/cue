@@ -225,13 +225,13 @@ const LESSON_WEIGHTS_IMAGE = {
 
 // ---- VIDEO ----
 const VID_STYLE =
-  /\b(cinematic|documentary|film noir|anime|animated|3d animation|stop motion|claymation|hand-?drawn|vhs|8mm|16mm|35mm|film grain|music video|commercial|trailer|vlog|found footage|hyper-?lapse|time-?lapse|slow motion|photorealistic|surreal|dreamlike|retro|vintage|black and white|monochrome)\b/i
+  /\b(warm(er)? (light|tone|colour|color)|cool(er)? (light|tone)|desaturated|saturated|contrast|colou?r grade|grading|cinematic|documentary|film noir|anime|animated|3d animation|stop motion|claymation|hand-?drawn|vhs|8mm|16mm|35mm|film grain|music video|commercial|trailer|vlog|found footage|hyper-?lapse|time-?lapse|slow motion|photorealistic|surreal|dreamlike|retro|vintage|black and white|monochrome)\b/i
 const VID_SHOT =
   /\b(close-?up|extreme close-?up|medium shot|wide shot|establishing shot|long shot|full shot|two-?shot|over the shoulder|point of view|pov|aerial|drone shot|bird'?s eye|low angle|high angle|eye level|dutch angle|macro shot|insert shot|tracking shot|follow shot|static shot|locked-?off shot|handheld shot|shot of|footage of|scene of)\b/i
 const VID_MOVEMENT =
-  /\b(pan(ning)?|tilt(ing)?|dolly|dolly in|dolly out|truck|track(ing)? shot|zoom(ing)? (in|out)|crane|jib|steadicam|handheld|orbit(ing)?|push in|pull (back|out)|static (shot|camera)|locked off|whip pan|follow shot|arc shot)\b/i
+  /\b(pan(ning)?|tilt(ing)?|dolly|dolly in|dolly out|truck|track(ing)? shot|zoom(ing)? (in|out)|crane|jib|steadicam|handheld|orbit(ing)?|push in|pull (back|out)|static (shot|camera)|locked off|whip pan|follow shot|arc shot|camera (move|movement|motion)|slow(er|ly)? (the )?(camera|move|movement|pan|zoom)|faster (camera|move|pan)|smooth(er)? (move|motion))\b/i
 const VID_CONTINUITY =
-  /\b(scene|sequence|then|after|next|transition|cut to|match cut|dissolve|fade (in|out)|continu(ity|ous)|same (character|setting|location)|throughout|begins?|ends?|starts? with|finishes)\b/i
+  /\b(scene|sequence|then|after|next|transition|cut to|match cut|dissolve|fade (in|out)|continu(ity|ous)|same [a-z]+|keep (the )?[a-z]+|hold (the |on )?[a-z]+|unchanged|identical|throughout|begins?|ends?|starts? with|finishes|final frame|first frame|opening|closing)\b/i
 const VID_TIMING =
   /\b(\d+\s?(second|sec|s|minute|min)s?|duration|loop(ing|s|ed)?|beat|rhythm|paced?|pacing|fast[- ]cut|slow(ly)?|gradual(ly)?|abrupt|frame rate|\d+\s?fps|24p|60fps)\b/i
 
@@ -255,7 +255,7 @@ const VIDEO_DETECTORS = {
     const mat = (p.match(new RegExp(IMG_SUBJECT_MATERIAL.source, 'gi')) ?? []).length
     s += clamp01(mat / 2) * 0.3
     // motion verbs — the subject DOING something is video's core specificity
-    const verbs = (p.match(/\b(follow(s|ing)?|walk(s|ing)?|run(s|ning)?|ride?(s|ing)?|cycl(es|ing)|driv(es|ing)|danc(es|ing)|shap(es|ing)|pour(s|ing)|open(s|ing)|clos(es|ing)|turn(s|ing)|lift(s|ing)|throw(s|ing)|catch(es|ing)|rise?(s|ing)|fall(s|ing)|spin(s|ning)?)\b/gi) ?? []).length
+    const verbs = (p.match(/\b(follow(s|ing)?|walk(s|ing)?|run(s|ning)?|rid(es|ing)|cycl(es|ing)|driv(es|ing)|danc(es|ing)|shap(es|ing)|pour(s|ing)|open(s|ing)|clos(es|ing)|turn(s|ing)|lift(s|ing)|throw(s|ing)|catch(es|ing)|ris(es|ing)|fall(s|ing)|spin(s|ning)?|shak(es|ing)|fly(ing|s)?|flying|splash(es|ing)?|steam(s|ing)?|whistl(es|ing)|knead(s|ing)|strain(s|ing)|wind(s|ing)|drift(s|ing)|swirl(s|ing)|blow(s|ing)|wav(es|ing)|jump(s|ing)|climb(s|ing)|swim(s|ming)?|scroll(s|ing)|tap(s|ping)|type?(s|ing)|swipe?(s|ing))\b/gi) ?? []).length
     s += clamp01(verbs / 2) * 0.3
     if (IMG_COLOUR.test(p)) s += 0.15
     if (/\b[A-Z][a-z]{3,}/.test(p.slice(1))) s += 0.15
@@ -282,7 +282,7 @@ const LESSON_WEIGHTS_VIDEO = {
   l4: { role: 0.05, context: 0.50, constraints: 0.15, format: 0.10, specificity: 0.10, length: 0.10 },
   l5: { role: 0.10, context: 0.15, constraints: 0.10, format: 0.10, specificity: 0.15, length: 0.40 },
   l6: { role: 0.50, context: 0.10, constraints: 0.10, format: 0.10, specificity: 0.10, length: 0.10 },
-  l7: { role: 0.10, context: 0.20, constraints: 0.25, format: 0.20, specificity: 0.15, length: 0.10 },
+  l7: { role: 0.10, context: 0.35, constraints: 0.30, format: 0.10, specificity: 0.05, length: 0.10 },
   l8: { role: 0.05, context: 0.10, constraints: 0.10, format: 0.10, specificity: 0.20, length: 0.45 },
 }
 
