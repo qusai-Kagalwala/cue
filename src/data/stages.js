@@ -18,6 +18,11 @@ import { LESSON_META_IMAGE } from './lessons.meta.image'
 import { SOLO_IMAGE } from './scenarios.image.solo'
 import { ASSISTED_IMAGE } from './scenarios.image.assisted'
 import { GUIDED_IMAGE } from './scenarios.image.guided'
+// v3-3d — the Video Stage content pack
+import { LESSON_META_VIDEO } from './lessons.meta.video'
+import { SOLO_VIDEO } from './scenarios.video.solo'
+import { ASSISTED_VIDEO } from './scenarios.video.assisted'
+import { GUIDED_VIDEO } from './scenarios.video.guided'
 
 export const DEFAULT_STAGE = 'text'
 
@@ -50,15 +55,20 @@ export const STAGES = {
     weightsKey: 'image',
     proxyMode: 'image',
   },
+  // v3-3d — SHIPPED. Content pack only; not one screen changed.
   video: {
     id: 'video',
     label: 'Video',
     blurb: 'Shots, movement, continuity — prompting things that move.',
-    locked: true,
-    lessons: null,
-    scenarios: null,
+    locked: false,
+    lessons: LESSON_META_VIDEO,
+    scenarios: {
+      solo: SOLO_VIDEO,
+      assisted: ASSISTED_VIDEO,
+      guided: GUIDED_VIDEO,
+    },
     weightsKey: 'video',
-    proxyMode: 'lesson-video',
+    proxyMode: 'video',
   },
   audio: {
     id: 'audio',
@@ -68,7 +78,7 @@ export const STAGES = {
     lessons: null,
     scenarios: null,
     weightsKey: 'audio',
-    proxyMode: 'lesson-audio',
+    proxyMode: 'audio',
   },
 }
 
