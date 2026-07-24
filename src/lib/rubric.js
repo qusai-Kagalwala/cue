@@ -100,6 +100,115 @@ const LESSON_WEIGHTS = {
 
 const DEFAULT_WEIGHTS = { role: 0.1, context: 0.2, constraints: 0.15, format: 0.15, specificity: 0.25, length: 0.15 }
 
+
+// ---------------------------------------------------------------- v3-2a
+// IMAGE STAGE detectors. Same six SLOTS as text (docs/v3-stages.md §3),
+// different vocabulary. Slot names stay canonical (role/context/format/
+// constraints/specificity/length) so the machine is untouched; the
+// LABELS below are what the learner actually reads.
+//
+//   role        → style & art direction   ("in the style of", "oil painting")
+//   context     → scene & setting          (where, when, weather, mood)
+//   format      → composition & framing    (close-up, wide shot, rule of thirds)
+//   constraints → technical controls       (lighting, lens, aspect, quality, negatives)
+//   specificity → subject detail           (what exactly, colour, material, action)
+//   length      → prompt density           (image prompts reward packed detail)
+
+const IMG_STYLE =
+  /\b(in the style of|style of|art style|oil painting|watercolou?r|acrylic|charcoal|pencil sketch|line art|vector|flat illustration|3d render|octane|unreal engine|pixar|anime|manga|studio ghibli|ukiyo-?e|art nouveau|art deco|bauhaus|impressionis(m|t)|surreal(ism|ist)?|cyberpunk|steampunk|vaporwave|noir|minimalist|photorealistic|hyper-?realistic|realistic|cinematic|editorial|documentary photo|street photography|portrait photography|concept art|matte painting|storybook|comic|retro|vintage|film still)\b/i
+
+const IMG_SCENE =
+  /\b(background|backdrop|setting|environment|landscape|indoor|outdoor|street|forest|desert|beach|mountain|city|village|market|room|studio|rooftop|alley|field|sky|night|day|dawn|dusk|sunset|sunrise|golden hour|blue hour|morning|evening|midnight|rain(y|ing)?|snow(y|ing)?|fog(gy)?|mist(y)?|storm(y)?|cloudy|sunny|monsoon|winter|summer|autumn|spring|festival|diwali|holi|wedding)\b/i
+
+const IMG_COMPOSITION =
+  /\b(close-?up|extreme close-?up|wide shot|wide-?angle|long shot|medium shot|full body|head ?shot|portrait|landscape orientation|bird'?s eye|worm'?s eye|top-?down|overhead|low angle|high angle|eye level|dutch angle|over the shoulder|profile|three-?quarter|centred|centered|rule of thirds|symmetr(y|ical)|framed|foreground|midground|composition|crop(ped)?|negative space|leading lines|silhouette)\b/i
+
+const IMG_TECHNICAL =
+  /\b(brush ?strokes?|linework|shading|texture|grain|film grain|halftone|dithered|cel-?shaded|palette|muted|saturated|desaturated|contrast|exposure|vignette|lighting|lit|backlit|rim light|soft light|hard light|natural light|studio light|neon|volumetric|god rays|chiaroscuro|shallow depth of field|deep depth of field|depth of field|bokeh|f\/?\d|\d{2,3}\s?mm|lens|macro|telephoto|fisheye|tilt-?shift|long exposure|motion blur|sharp focus|soft focus|hdr|8k|4k|ultra-?detailed|high detail|highly detailed|high resolution|aspect ratio|\d{1,2}:\d{1,2}|--ar|--v|--q|--style|--no|portrait mode|landscape mode|square|vertical|horizontal|no |without |avoid |negative prompt)\b/i
+
+const IMG_SUBJECT_MATERIAL =
+  /\b(wearing|holding|sitting|standing|walking|running|jumping|smiling|looking|reading|cooking|playing|dancing|sleeping|flying|floating|made of|wooden|metal(lic)?|glass|marble|velvet|silk|cotton|leather|fur|fluffy|furry|shiny|matte|rusty|worn|cracked|glowing|translucent|embroidered|patterned|striped|polka|carved|woven)\b/i
+
+const IMG_COLOUR =
+  /\b(red|orange|yellow|green|blue|indigo|violet|purple|pink|magenta|cyan|teal|turquoise|gold(en)?|silver|bronze|copper|black|white|grey|gray|beige|cream|ivory|crimson|scarlet|maroon|navy|olive|amber|saffron|pastel|monochrome|sepia|muted|vibrant|neon|warm tones?|cool tones?|colou?r palette)\b/i
+
+const IMAGE_DETECTORS = {
+  // style & art direction
+  role(prompt) {
+    return IMG_STYLE.test(prompt) ? 1 : 0
+  },
+
+  // scene & setting — where/when/weather, plus atmosphere words
+  context(prompt) {
+    let score = 0
+    if (IMG_SCENE.test(prompt)) score += 0.55
+    const hits = (prompt.match(new RegExp(IMG_SCENE.source, 'gi')) ?? []).length
+    score += clamp01((hits - 1) / 3) * 0.3   // several scene cues = a real setting
+    if (/\b(in|on|at|under|beside|inside|outside|behind|above)\b/i.test(prompt)) score += 0.15
+    return clamp01(score)
+  },
+
+  // composition & framing
+  format(prompt) {
+    return IMG_COMPOSITION.test(prompt) ? 1 : 0
+  },
+
+  // technical controls — lighting, lens, aspect, quality, negatives
+  constraints(prompt) {
+    const hits = (prompt.match(new RegExp(IMG_TECHNICAL.source, 'gi')) ?? []).length
+    return clamp01(hits / 3)   // three technical cues = full marks
+  },
+
+  // subject detail — the thing itself, specified
+  specificity(prompt, lesson) {
+    let score = 0
+    // the subject, actually described: what it's doing / made of
+    const matHits = (prompt.match(new RegExp(IMG_SUBJECT_MATERIAL.source, 'gi')) ?? []).length
+    score += clamp01(matHits / 2) * 0.35
+    // named colours or palette
+    if (IMG_COLOUR.test(prompt)) score += 0.2
+    // descriptive adjectives (fluffy, weathered, ornate…)
+    const adjectives = (prompt.match(/\b[a-z]{4,}(?:ful|ous|ish|ive|less|able|ed|y)\b/gi) ?? []).length
+    score += clamp01(adjectives / 3) * 0.25
+    // proper nouns / concrete places-things (Persian, Tokyo, Rajasthani)
+    if (/\b[A-Z][a-z]{3,}/.test(prompt.slice(1))) score += 0.1
+    // on-topic overlap is a small bonus, never the gate
+    const topic = keywords(`${lesson.scenario ?? ''} ${lesson.task ?? ''}`)
+    const overlap = keywords(prompt).filter((w) => topic.includes(w)).length
+    score += clamp01(overlap / 4) * 0.1
+    return clamp01(score)
+  },
+
+  // prompt density — image prompts reward packed detail, punish both
+  // one-word prompts and rambling paragraphs
+  length(prompt, lesson) {
+    const words = prompt.trim().split(/\s+/).filter(Boolean).length
+    if (lesson.tokenBudget != null) {
+      const tokens = estimateTokens(prompt)
+      if (tokens <= lesson.tokenBudget) return 1
+      return clamp01(1 - (tokens - lesson.tokenBudget) / lesson.tokenBudget)
+    }
+    if (words < 4) return 0.05          // "a cat"
+    if (words < 8) return 0.35
+    if (words <= 60) return 1           // the dense sweet spot
+    return clamp01(1 - (words - 60) / 60)
+  },
+}
+
+// Image curriculum weights — each lesson leans on its own teaching point.
+// (l1 subject · l2 scene · l3 composition · l4 technical · l5 style refs ·
+//  l6 art style · l7 refine · l8 density)
+const LESSON_WEIGHTS_IMAGE = {
+  l1: { role: 0.05, context: 0.10, constraints: 0.10, format: 0.10, specificity: 0.50, length: 0.15 },
+  l2: { role: 0.05, context: 0.50, constraints: 0.10, format: 0.10, specificity: 0.15, length: 0.10 },
+  l3: { role: 0.05, context: 0.10, constraints: 0.10, format: 0.50, specificity: 0.15, length: 0.10 },
+  l4: { role: 0.05, context: 0.10, constraints: 0.50, format: 0.10, specificity: 0.15, length: 0.10 },
+  l5: { role: 0.40, context: 0.10, constraints: 0.10, format: 0.15, specificity: 0.15, length: 0.10 },
+  l6: { role: 0.50, context: 0.10, constraints: 0.10, format: 0.10, specificity: 0.10, length: 0.10 },
+  l7: { role: 0.10, context: 0.15, constraints: 0.30, format: 0.20, specificity: 0.15, length: 0.10 },
+  l8: { role: 0.05, context: 0.10, constraints: 0.15, format: 0.10, specificity: 0.20, length: 0.40 },
+}
+
 // ---------------------------------------------------------------- v3-1b
 // STAGE REGISTRY. Six dimension SLOTS are fixed (docs/v3-stages.md §3);
 // each stage supplies its own detectors, weights, and human labels for
@@ -116,7 +225,19 @@ const STAGE_RUBRICS = {
       format: 'Shape named', specificity: 'Specifics named', length: 'Right length',
     },
   },
-  // image/video/audio detectors land with their content packs (v3-2a etc.)
+  image: {
+    detectors: IMAGE_DETECTORS,
+    weights: LESSON_WEIGHTS_IMAGE,
+    labels: {
+      role: 'Art style named',
+      context: 'Scene set',
+      constraints: 'Technical controls',
+      format: 'Framing chosen',
+      specificity: 'Subject detailed',
+      length: 'Good density',
+    },
+  },
+  // video/audio detectors land with their content packs (v3-3/3-4)
 }
 
 /** The rubric bundle for a stage — unknown/absent → text (AC). */
