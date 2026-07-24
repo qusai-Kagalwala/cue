@@ -1,127 +1,134 @@
-# Cue — v3 Board: STAGES (paste into task.md)
+# Cue — Task Board (v7)
 
-**Rules:** one ticket = one AI session = one commit. Files are the scope
-fence. **The Stages contract:** a stage is a CONTENT PACK — 8 lessons ×3
-personas + 48 practice + a dimension/weights table + one proxy prompt
-variant — flowing through the UNCHANGED machine (Opening Act, the
-guided→assisted→assessment ladder, XP, Encore, Report, Playbill). If a
-ticket wants to fork a screen, the ticket is wrong.
+**Rules:** one ticket = one AI session = one commit. Files listed are the
+scope fence. Strategy in `roadmap.md`; contract in `docs/v3-stages.md`.
+**Every ticket ends with a line in `docs/decisions.md` if it made a call.**
 
----
-
-## Phase A — Pre-work (before any stage content)
-
-### v3-0 — Stages vision & architecture note
-Files: docs/v3-stages.md (new)
-- The mode contract (what a stage must supply, what it may NOT change) ·
-  text→image dimension mapping table · shared-identity vs per-stage
-  progress decision, decided and written · honest cost per stage
-**AC:** SRS-citable; a reader could build a new stage from this note alone.
-
-### v3-1a — Stage-aware data layer
-Files: src/data/stages.js (new), src/data/lessons.js (shim widens),
-src/lib/storage.js (activeStage + per-stage progress), src/hooks/useProgress.js
-- `STAGES` registry: { id, label, blurb, locked, lessons, scenarios{solo,
-  assisted,guided}, weightsTable, proxyMode }
-- Text stage registers the EXISTING data — zero content moves
-- Storage: `activeStage: 'text'`, and lesson progress keyed per stage
-  (`stageProgress: { text: { currentLessonIndex, lessonStage, lessonScores,
-  practicePaid } }`); identity (name/xp/level/streak/rank/playbill) stays SHARED
-- Migration: existing saves' flat progress folds into `stageProgress.text`
-**AC:** app runs identically; existing save migrates losslessly; `npm test`
-green; grep shows no screen imports a stage directly.
-
-### v3-1b — Stage-aware rubric + proxy
-Files: src/lib/rubric.js (weights table per stage), api/evaluate.js (mode
-per stage), src/lib/gemini.js (pass stage)
-- `scoreWithRubric(lesson, prompt, stageId)` selects the stage's weights
-  + detector set; text behaviour unchanged when stageId is 'text'
-- Proxy: `stage: 'image'` → image-prompt-craft system prompt, SAME schema,
-  SAME chain, SAME fallback. Judges PROMPTS, never generates media
-**AC:** text scores byte-identical to today; unknown stage falls back to
-text weights; proxy validates the new field.
-
-### v3-1c — The stage picker
-Files: src/components/StagePicker.jsx (new), TopBar.jsx, LessonMap.jsx,
-src/screens/OpeningAct.jsx (optional beat)
-- Switch active stage; locked stages show "coming soon" not emptiness;
-  switching preserves each stage's own progress
-**AC:** switch → correct lessons/scenarios/weights load; progress per
-stage independent; identity shared; 375px clean.
+**The Stages contract:** a stage is a CONTENT PACK — 8 lessons ×3 personas
++ 48 practice scenarios + a dimension/weights table + one proxy framing —
+flowing through the UNCHANGED machine. If a ticket wants to fork a screen,
+the ticket is wrong.
 
 ---
 
-## Phase B — The Image Stage (first proof)
+## ✅ v1.0 — SHIPPED & TEACHER-APPROVED (tagged)
 
-### v3-2a — Image dimensions & weights (OFFLINE + code)
-Files: src/lib/rubric.js (image detectors + LESSON_WEIGHTS_IMAGE)
-- Six dimensions, renamed and re-detected: subject · scene/context ·
-  composition & framing · technical controls (lighting, lens, aspect,
-  quality) · style reference · economy/density
-**AC:** a strong image prompt (your Persian-cat example) scores high; a
-bare "a cat" scores low; text stage untouched.
+Phases 0–6 + v1 sprint. Full record in roadmap.md.
 
-### v3-2b — Image curriculum (OFFLINE — your session)
-Deliverable: 8 lessons ×3 personas, mapped from text's arc —
-Name the Subject · Set the Scene · Composition & Framing · Technical
-Controls · Style References · Choose the Art Style · Refine the Render ·
-Dense Prompting. Concepts + takeaways + one bad→good example each.
-**AC:** 24 solo scenarios curated; every lesson has a takeaway.
+## ✅ v2.0 — COMPLETE (tagged)
 
-### v3-2c — Image practice content (OFFLINE — your session)
-Deliverable: 48 scenarios (24 guided w/ skeletons + 24 assisted),
-generated from the v2-5a pipeline with image seeds.
-**AC:** skeletons produce decent prompts on any sane fill.
+Identity arc (share cards, Opening Act, Audition, name echo, callback +
+LCS diff) · Sandbox arc (Freeplay, review mode, Critic's Review) ·
+Practice arc (48 scenarios, data split, guided + assisted, **the teaching
+ladder**, practice XP) · World & reward (resources, persona matcher,
+voice, Encore, daily, library) · Progress arc (Season Report, Playbill) ·
+Platform (import/export, light theme, animations, calibration pipeline) ·
+The Programme guide.
 
-### v3-2d — Ship the Image Stage
-Files: src/data/scenarios.image.*.js, stages.js registration
-**AC:** full ladder playable in image mode; XP/Encore/Report/Playbill all
-work unchanged; no screen file modified.
+## ✅ v3 PHASE A — Stage-aware machine (COMPLETE)
 
----
+- **v3-0** Stages contract note (`docs/v3-stages.md`) ✅
+- **v3-1a** Stage-aware data layer + lossless migration ✅
+- **v3-1b** Stage-aware rubric + proxy framing ✅
+- **v3-1c** Stage picker (locked stages teased) ✅
+- **AUDIT FIX** — five consumers still read pre-v3 flat journey fields
+  (currentLesson null, practice tiers served text content in image mode,
+  achievements unearnable, import validation rejected v3 exports) ✅
 
-## Phase C — More stages (recipe now proven)
+## ✅ v3 PHASE B — The Image Stage (SHIPPED)
 
-### v3-3 — Video Stage · v3-4 — Audio Stage · v3-5 — Code Stage
-Each = one dimensions/weights ticket + two content sessions + one ship
-ticket, exactly like Phase B. Ticketize when its turn comes.
-- Video dimensions: subject · shot type · camera movement · scene
-  continuity · timing/pacing · style
-- Audio: intent · voice/instrument · mood · structure · technical · length
-- Code: goal · context (stack/constraints) · interface/signature ·
-  edge cases · output format · scope discipline
+- **v3-2a** Image dimensions, detectors, weights ✅
+- **v3-2b** Image curriculum: 8 lessons + 24 solo scenarios ✅
+- **v3-2c** Image practice: 24 guided (skeletons) + 24 assisted ✅
+- **v3-2d** Shipped by registration alone — **zero screen files changed** ✅
+
+## ✅ v3 PHASE C (partial) — Video / Audio / Code rubrics
+
+- **v3-3a / v3-4a / v3-5a** All three dimension sets, detectors, weights,
+  and labels shipped together; calibrated and regression-checked ✅
 
 ---
 
-## Phase D — Personalization (the earlier discussion, now ticketized)
+## 🔨 ACTIVE — Content packs for the remaining stages
 
-### v3-6a — Persona matcher → per-stage tracks
-Files: api/evaluate.js (persona mode widens), OpeningAct.jsx
-- The existing matcher also suggests which STAGE fits a user's described
-  life (a designer → image; a founder → text+video)
-**AC:** suggestion shown as a nudge, never a lock; manual choice always wins.
+Each stage needs exactly three tickets now (the code is done):
 
-### v3-6b — Adaptive difficulty note (draft first)
-Files: docs/v3-adaptive.md
-- Runtime scenario generation vs curated packs: quota, safety, curation
-  loss, caching. Decide build-or-defer IN the note
-**AC:** an honest decision, written down.
+### v3-3b — Video curriculum (OFFLINE — your session)
+Deliverable: `lessons.meta.video.js` + `scenarios.video.solo.js`
+- 8 lessons mapped from the arc: Name the Subject & Action · Choose the
+  Shot · Move the Camera · Keep Continuity · Time & Pacing · Set the Style
+  · Refine the Take · Dense Prompting
+- Concepts + takeaways + one bad→good pair each; 24 solo scenarios
+**AC:** every lesson has a takeaway; every bad→good pair scores a real
+gain under the video rubric.
 
-### v3-6c — Localization note (draft first)
-Files: docs/v3-localization.md
-- Hindi-first: content ×N, evaluation language, rubric detectors per
-  language, UI strings. Cost stated honestly
-**AC:** same — a real feasibility note, not a promise.
+### v3-3c — Video practice content (OFFLINE — your session)
+Deliverable: `scenarios.video.guided.js` (24 + skeletons) +
+`scenarios.video.assisted.js` (24)
+**AC:** every skeleton filled with its own hints scores ≥40.
+
+### v3-3d — Ship the Video Stage
+Files: `src/data/stages.js` (registration only)
+**AC:** full ladder playable in video mode; no screen file modified.
+
+### v3-4b / v3-4c / v3-4d — Audio Stage
+Same three tickets. Lesson arc: Name the Sound · Set the Mood · Choose
+Voice or Instrument · Structure It · Technical Controls · Pick the Genre ·
+Refine the Take · Dense Prompting.
+
+### v3-5b / v3-5c / v3-5d — Code Stage
+Same three tickets. Lesson arc: State the Goal · Give the Context (stack,
+versions, constraints) · Define the Interface · Name the Edge Cases ·
+Show an Example · Set the Output Shape · Iterate on Real Errors ·
+Scope Discipline.
 
 ---
 
-## Phase E — Polish carried from v2
+## ⏭ QUEUED — near-term features (from the v2 board)
+
+### v2-19a/b — The First-Night Coach
+Files: `CoachOverlay.jsx`, `data/coach.js`, `Challenge.jsx`, `storage.js`
+(coachDone), `Programme.jsx` (replay link)
+- 19a: spotlight tour machine (targets via `data-coach` attrs, scrim +
+  highlight ring, Next/Skip, reduced-motion, missing-target skip)
+- 19b: the ~6-step L1 script + once-only flag + Programme replay
+**AC:** appears once for a fresh visitor at L1, skippable, replayable.
+
+### v2-20a/b/c — God Mode (the `Qu$@1` easter egg)
+Files: `lib/godMode.js`, `OpeningAct.jsx`, `useProgress.js`,
+`GodModeBadge.jsx`, `index.css`
+- 20a: session-only synthetic state overlay (never persisted, writes
+  no-op while active) — **`cue:v1` byte-identical before/after**
+- 20b: name-box trigger + always-visible exit badge
+- 20c: alt palette + verify every gate opens
+**AC:** every locked feature reachable in 30s; refresh exits; real save
+untouched. NOT documented in README/Programme — it lives in decisions.md.
+
+### v3-6a — Matcher suggests a stage
+The persona matcher also nudges a stage from the user's self-description.
+**AC:** suggestion only, never a lock.
+
+### v3-6b/6c — Adaptive difficulty · Localization
+Decision notes first (`docs/v3-adaptive.md`, `docs/v3-localization.md`);
+build-or-defer decided IN the note.
 
 ### v3-7 — Sound cue · v3-8 — Calibration re-run (v2-17b's real swap)
-Small, do when data/appetite exists.
 
-## Tripwires (unchanged, plus one)
-- No screen file may branch on stage id — stages are DATA
-- No new deps; proxy stays the only backend surface; no Gemini billing
-- Solo/Encore pay XP; practice pays once-ever; nothing else
-- decisions.md line before every commit
+---
+
+## 📄 FINAL PHASE — Docs & submission (end of year, per plan)
+
+SRS + UML assembled from roadmap.md + decisions.md + v3-stages.md +
+calibration-findings.md + ticket-tagged commits → final a11y/responsive
+re-audit (all stages, both themes) → final tag → GitHub Release.
+
+## Ship gates
+`v1.0` `v1.1` `v1.2` `v1.3` `v2.0` `v3.0-image` tagged · next tag when
+video ships · final tag after docs.
+
+## Tripwires (standing)
+- **No screen file may branch on stage id** — stages are DATA
+- After any state-shape change, grep EVERY reader (the v3 audit lesson)
+- No new deps; the proxy is the only backend surface; no Gemini billing
+- Solo/Encore pay XP; practice pays once-ever; nothing else pays
+- decisions.md line before the commit, not "later"

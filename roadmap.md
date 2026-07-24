@@ -47,7 +47,30 @@ first with first-class desktop. Full detail in git history at tag `v1.0`.
 18. **The Programme** — built-in user guide under an altitude rule
     (what/where, never how) — the demo companion ✅
 
-## 🔨 v3 — STAGES (ACTIVE NEXT — the flagship)
+## 🔨 v3 — STAGES (IN PROGRESS — the flagship)
+
+### ✅ Phase A — the stage-aware machine (COMPLETE)
+Stages contract note · stage-aware data layer with lossless migration of
+pre-v3 saves · per-stage rubric selection + per-stage proxy framing ·
+stage picker with locked stages teased. Text behaviour proved
+byte-identical across 80 scoring cases. A post-phase audit caught five
+consumers still reading the old flat state shape — all fixed.
+
+### ✅ Phase B — The Image Stage (SHIPPED)
+Six image dimensions (subject · scene · composition & framing · technical
+controls · style reference · density), 8-lesson curriculum with bad→good
+pairs, 24 solo + 48 practice scenarios, skeletons verified to score ≥40 on
+any sane fill. **Shipped by registering one content pack — zero screens
+touched**, which is the architecture's own proof.
+
+### 🔨 Phase C — Video · Audio · Code
+Rubrics for all three are **shipped and calibrated** (video: shot type,
+camera movement, continuity, pacing · audio: voice/instrument, mood,
+structure, tempo/key/raag · code: stack, goal, interface, edge cases,
+output shape, scope). Each stage now needs only its content pack:
+curriculum → practice scenarios → registration.
+
+### Older v3 framing (superseded, kept for context)
 
 **Stages:** the entire shipped machine, repeated as modes. A stage = a
 content pack (8 lessons ×3 personas, 48 practice scenarios, a dimension

@@ -39,7 +39,20 @@ cue/
 │   │                            #   marked v2 Audition slot
 │   │
 │   ├── data/
-│   │   └── lessons.js           # 24 interview-sourced scenarios + takeaway ×8
+│   │   ├── stages.js            # v3 — THE STAGES REGISTRY: text + image
+│   │   │                        #   playable, video/audio teased. Screens
+│   │   │                        #   must NEVER import this or branch on it
+│   │   ├── lessons.js           # stage-aware SHIM: LESSONS/getLesson/
+│   │   │                        #   getLessonByIndex/getPracticeContent
+│   │   │                        #   resolve from the ACTIVE stage
+│   │   ├── lessons.meta.js      # text lesson metadata + PERSONAS
+│   │   ├── scenarios.solo.js    # text: the original 24 (assessed)
+│   │   ├── scenarios.assisted.js / scenarios.guided.js   # text practice
+│   │   ├── lessons.meta.image.js          # image curriculum + bad→good
+│   │   ├── scenarios.image.solo.js        # image: 24 assessed
+│   │   ├── scenarios.image.assisted.js    # image practice
+│   │   ├── scenarios.image.guided.js      #   + skeletons
+│   │   ├── audition.js · encore.js · resources.js · programme.js
 │   │
 │   ├── lib/                     # pure logic, no React imports
 │   │   ├── screens.js           # SCREENS routing constants
@@ -50,9 +63,12 @@ cue/
 │   │   ├── gemini.js            # thin client, 12s timeout, cold-start retry
 │   │   │                        #   routing, warm-up ping, model passthrough
 │   │   ├── heuristic.js         # thin wrapper over rubric (stable import path)
-│   │   └── rubric.js            # THE PLATFORM: 6 weighted dimensions,
-│   │                            #   per-lesson weights, seeded templates,
-│   │                            #   dimensions breakdown for v2 checklist
+│   │   ├── rubric.js            # THE PLATFORM: 6 canonical dimension slots,
+│   │   │                        #   FIVE stage rubrics (text/image/video/
+│   │   │                        #   audio/code) — detectors + weights +
+│   │   │                        #   labels each; unknown stage → text
+│   │   ├── achievements.js · seasonStats.js · portability.js
+│   │   ├── ranks.js · shareCard.js · sandboxQuota.js · screens.js
 │   │
 │   ├── hooks/
 │   │   ├── useProgress.js       # useSyncExternalStore store: persona, XP,
@@ -69,10 +85,20 @@ cue/
 ├── tests/
 │   └── xp.test.js               # 14 vitest tests — gamification engine
 │
-├── docs/                        # FINAL PHASE (after v2 + v3 drafts)
-│   ├── decisions.md             # ⏳ start NOW: one line per v2 decision
-│   ├── SRS.md                   # ⏳ assembled last from living docs
-│   └── uml/                     # ⏳ use-case, class, sequence (evaluate flow)
+├── scripts/                     # offline tooling — NEVER bundled by Vite
+│   └── calibrate.py             # rubric calibration (stdlib ridge)
+│
+├── public/                      # served verbatim at site root
+│   ├── favicon.svg / .ico · apple-touch-icon.png · icon-192/512.png
+│   ├── og.png                   # 1200×630 social card
+│   └── robots.txt · sitemap.xml · site.webmanifest
+│
+├── docs/
+│   ├── decisions.md             # one line per architectural decision
+│   ├── v3-stages.md             # THE STAGES CONTRACT (SRS-citable)
+│   ├── calibration-findings.md  # written by scripts/calibrate.py
+│   ├── SRS.md                   # ⏳ final phase
+│   └── uml/                     # ⏳ final phase
 │
 ├── .vscode/settings.json        # tailwind v4 at-rules squiggle off
 ├── .env                         # 🔒 gitignored · GEMINI_API_KEY (local vercel dev)

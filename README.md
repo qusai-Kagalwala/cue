@@ -10,7 +10,18 @@ Cue is an interactive web app that teaches anyone — students, everyday users, 
 
 ---
 
-## ✨ What's inside (v2.0)
+## 🎭 Now multi-modal — the Stages
+
+Cue teaches **text** and **image** prompting through the same machine, with
+video, audio, and code stages built and awaiting content. A "stage" is a
+content pack — 8 lessons, 48 practice scenarios, and its own six-dimension
+rubric — flowing through the *unchanged* app: same ladder, same XP, same
+Encore, same Season Report. Your name, rank, streak and stickers travel
+across every stage; each stage keeps its own lesson progress.
+
+Shipping the Image Stage changed exactly one data file and **zero screens**.
+
+## ✨ What's inside
 
 **The teaching ladder** — every lesson climbs three rungs:
 1. **Guided warm-up** — fill-in-the-blank skeletons; the structure is visible, you supply the specifics
@@ -35,6 +46,8 @@ Cue is an interactive web app that teaches anyone — students, everyday users, 
 
 **The Programme** — a built-in user guide (Settings → 🎭): every feature, where to find it, how to use it — the booklet at the theatre door.
 
+**Two stages live** — Text (emails, essays, explanations) and Image (subject, scene, framing, lighting, style). The image rubric knows lens terms, aspect ratios, art movements, and negative prompts; the checklist relabels itself per stage.
+
 ## 🛠️ Stack
 
 | Layer | Choice |
@@ -42,7 +55,8 @@ Cue is an interactive web app that teaches anyone — students, everyday users, 
 | Frontend | React 19 (Vite) |
 | Styling | Tailwind CSS v4 — CSS-first tokens; dark default + AA-checked light theme (L3 unlock) |
 | AI evaluation | Gemini Flash-Lite → Flash fallback chain via a stateless serverless proxy; three modes (lesson / review / persona), strict `responseSchema` JSON |
-| Offline scoring | Six-dimension weighted rubric — powers the fallback, the Audition, the live checklist, and both practice tiers at zero quota |
+| Offline scoring | Six-dimension weighted rubric **per stage** — powers the fallback, the Audition, the live checklist, and both practice tiers at zero quota |
+| Stages | Text + Image shipped; Video, Audio, Code rubrics built, content pending |
 | Persistence | localStorage only — state, attempt history, library, playbill; full export/import |
 | Hosting | Vercel (frontend + `/api` function, single deploy) |
 | Backend | **None** — one stateless function, no database, no auth, no analytics |
@@ -80,7 +94,7 @@ Each in three persona variants, each with a one-line takeaway, each climbable in
 
 ## 🗺️ Status
 
-**✅ v2.0 complete** (17 items + the Programme guide, ~31 tickets), v1.0 teacher-approved. **Next:** the v3 flagship — **Stages**: the same three-step ladder and 8-lesson arc, repeated as modes for image, video, and audio prompting (one machine, new content packs). Docs (SRS + UML) land as the final pre-submission phase. See [`task.md`](./task.md) and [`roadmap.md`](./roadmap.md).
+**✅ v2.0 complete**, **✅ v3 Phase A + B complete** — the machine is stage-aware and the Image Stage is live. Video, audio, and code rubrics are shipped and waiting on content packs. Docs (SRS + UML) land as the final phase. See [`task.md`](./task.md), [`roadmap.md`](./roadmap.md), and the architecture contract in [`docs/v3-stages.md`](./docs/v3-stages.md). See [`task.md`](./task.md) and [`roadmap.md`](./roadmap.md).
 
 ## 📄 About
 
