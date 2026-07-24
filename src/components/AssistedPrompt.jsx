@@ -14,7 +14,7 @@ import RubricChecklist from './RubricChecklist'
 import ResultsPanel from './ResultsPanel'
 
 export default function AssistedPrompt({ lessonId, onExit, onDone, flowLabel }) {
-  const { persona } = useProgress()
+  const { persona, activeStage } = useProgress()
   const meta = getLesson(lessonId, persona ?? 'everyday')
   const content =
     ASSISTED[lessonId]?.[persona ?? 'everyday'] ?? ASSISTED[lessonId]?.everyday
@@ -35,7 +35,7 @@ export default function AssistedPrompt({ lessonId, onExit, onDone, flowLabel }) 
   }
 
   function check() {
-    setResult(scoreWithRubric(shell, prompt)) // zero quota
+    setResult(scoreWithRubric(shell, prompt, activeStage)) // zero quota
     // Small completion reward — once per lesson, ever (null after that).
     setAward(completePractice(lessonId, 'assisted'))
     // NO completeLesson, NO appendAttempt — the Solo economy stays pure.

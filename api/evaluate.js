@@ -27,9 +27,52 @@ const RESPONSE_SCHEMA = {
 
 // ---------------------------------------------------------------- lesson mode
 
-function buildLessonSystemPrompt({ title, concept, scenario, task, tokenBudget }) {
+// v3-1b — Per-stage evaluation framing. The SCHEMA, the model chain, the
+// timeout, and the fallback are identical across stages; only the craft
+// being judged changes. CRITICAL: every stage judges the PROMPT as text.
+// Cue never generates images, video, or audio — an image-stage evaluation
+// reads a prompt and scores its craft, exactly like the text stage.
+const STAGE_FRAMING = {
+  text: {
+    persona: `You are the evaluator inside "Cue", an app teaching people to write clear, economical prompts for AI.`,
+    craft: `Judge the prompt as a request to a text AI: is the intent clear, the context sufficient, the output shape stated, the limits set?`,
+  },
+  image: {
+    persona: `You are the evaluator inside "Cue", teaching people to write prompts for IMAGE generators (Midjourney, DALL·E, Imagen, Flux).`,
+    craft: [
+      `Judge the prompt as an instruction to an image generator. Strong image prompts name:`,
+      `subject (what, in specific detail) · scene & setting · composition and framing`,
+      `· technical controls (lighting, lens, depth of field, aspect ratio, quality)`,
+      `· style reference (art style, medium, artist-adjacent descriptors) · and pack`,
+      `this densely without rambling.`,
+      `Do NOT describe or imagine the resulting image. Judge the PROMPT only.`,
+    ].join('\n'),
+  },
+  video: {
+    persona: `You are the evaluator inside "Cue", teaching people to write prompts for VIDEO generators (Veo, Runway, Kling).`,
+    craft: [
+      `Judge the prompt as an instruction to a video generator. Strong video prompts name:`,
+      `subject & action · shot type · camera movement · scene continuity · timing and`,
+      `pacing · visual style. Do NOT imagine the footage; judge the PROMPT only.`,
+    ].join('\n'),
+  },
+  audio: {
+    persona: `You are the evaluator inside "Cue", teaching people to write prompts for AUDIO and MUSIC generators (Suno, Udio, ElevenLabs).`,
+    craft: [
+      `Judge the prompt as an instruction to an audio generator. Strong audio prompts name:`,
+      `intent · voice or instrumentation · mood · structure · technical details (tempo,`,
+      `key, duration). Do NOT imagine the audio; judge the PROMPT only.`,
+    ].join('\n'),
+  },
+}
+
+const VALID_STAGES = Object.keys(STAGE_FRAMING)
+
+function buildLessonSystemPrompt({ title, concept, scenario, task, tokenBudget, stage }) {
+  const framing = STAGE_FRAMING[stage] ?? STAGE_FRAMING.text
   return [
-    `You are the evaluator inside "Cue", an app teaching people to write clear, economical prompts for AI.`,
+    framing.persona,
+    framing.craft,
     `Current lesson: "${title}". Teaching point: ${concept}`,
     `Scenario given to the learner: ${scenario}`,
     `Their task: ${task}`,
@@ -189,10 +232,17 @@ export default async function handler(req, res) {
     ? req.body.mode
     : 'lesson'
 
+  // v3-1b — stage validated for every mode, before mode-specific checks
+  const stageField =
+    req.body?.stage != null && !VALID_STAGES.includes(req.body.stage)
+      ? 'stage'
+      : null
+
   const invalidField =
-    mode === 'review' ? validateReview(req.body)
-    : mode === 'persona' ? validatePersona(req.body)
-    : validateLesson(req.body)
+    stageField ??
+    (mode === 'review' ? validateReview(req.body)
+      : mode === 'persona' ? validatePersona(req.body)
+      : validateLesson(req.body))
   if (invalidField) {
     return res.status(400).json({ error: 'BAD_INPUT', field: invalidField })
   }
@@ -200,7 +250,7 @@ export default async function handler(req, res) {
   const systemPrompt =
     mode === 'review' ? REVIEW_SYSTEM_PROMPT
     : mode === 'persona' ? PERSONA_SYSTEM_PROMPT
-    : buildLessonSystemPrompt(req.body)
+    : buildLessonSystemPrompt({ ...req.body, stage: req.body.stage ?? 'text' })
   const userContent =
     mode === 'review' ? buildReviewUserContent(req.body)
     : mode === 'persona'

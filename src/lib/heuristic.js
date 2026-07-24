@@ -6,6 +6,6 @@
 
 import { scoreWithRubric } from './rubric'
 
-export function heuristicEvaluate(lesson, userPrompt) {
-  return scoreWithRubric(lesson, userPrompt)
+export function heuristicEvaluate(lesson, userPrompt, stageId = 'text') {
+  return scoreWithRubric(lesson, userPrompt, stageId)
 }

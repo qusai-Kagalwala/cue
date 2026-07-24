@@ -100,9 +100,38 @@ const LESSON_WEIGHTS = {
 
 const DEFAULT_WEIGHTS = { role: 0.1, context: 0.2, constraints: 0.15, format: 0.15, specificity: 0.25, length: 0.15 }
 
-/** v2-5d — weights for a lesson id (the live checklist orders by these). */
-export function weightsFor(lessonId) {
-  return LESSON_WEIGHTS[lessonId] ?? DEFAULT_WEIGHTS
+// ---------------------------------------------------------------- v3-1b
+// STAGE REGISTRY. Six dimension SLOTS are fixed (docs/v3-stages.md §3);
+// each stage supplies its own detectors, weights, and human labels for
+// those slots. Text's entries below are the exact v1 behaviour — the
+// same DETECTORS object and LESSON_WEIGHTS table, referenced, not copied.
+// A stage with no entry falls back to text. Stages judge PROMPTS only.
+
+const STAGE_RUBRICS = {
+  text: {
+    detectors: DETECTORS,
+    weights: LESSON_WEIGHTS,
+    labels: {
+      role: 'Role assigned', context: 'Context given', constraints: 'Limits set',
+      format: 'Shape named', specificity: 'Specifics named', length: 'Right length',
+    },
+  },
+  // image/video/audio detectors land with their content packs (v3-2a etc.)
+}
+
+/** The rubric bundle for a stage — unknown/absent → text (AC). */
+function rubricFor(stageId) {
+  return STAGE_RUBRICS[stageId] ?? STAGE_RUBRICS.text
+}
+
+/** v3-1b — dimension labels for the live checklist, per stage. */
+export function labelsFor(stageId) {
+  return rubricFor(stageId).labels
+}
+
+/** v2-5d/v3-1b — weights for a lesson within a stage (checklist ordering). */
+export function weightsFor(lessonId, stageId = 'text') {
+  return rubricFor(stageId).weights[lessonId] ?? DEFAULT_WEIGHTS
 }
 
 // ------------------------------------------------------- feedback templates
@@ -168,15 +197,16 @@ const DIMENSION_FEEDBACK = {
  * Returns the evaluation shape used app-wide, plus a `dimensions`
  * breakdown (0..1 each) that the v2 live checklist will consume.
  */
-export function scoreWithRubric(lesson, userPrompt) {
+export function scoreWithRubric(lesson, userPrompt, stageId = 'text') {
   const prompt = (userPrompt ?? '').trim()
-  const weights = LESSON_WEIGHTS[lesson.id] ?? DEFAULT_WEIGHTS
+  const rubric = rubricFor(stageId)
+  const weights = rubric.weights[lesson.id] ?? DEFAULT_WEIGHTS
   const seed = seedFrom(`${lesson.id}|${prompt}`)
 
-  // 1. Detect all six dimensions
+  // 1. Detect all six dimensions with THIS stage's detectors
   const dimensions = {}
-  for (const dim of Object.keys(DETECTORS)) {
-    dimensions[dim] = DETECTORS[dim](prompt, lesson)
+  for (const dim of Object.keys(rubric.detectors)) {
+    dimensions[dim] = rubric.detectors[dim](prompt, lesson)
   }
 
   // 2. Weighted score → 15..75 (an estimate never rivals a real evaluation)

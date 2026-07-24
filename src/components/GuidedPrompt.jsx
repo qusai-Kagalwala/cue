@@ -13,7 +13,7 @@ import { scoreWithRubric } from '../lib/rubric'
 import ResultsPanel from './ResultsPanel'
 
 export default function GuidedPrompt({ lessonId, onExit, onDone, flowLabel }) {
-  const { persona } = useProgress()
+  const { persona, activeStage } = useProgress()
   const meta = getLesson(lessonId, persona ?? 'everyday')
   const content =
     GUIDED[lessonId]?.[persona ?? 'everyday'] ?? GUIDED[lessonId]?.everyday
@@ -44,7 +44,7 @@ export default function GuidedPrompt({ lessonId, onExit, onDone, flowLabel }) {
       task: content.task,
       tokenBudget: null,
     }
-    setResult(scoreWithRubric(shell, assembled())) // zero quota
+    setResult(scoreWithRubric(shell, assembled(), activeStage)) // zero quota
     // Small completion reward — once per lesson, ever (null after that).
     setAward(completePractice(lessonId, 'guided'))
     // NO completeLesson, NO appendAttempt — the Solo economy stays pure.

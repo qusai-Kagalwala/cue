@@ -43,7 +43,7 @@ export function warmUpProxy() {
 }
 
 /** Single evaluation attempt against our proxy. */
-export async function evaluatePrompt(lesson, userPrompt) {
+export async function evaluatePrompt(lesson, userPrompt, stageId = 'text') {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS)
 
@@ -59,6 +59,7 @@ export async function evaluatePrompt(lesson, userPrompt) {
         scenario: lesson.scenario,
         task: lesson.task,
         tokenBudget: lesson.tokenBudget ?? null,
+        stage: stageId,           // v3-1b — selects the proxy's framing
         userPrompt,
       }),
     })
@@ -98,13 +99,13 @@ export async function evaluatePrompt(lesson, userPrompt) {
  * Evaluate with one retry on transient failures (see policy above).
  * @throws {EvalError} after the final attempt fails
  */
-export async function evaluateWithRetry(lesson, userPrompt) {
+export async function evaluateWithRetry(lesson, userPrompt, stageId = 'text') {
   try {
-    return await evaluatePrompt(lesson, userPrompt)
+    return await evaluatePrompt(lesson, userPrompt, stageId)
   } catch (err) {
     if (err instanceof EvalError && RETRYABLE.has(err.code)) {
       await sleep(RETRY_BACKOFF_MS)
-      return evaluatePrompt(lesson, userPrompt) // second failure propagates
+      return evaluatePrompt(lesson, userPrompt, stageId) // 2nd failure propagates
     }
     throw err
   }

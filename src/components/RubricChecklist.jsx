@@ -6,16 +6,8 @@
 // it's all the local rubric.
 
 import { useEffect, useState } from 'react'
-import { scoreWithRubric, weightsFor } from '../lib/rubric'
-
-const LABELS = {
-  role: 'Role assigned',
-  context: 'Context given',
-  constraints: 'Limits set',
-  format: 'Shape named',
-  specificity: 'Specifics named',
-  length: 'Right length',
-}
+import { scoreWithRubric, weightsFor, labelsFor } from '../lib/rubric'
+import { useProgress } from '../hooks/useProgress'
 
 function Tick({ level }) {
   // level: 'full' | 'partial' | 'empty'
@@ -29,6 +21,7 @@ function Tick({ level }) {
 }
 
 export default function RubricChecklist({ lesson, prompt }) {
+  const { activeStage } = useProgress()
   const [debounced, setDebounced] = useState(prompt)
 
   useEffect(() => {
@@ -36,8 +29,9 @@ export default function RubricChecklist({ lesson, prompt }) {
     return () => clearTimeout(t)
   }, [prompt])
 
-  const { dimensions } = scoreWithRubric(lesson, debounced)
-  const weights = weightsFor(lesson.id)
+  const { dimensions } = scoreWithRubric(lesson, debounced, activeStage)
+  const weights = weightsFor(lesson.id, activeStage)
+  const LABELS = labelsFor(activeStage)
   const ordered = Object.keys(weights).sort((a, b) => weights[b] - weights[a])
   const focus = new Set(ordered.slice(0, 2))
 

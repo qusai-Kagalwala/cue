@@ -13,7 +13,7 @@ import { useRef, useState } from 'react'
 import { evaluateWithRetry } from '../lib/gemini'
 import { heuristicEvaluate } from '../lib/heuristic'
 import { appendAttempt, saveToLibrary, LIBRARY_THRESHOLD } from '../lib/storage'
-import { completeLesson } from './useProgress'
+import { completeLesson, getActiveStageId } from './useProgress'
 
 /** djb2 — tiny, fast, plenty for dedup (not crypto, doesn't need to be). */
 function hashSubmission(lesson, prompt) {
@@ -57,10 +57,10 @@ export function useEvaluation() {
     try {
       let evaluation
       try {
-        evaluation = await evaluateWithRetry(lesson, userPrompt)
+        evaluation = await evaluateWithRetry(lesson, userPrompt, getActiveStageId())
       } catch (err) {
         setErrorCode(err.code ?? 'UNKNOWN')
-        evaluation = heuristicEvaluate(lesson, userPrompt)
+        evaluation = heuristicEvaluate(lesson, userPrompt, getActiveStageId())
       }
 
       // --- The single transition into `done` with a fresh result. ---
