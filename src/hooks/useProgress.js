@@ -228,25 +228,28 @@ export function resetProgress() {
 export function useProgress() {
   const s = useSyncExternalStore(subscribe, getSnapshot)
 
-  const isComplete = s.currentLessonIndex >= TOTAL_LESSONS
+  // v3-1a fix — journey fields live per stage; read them from there.
+  const stageId = s.activeStage ?? 'text'
+  const j = getStageProgress(s, stageId)
+  const isComplete = j.currentLessonIndex >= TOTAL_LESSONS
   const currentLesson = isComplete
     ? null
-    : getLessonByIndex(s.currentLessonIndex, s.persona ?? 'everyday')
+    : getLessonByIndex(j.currentLessonIndex, s.persona ?? 'everyday')
 
   return {
     // state
     persona: s.persona,
     name: s.name ?? null,          // v2-3d — echoes across toast/finale/card
-    activeStage: s.activeStage ?? 'text',
-    currentLessonIndex: getStageProgress(s, s.activeStage ?? 'text').currentLessonIndex,
-    lessonStage: getStageProgress(s, s.activeStage ?? 'text').lessonStage ?? 'guided',
+    activeStage: stageId,
+    currentLessonIndex: j.currentLessonIndex,
+    lessonStage: j.lessonStage ?? 'guided',
     currentLesson,          // merged with persona variant, null when all done
     isComplete,
     xp: s.xp,
     level: s.level,
     xpToNext: xpToNextLevel(s.xp),
     streak: s.streak.count,
-    lessonScores: getStageProgress(s, s.activeStage ?? 'text').lessonScores,
+    lessonScores: j.lessonScores,
     totalLessons: TOTAL_LESSONS,
     encoreDoneToday: s.encoreDone === todayKey(),
     dailyDoneToday: s.dailyDone === todayKey(),
@@ -254,6 +257,7 @@ export function useProgress() {
     dailyLessonIndex: dailyLessonIndexFor(todayKey(), TOTAL_LESSONS),
     // actions
     setPersona,
+    setActiveStage,        // v3-1c fix — was missing from the snapshot
     completeLesson,
     advanceLesson,
     setLessonStage,

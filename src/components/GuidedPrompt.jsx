@@ -7,16 +7,15 @@
 
 import { useState } from 'react'
 import { useProgress, completePractice } from '../hooks/useProgress'
-import { getLesson } from '../data/lessons'
-import { GUIDED } from '../data/scenarios.guided'
+import { getLesson, getPracticeContent } from '../data/lessons'
 import { scoreWithRubric } from '../lib/rubric'
 import ResultsPanel from './ResultsPanel'
 
 export default function GuidedPrompt({ lessonId, onExit, onDone, flowLabel }) {
   const { persona, activeStage } = useProgress()
   const meta = getLesson(lessonId, persona ?? 'everyday')
-  const content =
-    GUIDED[lessonId]?.[persona ?? 'everyday'] ?? GUIDED[lessonId]?.everyday
+  // v3 fix — content comes from the ACTIVE stage, not the text files
+  const content = getPracticeContent('guided', lessonId, persona ?? 'everyday')
 
   const blanks = content.skeleton.filter((p) => p.blank)
   const [values, setValues] = useState(() => blanks.map(() => ''))

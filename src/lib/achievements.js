@@ -9,6 +9,18 @@
 const PLAYBILL_KEY = 'cue:playbill:v1'
 const CORE = ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8']
 
+/**
+ * v3 fix — lesson scores live per stage. An achievement counts if ANY
+ * stage cleared the required lessons: the Playbill is career-wide, so
+ * finishing Act One in the Image Stage earns the sticker just as well.
+ * Falls back to a pre-v3 flat save's lessonScores.
+ */
+function anyStageHas(state, ids) {
+  const blocks = Object.values(state?.stageProgress ?? {})
+  if (state?.lessonScores) blocks.push(state)
+  return blocks.some((b) => ids.every((id) => b?.lessonScores?.[id] != null))
+}
+
 export const ACHIEVEMENTS = [
   {
     id: 'audition',
@@ -30,7 +42,7 @@ export const ACHIEVEMENTS = [
     title: 'Act One',
     description: 'Cleared Lessons 1 through 4.',
     check: ({ state }) =>
-      CORE.slice(0, 4).every((id) => state.lessonScores?.[id] != null),
+      anyStageHas(state, CORE.slice(0, 4)),
   },
   {
     id: 'closing-night',
@@ -38,7 +50,7 @@ export const ACHIEVEMENTS = [
     title: 'Closing Night',
     description: 'All eight lessons complete.',
     check: ({ state }) =>
-      CORE.every((id) => state.lessonScores?.[id] != null),
+      anyStageHas(state, CORE),
   },
   {
     id: 'full-house',

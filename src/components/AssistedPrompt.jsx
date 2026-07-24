@@ -6,8 +6,7 @@
 
 import { useState } from 'react'
 import { useProgress, completePractice } from '../hooks/useProgress'
-import { getLesson } from '../data/lessons'
-import { ASSISTED } from '../data/scenarios.assisted'
+import { getLesson, getPracticeContent } from '../data/lessons'
 import { scoreWithRubric } from '../lib/rubric'
 import PromptInput from './PromptInput'
 import RubricChecklist from './RubricChecklist'
@@ -16,8 +15,8 @@ import ResultsPanel from './ResultsPanel'
 export default function AssistedPrompt({ lessonId, onExit, onDone, flowLabel }) {
   const { persona, activeStage } = useProgress()
   const meta = getLesson(lessonId, persona ?? 'everyday')
-  const content =
-    ASSISTED[lessonId]?.[persona ?? 'everyday'] ?? ASSISTED[lessonId]?.everyday
+  // v3 fix — content comes from the ACTIVE stage, not the text files
+  const content = getPracticeContent('assisted', lessonId, persona ?? 'everyday')
 
   const [prompt, setPrompt] = useState('')
   const [result, setResult] = useState(null)

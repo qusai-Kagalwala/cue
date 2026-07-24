@@ -73,14 +73,19 @@ export function validateImport(obj) {
     return { ok: false, error: 'Export file has no data section.' }
   }
   const s = d.state
-  if (
-    s == null || typeof s !== 'object' ||
-    typeof s.version !== 'number' ||
-    typeof s.xp !== 'number' ||
-    typeof s.currentLessonIndex !== 'number' ||
-    s.streak == null || typeof s.streak !== 'object' ||
-    typeof s.lessonScores !== 'object'
-  ) {
+  // v3 fix — accept BOTH shapes: pre-v3 flat saves and staged saves.
+  // storage.js migrates a flat import on the next load.
+  const hasIdentity =
+    s != null && typeof s === 'object' &&
+    typeof s.version === 'number' &&
+    typeof s.xp === 'number' &&
+    s.streak != null && typeof s.streak === 'object'
+  const flatJourney =
+    typeof s?.currentLessonIndex === 'number' &&
+    typeof s?.lessonScores === 'object'
+  const stagedJourney =
+    s?.stageProgress != null && typeof s.stageProgress === 'object'
+  if (!hasIdentity || !(flatJourney || stagedJourney)) {
     return { ok: false, error: 'Progress data inside the file is damaged.' }
   }
   if (!Array.isArray(d.attempts)) {
