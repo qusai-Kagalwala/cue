@@ -209,6 +209,201 @@ const LESSON_WEIGHTS_IMAGE = {
   l8: { role: 0.05, context: 0.10, constraints: 0.15, format: 0.10, specificity: 0.20, length: 0.40 },
 }
 
+
+// ---------------------------------------------------------------- v3-3/4/5
+// VIDEO, AUDIO and CODE detectors. Same six canonical slots, three more
+// vocabularies (docs/v3-stages.md §3). Slot → meaning per stage:
+//   video: role=style · context=scene continuity · format=shot type ·
+//          constraints=camera movement · specificity=subject & action ·
+//          length=timing & pacing
+//   audio: role=voice/instrument · context=mood & setting · format=structure ·
+//          constraints=technical (tempo/key/duration) · specificity=timbre ·
+//          length=density
+//   code:  role=stack & conventions · context=goal/problem · format=interface ·
+//          constraints=edge cases · specificity=expected behaviour ·
+//          length=scope discipline
+
+// ---- VIDEO ----
+const VID_STYLE =
+  /\b(cinematic|documentary|film noir|anime|animated|3d animation|stop motion|claymation|hand-?drawn|vhs|8mm|16mm|35mm|film grain|music video|commercial|trailer|vlog|found footage|hyper-?lapse|time-?lapse|slow motion|photorealistic|surreal|dreamlike|retro|vintage|black and white|monochrome)\b/i
+const VID_SHOT =
+  /\b(close-?up|extreme close-?up|medium shot|wide shot|establishing shot|long shot|full shot|two-?shot|over the shoulder|point of view|pov|aerial|drone shot|bird'?s eye|low angle|high angle|eye level|dutch angle|macro shot|insert shot|tracking shot|follow shot|static shot|locked-?off shot|handheld shot|shot of|footage of|scene of)\b/i
+const VID_MOVEMENT =
+  /\b(pan(ning)?|tilt(ing)?|dolly|dolly in|dolly out|truck|track(ing)? shot|zoom(ing)? (in|out)|crane|jib|steadicam|handheld|orbit(ing)?|push in|pull (back|out)|static (shot|camera)|locked off|whip pan|follow shot|arc shot)\b/i
+const VID_CONTINUITY =
+  /\b(scene|sequence|then|after|next|transition|cut to|match cut|dissolve|fade (in|out)|continu(ity|ous)|same (character|setting|location)|throughout|begins?|ends?|starts? with|finishes)\b/i
+const VID_TIMING =
+  /\b(\d+\s?(second|sec|s|minute|min)s?|duration|loop(ing|s|ed)?|beat|rhythm|paced?|pacing|fast[- ]cut|slow(ly)?|gradual(ly)?|abrupt|frame rate|\d+\s?fps|24p|60fps)\b/i
+
+const VIDEO_DETECTORS = {
+  role: (p) => (VID_STYLE.test(p) ? 1 : 0),
+  context(p) {
+    const hits = (p.match(new RegExp(VID_CONTINUITY.source, 'gi')) ?? []).length
+    let s = clamp01(hits / 2) * 0.55
+    if (IMG_SCENE.test(p)) s += 0.3
+    const sceneHits = (p.match(new RegExp(IMG_SCENE.source, 'gi')) ?? []).length
+    s += clamp01((sceneHits - 1) / 2) * 0.15
+    return clamp01(s)
+  },
+  format: (p) => (VID_SHOT.test(p) ? 1 : 0),
+  constraints(p) {
+    const hits = (p.match(new RegExp(VID_MOVEMENT.source, 'gi')) ?? []).length
+    return clamp01(hits / 2)
+  },
+  specificity(p) {
+    let s = 0
+    const mat = (p.match(new RegExp(IMG_SUBJECT_MATERIAL.source, 'gi')) ?? []).length
+    s += clamp01(mat / 2) * 0.3
+    // motion verbs — the subject DOING something is video's core specificity
+    const verbs = (p.match(/\b(follow(s|ing)?|walk(s|ing)?|run(s|ning)?|ride?(s|ing)?|cycl(es|ing)|driv(es|ing)|danc(es|ing)|shap(es|ing)|pour(s|ing)|open(s|ing)|clos(es|ing)|turn(s|ing)|lift(s|ing)|throw(s|ing)|catch(es|ing)|rise?(s|ing)|fall(s|ing)|spin(s|ning)?)\b/gi) ?? []).length
+    s += clamp01(verbs / 2) * 0.3
+    if (IMG_COLOUR.test(p)) s += 0.15
+    if (/\b[A-Z][a-z]{3,}/.test(p.slice(1))) s += 0.15
+    const adj = (p.match(/\b[a-z]{4,}(?:ful|ous|ish|ive|less|able|ed|y)\b/gi) ?? []).length
+    s += clamp01(adj / 3) * 0.1
+    return clamp01(s)
+  },
+  length(p, lesson) {
+    const words = p.trim().split(/\s+/).filter(Boolean).length
+    if (lesson.tokenBudget != null) {
+      const t = estimateTokens(p)
+      return t <= lesson.tokenBudget ? 1 : clamp01(1 - (t - lesson.tokenBudget) / lesson.tokenBudget)
+    }
+    let s = words < 5 ? 0.05 : words < 10 ? 0.4 : words <= 70 ? 1 : clamp01(1 - (words - 70) / 70)
+    if (VID_TIMING.test(p)) s = Math.max(s, 0.85) // stating duration IS pacing craft
+    return s
+  },
+}
+
+const LESSON_WEIGHTS_VIDEO = {
+  l1: { role: 0.05, context: 0.10, constraints: 0.10, format: 0.10, specificity: 0.50, length: 0.15 },
+  l2: { role: 0.05, context: 0.10, constraints: 0.10, format: 0.50, specificity: 0.15, length: 0.10 },
+  l3: { role: 0.05, context: 0.10, constraints: 0.50, format: 0.15, specificity: 0.10, length: 0.10 },
+  l4: { role: 0.05, context: 0.50, constraints: 0.15, format: 0.10, specificity: 0.10, length: 0.10 },
+  l5: { role: 0.10, context: 0.15, constraints: 0.10, format: 0.10, specificity: 0.15, length: 0.40 },
+  l6: { role: 0.50, context: 0.10, constraints: 0.10, format: 0.10, specificity: 0.10, length: 0.10 },
+  l7: { role: 0.10, context: 0.20, constraints: 0.25, format: 0.20, specificity: 0.15, length: 0.10 },
+  l8: { role: 0.05, context: 0.10, constraints: 0.10, format: 0.10, specificity: 0.20, length: 0.45 },
+}
+
+// ---- AUDIO ----
+const AUD_VOICE =
+  /\b(voice|vocals?|narrator|narration|male|female|child|elderly|deep|raspy|breathy|whisper(ed|ing)?|spoken word|choir|acappella|guitar|acoustic guitar|electric guitar|piano|keys|synth(esizer)?|violin|sitar|tabla|flute|bansuri|drums?|percussion|bass|strings|brass|saxophone|harmonium|dholak|orchestra|band|solo)\b/i
+const AUD_MOOD =
+  /\b(mood|feel(ing)?|atmosphere|ambien(t|ce)|calm|peaceful|melanchol(y|ic)|sad|joyful|uplifting|energetic|dramatic|tense|eerie|haunting|warm|nostalgic|romantic|playful|epic|meditative|devotional|festive|somber|hopeful)\b/i
+const AUD_STRUCTURE =
+  /\b(intro|verse|chorus|hook|bridge|outro|refrain|build(-?up)?|drop|breakdown|loop(ed|ing)?|repeat(s|ing)?|section|structure|arrangement|begins?|ends?|fade (in|out)|call and response|alaap|antara|mukhda)\b/i
+const AUD_TECHNICAL =
+  /\b(\d{2,3}\s?bpm|tempo|beats per minute|key of|in [a-g](#|b)? (major|minor)|major|minor|scale|raag|raga|taal|time signature|\d\/\d|\d+\s?(second|sec|minute|min)s?|duration|stereo|mono|reverb|delay|echo|compress(ed|ion)|eq|lo-?fi|hi-?fi|8-?bit|sample rate|mix(ed|ing)?|master(ed|ing)?)\b/i
+const AUD_GENRE =
+  /\b(genre|lo-?fi|hip-?hop|rap|rock|pop|jazz|blues|classical|carnatic|hindustani|folk|indie|electronic|edm|house|techno|trance|ambient|cinematic score|soundtrack|bollywood|ghazal|qawwali|bhajan|sufi|reggae|country|metal|punk|r&b|soul|funk|disco|orchestral)\b/i
+
+const AUDIO_DETECTORS = {
+  role(p) {
+    let s = 0
+    if (AUD_VOICE.test(p)) s += 0.6
+    if (AUD_GENRE.test(p)) s += 0.4
+    return clamp01(s)
+  },
+  context: (p) => (AUD_MOOD.test(p) ? 1 : 0),
+  format(p) {
+    const hits = (p.match(new RegExp(AUD_STRUCTURE.source, 'gi')) ?? []).length
+    return clamp01(hits / 2)
+  },
+  constraints(p) {
+    const hits = (p.match(new RegExp(AUD_TECHNICAL.source, 'gi')) ?? []).length
+    return clamp01(hits / 2)
+  },
+  specificity(p) {
+    let s = 0
+    const inst = (p.match(new RegExp(AUD_VOICE.source, 'gi')) ?? []).length
+    s += clamp01(inst / 2) * 0.4
+    if (/\b[A-Z][a-z]{3,}/.test(p.slice(1))) s += 0.15
+    const adj = (p.match(/\b[a-z]{4,}(?:ful|ous|ish|ive|less|able|ed|y|ing)\b/gi) ?? []).length
+    s += clamp01(adj / 3) * 0.3
+    if (/\d/.test(p)) s += 0.15
+    return clamp01(s)
+  },
+  length(p, lesson) {
+    const words = p.trim().split(/\s+/).filter(Boolean).length
+    if (lesson.tokenBudget != null) {
+      const t = estimateTokens(p)
+      return t <= lesson.tokenBudget ? 1 : clamp01(1 - (t - lesson.tokenBudget) / lesson.tokenBudget)
+    }
+    return words < 4 ? 0.05 : words < 8 ? 0.4 : words <= 60 ? 1 : clamp01(1 - (words - 60) / 60)
+  },
+}
+
+const LESSON_WEIGHTS_AUDIO = {
+  l1: { role: 0.10, context: 0.10, constraints: 0.10, format: 0.10, specificity: 0.45, length: 0.15 },
+  l2: { role: 0.10, context: 0.50, constraints: 0.10, format: 0.10, specificity: 0.10, length: 0.10 },
+  l3: { role: 0.50, context: 0.10, constraints: 0.10, format: 0.10, specificity: 0.10, length: 0.10 },
+  l4: { role: 0.10, context: 0.10, constraints: 0.10, format: 0.50, specificity: 0.10, length: 0.10 },
+  l5: { role: 0.10, context: 0.10, constraints: 0.50, format: 0.10, specificity: 0.10, length: 0.10 },
+  l6: { role: 0.45, context: 0.15, constraints: 0.10, format: 0.10, specificity: 0.10, length: 0.10 },
+  l7: { role: 0.10, context: 0.20, constraints: 0.25, format: 0.20, specificity: 0.15, length: 0.10 },
+  l8: { role: 0.10, context: 0.10, constraints: 0.15, format: 0.10, specificity: 0.15, length: 0.40 },
+}
+
+// ---- CODE ----
+const CODE_STACK =
+  /\b(python|javascript|typescript|java|c\+\+|c#|go|golang|rust|ruby|php|swift|kotlin|sql|html|css|react|vue|angular|svelte|node(\.?js)?|express|django|flask|fastapi|spring|rails|laravel|next(\.?js)?|tailwind|bootstrap|pandas|numpy|pytorch|tensorflow|postgres(ql)?|mysql|mongodb|sqlite|redis|docker|kubernetes|aws|version \d|es\d{4}|python ?3)\b/i
+const CODE_GOAL =
+  /\b(i (want|need|am building|have)|we (need|want|are)|the goal|purpose|so that|in order to|currently|existing|my (app|script|project|code|function)|this (script|function|component|file)|bug|error|failing|broken|slow|refactor|optimi[sz]e|migrate|add(ing)? a|implement)\b/i
+const CODE_INTERFACE =
+  /\b(function|method|class|component|endpoint|api|route|returns?|parameters?|arguments?|inputs?|outputs?|signature|type|interface|props|schema|json|dict|list|array|object|takes? a|accepts?|response|payload|cli|command)\b/i
+const CODE_EDGE =
+  /\b(edge case|error handling|handle|invalid|empty|null|none|undefined|missing|duplicate|timeout|retry|fail(s|ure)?|exception|try\/?except|catch|validate|validation|sanitiz|constraint|must not|should not|don'?t|avoid|no external|without using|only use|standard library|no dependencies|performance|memory|large (file|dataset|input))\b/i
+const CODE_FORMAT =
+  /\b(only (the )?code|no explanation|with comments|docstring|type hints?|typed|readable|pep ?8|eslint|prettier|formatted|as a (function|class|module|snippet)|single file|separate files?|include tests?|unit tests?|example usage|step by step|explain)\b/i
+
+const CODE_DETECTORS = {
+  role: (p) => (CODE_STACK.test(p) ? 1 : 0),
+  context(p) {
+    let s = CODE_GOAL.test(p) ? 0.6 : 0
+    const sentences = p.split(/[.!?\n]+/).filter((x) => x.trim().length > 12)
+    s += clamp01(sentences.length / 3) * 0.25
+    if (/```|\bcode\b|\bsnippet\b/i.test(p)) s += 0.15
+    return clamp01(s)
+  },
+  format(p) {
+    const hits = (p.match(new RegExp(CODE_FORMAT.source, 'gi')) ?? []).length
+    return clamp01(hits / 2)
+  },
+  constraints(p) {
+    const hits = (p.match(new RegExp(CODE_EDGE.source, 'gi')) ?? []).length
+    return clamp01(hits / 2)
+  },
+  specificity(p) {
+    let s = 0
+    const iface = (p.match(new RegExp(CODE_INTERFACE.source, 'gi')) ?? []).length
+    s += clamp01(iface / 3) * 0.5
+    if (/\d/.test(p)) s += 0.2
+    if (/[`'"][^`'"]{2,}[`'"]|\b[a-z_]+\(\)|\b[a-z]+[A-Z][a-z]+\b/.test(p)) s += 0.3 // names/identifiers
+    return clamp01(s)
+  },
+  length(p, lesson) {
+    const words = p.trim().split(/\s+/).filter(Boolean).length
+    if (lesson.tokenBudget != null) {
+      const t = estimateTokens(p)
+      return t <= lesson.tokenBudget ? 1 : clamp01(1 - (t - lesson.tokenBudget) / lesson.tokenBudget)
+    }
+    // code prompts tolerate length — precision matters more than brevity
+    return words < 6 ? 0.1 : words < 12 ? 0.5 : words <= 120 ? 1 : clamp01(1 - (words - 120) / 120)
+  },
+}
+
+const LESSON_WEIGHTS_CODE = {
+  l1: { role: 0.10, context: 0.10, constraints: 0.10, format: 0.10, specificity: 0.45, length: 0.15 },
+  l2: { role: 0.10, context: 0.50, constraints: 0.10, format: 0.10, specificity: 0.10, length: 0.10 },
+  l3: { role: 0.10, context: 0.10, constraints: 0.10, format: 0.50, specificity: 0.10, length: 0.10 },
+  l4: { role: 0.10, context: 0.10, constraints: 0.50, format: 0.10, specificity: 0.10, length: 0.10 },
+  l5: { role: 0.10, context: 0.15, constraints: 0.15, format: 0.35, specificity: 0.15, length: 0.10 },
+  l6: { role: 0.50, context: 0.15, constraints: 0.10, format: 0.05, specificity: 0.10, length: 0.10 },
+  l7: { role: 0.10, context: 0.25, constraints: 0.25, format: 0.15, specificity: 0.15, length: 0.10 },
+  l8: { role: 0.10, context: 0.10, constraints: 0.15, format: 0.10, specificity: 0.20, length: 0.35 },
+}
+
 // ---------------------------------------------------------------- v3-1b
 // STAGE REGISTRY. Six dimension SLOTS are fixed (docs/v3-stages.md §3);
 // each stage supplies its own detectors, weights, and human labels for
@@ -237,7 +432,30 @@ const STAGE_RUBRICS = {
       length: 'Good density',
     },
   },
-  // video/audio detectors land with their content packs (v3-3/3-4)
+  video: {
+    detectors: VIDEO_DETECTORS,
+    weights: LESSON_WEIGHTS_VIDEO,
+    labels: {
+      role: 'Style set', context: 'Scene continuity', constraints: 'Camera movement',
+      format: 'Shot type', specificity: 'Subject & action', length: 'Timing & pacing',
+    },
+  },
+  audio: {
+    detectors: AUDIO_DETECTORS,
+    weights: LESSON_WEIGHTS_AUDIO,
+    labels: {
+      role: 'Voice / instrument', context: 'Mood set', constraints: 'Technical details',
+      format: 'Structure named', specificity: 'Timbre detailed', length: 'Right density',
+    },
+  },
+  code: {
+    detectors: CODE_DETECTORS,
+    weights: LESSON_WEIGHTS_CODE,
+    labels: {
+      role: 'Stack named', context: 'Goal explained', constraints: 'Edge cases',
+      format: 'Output shape', specificity: 'Interface defined', length: 'Scope discipline',
+    },
+  },
 }
 
 /** The rubric bundle for a stage — unknown/absent → text (AC). */
