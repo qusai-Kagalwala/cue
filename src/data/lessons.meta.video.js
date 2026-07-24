@@ -17,7 +17,7 @@ export const LESSON_META_VIDEO = [
     takeaway: 'Name what it is and what it is doing — the verb is half the shot.',
     example: {
       bad: 'a video of a dog',
-      good: 'A wet golden retriever shaking off river water in slow motion, droplets flying',
+      good: 'A wet golden retriever shaking off river water on a stone bank, droplets flying, slow motion close-up',
     },
     tokenBudget: null,
   },
@@ -95,7 +95,7 @@ export const LESSON_META_VIDEO = [
     takeaway: 'Name what to keep, then change one thing at a time.',
     example: {
       bad: "that's not right, do it again",
-      good: 'Same subject, same framing and lighting — but slow the camera move by half, warmer light, and hold the final frame for two seconds',
+      good: 'Same subject, same framing and documentary style — but slow the camera move by half, warmer light, and hold the final frame for two seconds',
     },
     tokenBudget: null,
   },
