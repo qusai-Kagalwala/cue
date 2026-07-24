@@ -13,6 +13,11 @@ import { PERSONAS, LESSON_META, TOTAL_LESSONS } from './lessons.meta'
 import { SOLO } from './scenarios.solo'
 import { ASSISTED } from './scenarios.assisted'
 import { GUIDED } from './scenarios.guided'
+// v3-2d — the Image Stage content pack
+import { LESSON_META_IMAGE } from './lessons.meta.image'
+import { SOLO_IMAGE } from './scenarios.image.solo'
+import { ASSISTED_IMAGE } from './scenarios.image.assisted'
+import { GUIDED_IMAGE } from './scenarios.image.guided'
 
 export const DEFAULT_STAGE = 'text'
 
@@ -25,20 +30,25 @@ export const STAGES = {
     lessons: LESSON_META,
     scenarios: { solo: SOLO, assisted: ASSISTED, guided: GUIDED },
     weightsKey: 'text',   // → rubric.js selects LESSON_WEIGHTS (v3-1b)
-    proxyMode: 'lesson',  // → api/evaluate.js (v3-1b widens this)
+    proxyMode: 'text',    // → api/evaluate.js STAGE_FRAMING key
   },
 
   // ---- Teased, not yet built (Phase B/C). Content slots stay null so a
   // half-registered stage can never render as an empty lesson. ----
+  // v3-2d — SHIPPED. Content pack only; not one screen changed.
   image: {
     id: 'image',
     label: 'Image',
     blurb: 'Subject, light, framing — prompting what you want to see.',
-    locked: true,
-    lessons: null,
-    scenarios: null,
+    locked: false,
+    lessons: LESSON_META_IMAGE,
+    scenarios: {
+      solo: SOLO_IMAGE,
+      assisted: ASSISTED_IMAGE,
+      guided: GUIDED_IMAGE,
+    },
     weightsKey: 'image',
-    proxyMode: 'lesson-image',
+    proxyMode: 'image',
   },
   video: {
     id: 'video',
