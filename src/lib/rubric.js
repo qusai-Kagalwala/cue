@@ -291,15 +291,15 @@ const LESSON_WEIGHTS_VIDEO = {
 
 // ---- AUDIO ----
 const AUD_VOICE =
-  /\b(voice|vocals?|narrator|narration|male|female|child|elderly|deep|raspy|breathy|whisper(ed|ing)?|spoken word|choir|acappella|guitar|acoustic guitar|electric guitar|piano|keys|synth(esizer)?|violin|sitar|tabla|flute|bansuri|drums?|percussion|bass|strings|brass|saxophone|harmonium|dholak|orchestra|band|solo)\b/i
+  /\b(voice|vocals?|narrator|narration|male|female|child|elderly|deep|raspy|breathy|whisper(ed|ing)?|spoken word|choir|acappella|guitar|acoustic guitar|electric guitar|piano|keys|synth(esizer)?|violin|sitar|tabla|flute|bansuri|drums?|percussion|bass|strings|brass|saxophone|harmonium|dholak|dhol|tumbi|tabla|mridangam|veena|santoor|shehnai|orchestra|band|solo)\b/i
 const AUD_MOOD =
   /\b(mood|feel(ing)?|atmosphere|ambien(t|ce)|calm|peaceful|melanchol(y|ic)|sad|joyful|uplifting|energetic|dramatic|tense|eerie|haunting|warm|nostalgic|romantic|playful|epic|meditative|devotional|festive|somber|hopeful)\b/i
 const AUD_STRUCTURE =
-  /\b(intro|verse|chorus|hook|bridge|outro|refrain|build(-?up)?|drop|breakdown|loop(ed|ing)?|repeat(s|ing)?|section|structure|arrangement|begins?|ends?|fade (in|out)|call and response|alaap|antara|mukhda)\b/i
+  /\b(intro|verse|chorus|hook|bridge|outro|refrain|build(-?up)?|drop|breakdown|loop(ed|ing)?|repeat(s|ing)?|section|structure|arrangement|begins?|ends?|ending|fade (in|out)|call and response|alaap|antara|mukhda|keep (the |same )?|same (melody|arrangement|structure|vocals|instruments))\b/i
 const AUD_TECHNICAL =
-  /\b(\d{2,3}\s?bpm|tempo|beats per minute|key of|in [a-g](#|b)? (major|minor)|major|minor|scale|raag|raga|taal|time signature|\d\/\d|\d+\s?(second|sec|minute|min)s?|duration|stereo|mono|reverb|delay|echo|compress(ed|ion)|eq|lo-?fi|hi-?fi|8-?bit|sample rate|mix(ed|ing)?|master(ed|ing)?)\b/i
+  /\b(\d{2,3}\s?bpm|tempo|beats per minute|key of|in [a-g](#|b)? (major|minor)|major|minor|scale|raag|raga|taal|time signature|\d\/\d|\d+\s?(second|sec|minute|min)s?|duration|loop(able|s|ed|ing)?|seamless|stereo|mono|reverb|delay|echo|compress(ed|ion)|eq|lo-?fi|hi-?fi|8-?bit|sample rate|mix(ed|ing)?|master(ed|ing)?|warm(er)? (mix|tone|sound)|round(er)?|brighter|louder|quieter|softer|lower the|raise the|thin(ner)? (out)?|fuller|layers?|production|vinyl crackle|analog|clean(er)? mix)\b/i
 const AUD_GENRE =
-  /\b(genre|lo-?fi|hip-?hop|rap|rock|pop|jazz|blues|classical|carnatic|hindustani|folk|indie|electronic|edm|house|techno|trance|ambient|cinematic score|soundtrack|bollywood|ghazal|qawwali|bhajan|sufi|reggae|country|metal|punk|r&b|soul|funk|disco|orchestral)\b/i
+  /\b(genre|lo-?fi|hip-?hop|rap|rock|pop|jazz|blues|classical|carnatic|hindustani|folk|indie|electronic|edm|house|techno|trance|ambient|cinematic score|soundtrack|bollywood|ghazal|qawwali|bhajan|sufi|bhangra|garba|dandiya|filmi|reggae|country|metal|punk|r&b|soul|funk|disco|orchestral)\b/i
 
 const AUDIO_DETECTORS = {
   role(p) {
@@ -344,7 +344,7 @@ const LESSON_WEIGHTS_AUDIO = {
   l4: { role: 0.10, context: 0.10, constraints: 0.10, format: 0.50, specificity: 0.10, length: 0.10 },
   l5: { role: 0.10, context: 0.10, constraints: 0.50, format: 0.10, specificity: 0.10, length: 0.10 },
   l6: { role: 0.45, context: 0.15, constraints: 0.10, format: 0.10, specificity: 0.10, length: 0.10 },
-  l7: { role: 0.10, context: 0.20, constraints: 0.25, format: 0.20, specificity: 0.15, length: 0.10 },
+  l7: { role: 0.15, context: 0.30, constraints: 0.30, format: 0.10, specificity: 0.05, length: 0.10 },
   l8: { role: 0.10, context: 0.10, constraints: 0.15, format: 0.10, specificity: 0.15, length: 0.40 },
 }
 

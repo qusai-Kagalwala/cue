@@ -23,6 +23,11 @@ import { LESSON_META_VIDEO } from './lessons.meta.video'
 import { SOLO_VIDEO } from './scenarios.video.solo'
 import { ASSISTED_VIDEO } from './scenarios.video.assisted'
 import { GUIDED_VIDEO } from './scenarios.video.guided'
+// v3-4d — the Audio Stage content pack
+import { LESSON_META_AUDIO } from './lessons.meta.audio'
+import { SOLO_AUDIO } from './scenarios.audio.solo'
+import { ASSISTED_AUDIO } from './scenarios.audio.assisted'
+import { GUIDED_AUDIO } from './scenarios.audio.guided'
 
 export const DEFAULT_STAGE = 'text'
 
@@ -70,13 +75,18 @@ export const STAGES = {
     weightsKey: 'video',
     proxyMode: 'video',
   },
+  // v3-4d — SHIPPED. Content pack only; not one screen changed.
   audio: {
     id: 'audio',
     label: 'Audio',
     blurb: 'Voice, mood, structure — prompting what you want to hear.',
-    locked: true,
-    lessons: null,
-    scenarios: null,
+    locked: false,
+    lessons: LESSON_META_AUDIO,
+    scenarios: {
+      solo: SOLO_AUDIO,
+      assisted: ASSISTED_AUDIO,
+      guided: GUIDED_AUDIO,
+    },
     weightsKey: 'audio',
     proxyMode: 'audio',
   },
