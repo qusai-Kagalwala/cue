@@ -28,6 +28,11 @@ import { LESSON_META_AUDIO } from './lessons.meta.audio'
 import { SOLO_AUDIO } from './scenarios.audio.solo'
 import { ASSISTED_AUDIO } from './scenarios.audio.assisted'
 import { GUIDED_AUDIO } from './scenarios.audio.guided'
+// v3-5d — the Code Stage content pack
+import { LESSON_META_CODE } from './lessons.meta.code'
+import { SOLO_CODE } from './scenarios.code.solo'
+import { ASSISTED_CODE } from './scenarios.code.assisted'
+import { GUIDED_CODE } from './scenarios.code.guided'
 
 export const DEFAULT_STAGE = 'text'
 
@@ -89,6 +94,21 @@ export const STAGES = {
     },
     weightsKey: 'audio',
     proxyMode: 'audio',
+  },
+  // v3-5d — SHIPPED. The final stage; content pack only.
+  code: {
+    id: 'code',
+    label: 'Code',
+    blurb: 'Goal, context, interface — prompting the code you need.',
+    locked: false,
+    lessons: LESSON_META_CODE,
+    scenarios: {
+      solo: SOLO_CODE,
+      assisted: ASSISTED_CODE,
+      guided: GUIDED_CODE,
+    },
+    weightsKey: 'code',
+    proxyMode: 'code',
   },
 }
 

@@ -352,13 +352,13 @@ const LESSON_WEIGHTS_AUDIO = {
 const CODE_STACK =
   /\b(python|javascript|typescript|java|c\+\+|c#|go|golang|rust|ruby|php|swift|kotlin|sql|html|css|react|vue|angular|svelte|node(\.?js)?|express|django|flask|fastapi|spring|rails|laravel|next(\.?js)?|tailwind|bootstrap|pandas|numpy|pytorch|tensorflow|postgres(ql)?|mysql|mongodb|sqlite|redis|docker|kubernetes|aws|version \d|es\d{4}|python ?3)\b/i
 const CODE_GOAL =
-  /\b(i (want|need|am building|have)|we (need|want|are)|the goal|purpose|so that|in order to|currently|existing|my (app|script|project|code|function)|this (script|function|component|file)|bug|error|failing|broken|slow|refactor|optimi[sz]e|migrate|add(ing)? a|implement)\b/i
+  /\b(i (want|need|am building|have)|we (need|want|are)|the goal|purpose|so that|in order to|currently|existing|my (app|script|project|code|function)|this (script|function|component|file)|bug|error|failing|broken|slow|refactor|optimi[sz]e|migrate|add(ing)? a|implement|write (a |an )?(function|script|method|class|component|program)|create (a |an )?(function|script|method|class)|build (a |an )?(function|script|tool)|(that )?takes? (a |an |the )|(that )?returns?|should (return|be|handle|default|format|drop|skip)|given (a |an |the )|input .{1,30} should|should return|for example|e\\.g\\.|example:|format (phone|the|a |numbers?|dates?)|parse (the|a |csv|json|file|tags?)|convert|drops? (rows?|items?)|trims?|handles?)\b/i
 const CODE_INTERFACE =
   /\b(function|method|class|component|endpoint|api|route|returns?|parameters?|arguments?|inputs?|outputs?|signature|type|interface|props|schema|json|dict|list|array|object|takes? a|accepts?|response|payload|cli|command)\b/i
 const CODE_EDGE =
   /\b(edge case|error handling|handle|invalid|empty|null|none|undefined|missing|duplicate|timeout|retry|fail(s|ure)?|exception|try\/?except|catch|validate|validation|sanitiz|constraint|must not|should not|don'?t|avoid|no external|without using|only use|standard library|no dependencies|performance|memory|large (file|dataset|input))\b/i
 const CODE_FORMAT =
-  /\b(only (the )?code|no explanation|with comments|docstring|type hints?|typed|readable|pep ?8|eslint|prettier|formatted|as a (function|class|module|snippet)|single file|separate files?|include tests?|unit tests?|example usage|step by step|explain)\b/i
+  /(->\s*\w+|:\s*(str|int|float|bool|list|dict|bytes|None)\b|returns? (a |an )?(bool|int|str|float|list|dict|string|number|array|object|value|None)|\b(only (the )?code|no explanation|with comments|docstring|type hints?|typed|readable|pep ?8|eslint|prettier|formatted|as a (function|class|module|snippet)|single file|separate files?|include tests?|unit tests?|test cases?|example usage|step by step|explain))/i
 
 const CODE_DETECTORS = {
   role: (p) => (CODE_STACK.test(p) ? 1 : 0),
@@ -380,9 +380,12 @@ const CODE_DETECTORS = {
   specificity(p) {
     let s = 0
     const iface = (p.match(new RegExp(CODE_INTERFACE.source, 'gi')) ?? []).length
-    s += clamp01(iface / 3) * 0.5
-    if (/\d/.test(p)) s += 0.2
-    if (/[`'"][^`'"]{2,}[`'"]|\b[a-z_]+\(\)|\b[a-z]+[A-Z][a-z]+\b/.test(p)) s += 0.3 // names/identifiers
+    s += clamp01(iface / 3) * 0.4
+    // a real call signature: name(args) or name(a: type) -> type
+    if (/\b[a-z_]\w*\s*\([^)]*\)/i.test(p)) s += 0.35
+    if (/[`'"][^`'"]{2,}[`'"]/.test(p)) s += 0.15  // quoted example values
+    if (/\b[a-z]+_[a-z]+\b|\b[a-z]+[A-Z][a-z]+\b/.test(p)) s += 0.15 // snake/camel identifiers
+    if (/\d/.test(p)) s += 0.1
     return clamp01(s)
   },
   length(p, lesson) {
@@ -397,14 +400,14 @@ const CODE_DETECTORS = {
 }
 
 const LESSON_WEIGHTS_CODE = {
-  l1: { role: 0.10, context: 0.10, constraints: 0.10, format: 0.10, specificity: 0.45, length: 0.15 },
-  l2: { role: 0.10, context: 0.50, constraints: 0.10, format: 0.10, specificity: 0.10, length: 0.10 },
-  l3: { role: 0.10, context: 0.10, constraints: 0.10, format: 0.50, specificity: 0.10, length: 0.10 },
-  l4: { role: 0.10, context: 0.10, constraints: 0.50, format: 0.10, specificity: 0.10, length: 0.10 },
-  l5: { role: 0.10, context: 0.15, constraints: 0.15, format: 0.35, specificity: 0.15, length: 0.10 },
+  l1: { role: 0.05, context: 0.45, constraints: 0.05, format: 0.05, specificity: 0.30, length: 0.10 },
+  l2: { role: 0.35, context: 0.40, constraints: 0.05, format: 0.05, specificity: 0.05, length: 0.10 },
+  l3: { role: 0.05, context: 0.15, constraints: 0.05, format: 0.30, specificity: 0.35, length: 0.10 },
+  l4: { role: 0.05, context: 0.15, constraints: 0.50, format: 0.05, specificity: 0.15, length: 0.10 },
+  l5: { role: 0.05, context: 0.30, constraints: 0.05, format: 0.10, specificity: 0.40, length: 0.10 },
   l6: { role: 0.50, context: 0.15, constraints: 0.10, format: 0.05, specificity: 0.10, length: 0.10 },
-  l7: { role: 0.10, context: 0.25, constraints: 0.25, format: 0.15, specificity: 0.15, length: 0.10 },
-  l8: { role: 0.10, context: 0.10, constraints: 0.15, format: 0.10, specificity: 0.20, length: 0.35 },
+  l7: { role: 0.05, context: 0.35, constraints: 0.30, format: 0.10, specificity: 0.10, length: 0.10 },
+  l8: { role: 0.10, context: 0.15, constraints: 0.10, format: 0.10, specificity: 0.20, length: 0.35 },
 }
 
 // ---------------------------------------------------------------- v3-1b
