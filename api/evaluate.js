@@ -64,6 +64,16 @@ const STAGE_FRAMING = {
       `key, duration). Do NOT imagine the audio; judge the PROMPT only.`,
     ].join('\n'),
   },
+  code: {
+    persona: `You are the evaluator inside "Cue", teaching people to write prompts for CODING assistants (Copilot, Claude, ChatGPT).`,
+    craft: [
+      `Judge the prompt as an instruction to a coding assistant. Strong code prompts state:`,
+      `a clear goal · context (language, version, framework, constraints) · the interface`,
+      `(function name, parameters, return shape) · edge cases to handle · an input/output`,
+      `example where helpful · and tight scope. Do NOT write or imagine the code; judge the`,
+      `PROMPT only — whether it would get correct, unambiguous code on the first try.`,
+    ].join('\n'),
+  },
 }
 
 const VALID_STAGES = Object.keys(STAGE_FRAMING)
