@@ -39,6 +39,35 @@ export const AUDITION_MCQS = [
     ],
     why: 'Pointing at exactly what to change beats starting over — that\'s iteration.',
   },
+  {
+    // a5 — the SHORTER prompt wins: padding and politeness aren't precision.
+    id: 'a5',
+    question: 'You want a word\'s meaning. Which prompt is better?',
+    pair: [
+      {
+        text: 'Hello! I was just wondering if you could possibly be so kind as to maybe help me out and tell me what the word "ephemeral" might happen to mean, thank you so much!',
+        better: false,
+      },
+      { text: 'Define "ephemeral" in one line, with an example.', better: true },
+    ],
+    why: 'The shorter one says exactly what it wants. Length is not the goal — precision is; the padding adds nothing.',
+  },
+  {
+    // a6 — again shorter+specific beats longer+vague. Words aren't the signal.
+    id: 'a6',
+    question: 'You want a quick summary of a long article. Which works better?',
+    pair: [
+      {
+        text: 'Summarise this in 3 bullet points, each under 15 words.',
+        better: true,
+      },
+      {
+        text: 'Please read through this entire article really carefully and then give me a nice detailed summary that covers everything important so I understand all of it properly.',
+        better: false,
+      },
+    ],
+    why: 'The first sets an exact shape and limit. The longer one sounds thorough but tells the AI nothing concrete — vague and wordy is still vague.',
+  },
 ]
 
 // Mini task — shaped like a lesson so the rubric scores it (DEFAULT_WEIGHTS).

@@ -59,7 +59,7 @@ function TitleBeat({ onNext }) {
 // downstream (share card, v2-4a callback) treats a missing auditionAttempt
 // as skipped → Understudy. Absence IS the default.
 function AuditionBeat({ onNext }) {
-  const [phase, setPhase] = useState('mcq') // mcq | task | reveal
+  const [phase, setPhase] = useState('intro') // intro | mcq | task | reveal
   const [mcqIndex, setMcqIndex] = useState(0)
   const [correct, setCorrect] = useState(0)
   const [picked, setPicked] = useState(null) // index picked this question
@@ -97,6 +97,49 @@ function AuditionBeat({ onNext }) {
     updateState({ auditionAttempt: attempt }) // v2-4a callback reads this
     setOutcome(attempt)
     setPhase('reveal')
+  }
+
+  if (phase === 'intro') {
+    return (
+      <div className="space-y-5 text-center">
+        <p className="font-mono text-xs uppercase tracking-widest text-faint">
+          the audition
+        </p>
+        <h2 className="font-display text-2xl font-semibold text-cue">
+          First, a quick audition
+        </h2>
+        <div className="mx-auto max-w-[46ch] space-y-3 text-left">
+          <p className="leading-relaxed text-muted">
+            Before the lessons begin, let's see your instincts. You'll
+            pick the better of two prompts a few times, then write one
+            yourself. It takes about a minute.
+          </p>
+          <p className="leading-relaxed text-muted">
+            This earns you a starting <span className="text-ink">rank</span> —
+            from Understudy to Playwright — and later, once you've learned
+            the craft, you'll get a <span className="text-ink">callback</span> to
+            rewrite that same prompt and see how far you've come.
+          </p>
+          <p className="font-mono text-xs text-faint">
+            No pressure — it's just a warm-up, and you can skip it.
+          </p>
+        </div>
+        <div className="flex items-center justify-center gap-3 pt-1">
+          <button
+            onClick={onNext}
+            className="font-mono text-xs text-muted underline-offset-2 hover:text-ink hover:underline"
+          >
+            skip the audition
+          </button>
+          <button
+            onClick={() => setPhase('mcq')}
+            className="rounded-lg bg-cue px-6 py-2.5 font-medium text-stage transition-colors hover:bg-cue-bright"
+          >
+            Begin →
+          </button>
+        </div>
+      </div>
+    )
   }
 
   if (phase === 'mcq') {

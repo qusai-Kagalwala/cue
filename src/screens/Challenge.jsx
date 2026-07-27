@@ -22,7 +22,6 @@ import { L1_COACH } from '../data/coach'
 import AssistedPrompt from '../components/AssistedPrompt'
 import Completion from './Completion'
 import { SCREENS } from '../lib/screens'
-import { loadState } from '../lib/storage'
 
 export default function Challenge({ onNavigate }) {
   const {
@@ -31,6 +30,8 @@ export default function Challenge({ onNavigate }) {
     currentLesson,
     currentLessonIndex,
     totalLessons,
+    coachDone,
+    stageSuggestDone,
     isComplete,
     lessonStage,
   } = useProgress()
@@ -38,26 +39,17 @@ export default function Challenge({ onNavigate }) {
   const [prompt, setPrompt] = useState('')
   const [conceptOpen, setConceptOpen] = useState(true)
   const [showShortcuts, setShowShortcuts] = useState(false)
-  // v2-19 — the First-Night Coach: once ever, only on Lesson 1's solo view,
-  // and only after the elements exist. loadState reads the real flag (in
-  // God Mode the demoer isn't a first-timer, so it stays off there too).
-  const [showCoach, setShowCoach] = useState(
-    () => !loadState().coachDone && currentLessonIndex === 0,
-  )
-  // v3-6a — the stage nudge: once ever, on L1, after a persona is chosen.
-  const [showStageSuggest, setShowStageSuggest] = useState(
-    () => !loadState().stageSuggestDone,
-  )
+  // v2-19 / v3-6a — the First-Night Coach and stage nudge derive straight
+  // from the LIVE flags in the store. The store writes synchronously and
+  // notifies immediately, so dismissing (markCoachDone) flips the flag to
+  // true in the same tick and the overlay closes on the next render — no
+  // session-local flag needed. And because a reset flips the flags back to
+  // false, the tour naturally re-appears afterward, no remount required.
+  const showCoach = !coachDone && currentLessonIndex === 0
+  const showStageSuggest = !stageSuggestDone
 
-  function dismissCoach() {
-    setShowCoach(false)
-    markCoachDone()
-  }
-
-  function dismissStageSuggest() {
-    setShowStageSuggest(false)
-    markStageSuggestDone()
-  }
+  const dismissCoach = markCoachDone
+  const dismissStageSuggest = markStageSuggestDone
 
   // The coach waits until the stage nudge is resolved, so they don't stack.
   const coachReady = showCoach && !showStageSuggest

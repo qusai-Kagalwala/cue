@@ -114,6 +114,13 @@ function migrate(state) {
   return freshState()
 }
 
+// v2-20a — God Mode registers a getter here so getActiveStage can follow the
+// demo's stage switch without storage importing godMode (keeps deps one-way).
+let godActiveStage = null
+export function __registerGodActiveStage(fn) {
+  godActiveStage = fn
+}
+
 export function loadState() {
   let raw
   try {
@@ -178,6 +185,13 @@ export function resetState() {
 
 /** Active stage id — read by the lessons shim on every content access. */
 export function getActiveStage() {
+  // v2-20a fix — in God Mode the real save is frozen; the demoer's stage
+  // switch lives in the session overlay. Consult it first so lesson content
+  // follows the switch (not just the visible chip).
+  if (godActiveStage) {
+    const g = godActiveStage()
+    if (g) return g
+  }
   try {
     const parsed = JSON.parse(localStorage.getItem(KEY))
     return typeof parsed?.activeStage === 'string' ? parsed.activeStage : 'text'

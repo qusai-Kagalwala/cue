@@ -9,8 +9,11 @@
 // decisions.md. See useProgress.js for how the overlay intercepts reads
 // and no-ops writes.
 
+import { __registerGodActiveStage } from './storage'
+
 let active = false
 let listeners = new Set()
+let godCurrentStage = null // v2-20a — the stage the demoer switched to
 
 /** Is God Mode currently on? (session-only, never persisted) */
 export function isGodMode() {
@@ -79,7 +82,7 @@ export function godState(realState) {
     level: 6,
     streak: { count: 30, lastActiveDate: today },
     theme: 'god', // the alt palette (v2-20c)
-    activeStage: realState?.activeStage ?? 'text',
+    activeStage: godCurrentStage ?? realState?.activeStage ?? 'text',
     stageProgress: fullStageProgress(),
     // identity extras so callbacks/echoes render
     auditionAttempt: { rank: 'Playwright', taskScore: 75, at: today },
@@ -111,4 +114,12 @@ export function godAttempts() {
     }
   }
   return out // 25 attempts
+}
+
+// wire storage → god active stage (one-way; storage never imports godMode)
+__registerGodActiveStage(() => (active ? godCurrentStage : null))
+
+/** v2-20a — record the stage the demoer switched to (session only). */
+export function setGodStage(stageId) {
+  godCurrentStage = stageId
 }

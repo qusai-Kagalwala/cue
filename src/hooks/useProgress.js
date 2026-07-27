@@ -14,7 +14,7 @@ import {
   patchStageProgress,
   freshStageProgress,
 } from '../lib/storage'
-import { isGodMode, godState, subscribeGodMode } from '../lib/godMode'
+import { isGodMode, godState, subscribeGodMode, setGodStage } from '../lib/godMode'
 import {
   awardXP,
   levelFor,
@@ -72,9 +72,10 @@ function setState(patch) {
 // practicePaid) live PER STAGE; identity (xp/level/streak/name/…) stays
 // shared. These two helpers are the ONLY code that knows that split.
 
-/** The active stage's progress block. */
+/** The active stage's progress block. (God Mode reads the snapshot.) */
 function journey() {
-  return getStageProgress(state, state.activeStage ?? 'text')
+  const src = isGodMode() ? getSnapshot() : state
+  return getStageProgress(src, src.activeStage ?? 'text')
 }
 
 /** Merge a patch into the ACTIVE stage's progress and persist. */
@@ -107,13 +108,19 @@ function setJourney(patch) {
  */
 export function setActiveStage(stageId) {
   if (!isStagePlayable(stageId)) return false
-  if (state.activeStage === stageId) return true
+  // v2-20a fix — in God Mode, switch the SNAPSHOT's active stage (the real
+  // `state` is frozen at 'text'). setState already routes to the snapshot in
+  // God Mode; we just must compare against the snapshot, not real state, or
+  // switching appears to work visually but content stays on text.
+  const current = getSnapshot().activeStage ?? 'text'
+  if (current === stageId) return true
+  const base = getSnapshot()
+  if (isGodMode()) setGodStage(stageId) // so content resolution follows the switch
   setState({
     activeStage: stageId,
-    // ensure the stage has a progress block the first time it's entered
     stageProgress: {
-      ...state.stageProgress,
-      [stageId]: state.stageProgress?.[stageId] ?? freshStageProgress(),
+      ...base.stageProgress,
+      [stageId]: base.stageProgress?.[stageId] ?? freshStageProgress(),
     },
   })
   return true
@@ -121,7 +128,9 @@ export function setActiveStage(stageId) {
 
 /** v3-1b — the active stage id, for evaluation calls outside React. */
 export function getActiveStageId() {
-  return state.activeStage ?? 'text'
+  // v2-20a fix — read the snapshot so God Mode's stage switches take effect
+  // for content resolution and evaluation, not just the visible chip.
+  return getSnapshot().activeStage ?? 'text'
 }
 
 
@@ -295,6 +304,8 @@ export function useProgress() {
   return {
     // state
     persona: s.persona,
+    coachDone: s.coachDone ?? false,
+    stageSuggestDone: s.stageSuggestDone ?? false,
     name: s.name ?? null,          // v2-3d — echoes across toast/finale/card
     activeStage: stageId,
     currentLessonIndex: j.currentLessonIndex,
