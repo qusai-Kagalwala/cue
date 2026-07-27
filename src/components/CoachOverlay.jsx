@@ -146,7 +146,7 @@ export default function CoachOverlay({ steps, onDone }) {
         height={vh}
         className={`absolute inset-0 ${trans}`}
         onClick={() => goTo(index + 1)}
-        style={{ cursor: 'pointer' }}
+        style={{ cursor: 'pointer', zIndex: 0 }}
       >
         <defs>
           <mask id="coach-cutout">
@@ -178,6 +178,7 @@ export default function CoachOverlay({ steps, onDone }) {
         <div
           className={`pointer-events-none absolute rounded-xl ring-2 ring-cue ${trans}`}
           style={{
+            zIndex: 1,
             top: rect.top - pad,
             left: rect.left - pad,
             width: rect.width + pad * 2,
@@ -188,14 +189,15 @@ export default function CoachOverlay({ steps, onDone }) {
 
       {/* Tooltip */}
       <div
-        className={`absolute z-51 w-[min(20rem,calc(100vw-2rem))] rounded-xl border border-cue-dim bg-surface p-4 shadow-xl ${trans}`}
-        style={
-          tip.position === 'centre'
+        className={`absolute w-[min(20rem,calc(100vw-2rem))] rounded-xl border border-cue-dim bg-surface p-4 shadow-xl ${trans}`}
+        style={{
+          zIndex: 2, // above the click-catching SVG dimmer (zIndex 0)
+          ...(tip.position === 'centre'
             ? { top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }
             : tip.position === 'above'
               ? { top: tip.top, left: tip.left, transform: 'translateY(-100%)' }
-              : { top: tip.top, left: tip.left }
-        }
+              : { top: tip.top, left: tip.left }),
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         {step.title && (

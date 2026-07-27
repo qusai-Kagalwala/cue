@@ -234,6 +234,12 @@ function callGemini(model, systemPrompt, userContent, signal, schema = RESPONSE_
 }
 
 export default async function handler(req, res) {
+  // v-fix — a GET is the client's warm-up ping (wakes the serverless
+  // function without doing work). Answer it cleanly so it doesn't log a
+  // 405 in the console. Everything real is POST-only.
+  if (req.method === 'GET') {
+    return res.status(200).json({ ok: true, warm: true })
+  }
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'METHOD_NOT_ALLOWED' })
   }

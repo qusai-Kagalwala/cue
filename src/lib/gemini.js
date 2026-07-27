@@ -36,6 +36,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
  */
 export function warmUpProxy() {
   try {
+    // GET is the proxy's warm-up ping (returns 200) — wakes the cold
+    // serverless function so the first real POST is fast.
     fetch('/api/evaluate', { method: 'GET' }).catch(() => {})
   } catch {
     /* never let a warm-up failure surface anywhere */
