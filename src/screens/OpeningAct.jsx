@@ -6,6 +6,7 @@
 
 import { useState } from 'react'
 import { BEATS } from '../lib/screens'
+import { enterGodMode } from '../lib/godMode'
 import { PERSONAS } from '../data/lessons'
 import { loadState, updateState } from '../lib/storage'
 import { setPersona } from '../hooks/useProgress'
@@ -407,7 +408,17 @@ export default function OpeningAct({ onComplete }) {
 function NameBeatWrapper({ onDone }) {
   const [value, setValue] = useState('')
 
+  const GOD_CODE = 'Qu$@1' // v2-20b — the easter egg. Exact, case-sensitive.
+
   function save() {
+    // God Mode trigger: typing the code as your name arms the session
+    // overlay and drops you straight into the app. Nothing is persisted —
+    // no name is written, the real save is untouched (see godMode.js).
+    if (value === GOD_CODE) {
+      enterGodMode()
+      onDone(null)
+      return
+    }
     const name = value.trim().slice(0, 30)
     if (name) updateState({ name })
     onDone(name || null)

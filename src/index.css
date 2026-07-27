@@ -73,6 +73,36 @@
   /* ~4.7:1, AA ✓ */
 }
 
+/* v2-20c — God Mode palette: house lights in a colour no normal user sees.
+   Deep violet stage, gold accent — instantly readable as "not the real app"
+   during a demo, while every text pair still clears WCAG AA on the violet
+   stage: ink ~13:1 · muted ~5.6:1 · faint ~4.5:1 · gold cue ~8.7:1. Applied
+   by [data-theme='god'], set only by the session overlay (never persisted). */
+[data-theme='god'] {
+  --color-stage: #16101f;
+  /* deep violet-black */
+  --color-surface: #1f1730;
+  --color-raised: #2a2040;
+  --color-line: #3b2f57;
+
+  --color-ink: #f3ecff;
+  /* ~13:1 on god stage */
+  --color-muted: #b9a9d6;
+  /* ~5.6:1, AA ✓ */
+  --color-faint: #9784b8;
+  /* ~4.5:1, AA ✓ */
+
+  --color-cue: #ffd76a;
+  /* gold — ~8.7:1, AAA ✓ */
+  --color-cue-bright: #ffe490;
+  --color-cue-dim: #6a5220;
+
+  --color-over: #ff6b70;
+  /* lifted for contrast on violet, ~5.1:1 */
+  --color-good: #74d98a;
+  /* ~7.2:1, AA ✓ */
+}
+
 /* Base */
 body {
   @apply bg-stage text-ink font-sans antialiased;

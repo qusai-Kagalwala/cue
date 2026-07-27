@@ -4,12 +4,13 @@
 // (the Encore-lock philosophy, applied eight times).
 
 import { loadState, loadAttempts } from '../lib/storage'
+import { godAttempts } from '../lib/godMode'
 import { syncPlaybill } from '../lib/achievements'
 
 export default function Playbill() {
   const playbill = syncPlaybill({
     state: loadState(),
-    attempts: loadAttempts(),
+    attempts: godAttempts() ?? loadAttempts(), // v2-20c — synthetic in God Mode
   })
   const earnedCount = playbill.filter((a) => a.earned).length
 

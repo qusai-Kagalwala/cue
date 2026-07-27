@@ -4,6 +4,7 @@
 import { SCREENS } from '../lib/screens'
 import { STAGES } from '../data/stages'
 import { useProgress } from '../hooks/useProgress'
+import GodModeBadge from './GodModeBadge'
 
 function IconButton({ label, active, onClick, children }) {
   return (
@@ -38,6 +39,8 @@ export default function TopBar({ screen, onNavigate }) {
         </button>
 
         <div className="flex items-center gap-1.5 sm:gap-3">
+          {/* v2-20b — visible only in God Mode; exits on click */}
+          <GodModeBadge />
 
           {/* Streak pill — number hides below sm to save space */}
           <span

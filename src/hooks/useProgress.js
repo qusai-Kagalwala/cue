@@ -14,6 +14,7 @@ import {
   patchStageProgress,
   freshStageProgress,
 } from '../lib/storage'
+import { isGodMode, godState, subscribeGodMode } from '../lib/godMode'
 import {
   awardXP,
   levelFor,
@@ -35,11 +36,34 @@ function subscribe(listener) {
   return () => listeners.delete(listener)
 }
 
+// v2-20a — while God Mode is on, reads return a synthetic overlay and
+// writes are swallowed, so the REAL save (below, in `state`) is never
+// touched. Cached so useSyncExternalStore gets a stable reference.
+let godSnapshot = null
+
 function getSnapshot() {
+  if (isGodMode()) {
+    if (godSnapshot === null) godSnapshot = godState(state)
+    return godSnapshot
+  }
   return state
 }
 
+// Rebuild the god snapshot and notify when God Mode toggles or when an
+// action changes what it should show (e.g. switching stage in the demo).
+subscribeGodMode(() => {
+  godSnapshot = isGodMode() ? godState(state) : null
+  listeners.forEach((l) => l())
+})
+
 function setState(patch) {
+  // v2-20a — in God Mode, apply the patch to the SNAPSHOT only (so the
+  // demo feels live) and never persist. The real `state` is frozen.
+  if (isGodMode()) {
+    godSnapshot = { ...(godSnapshot ?? godState(state)), ...patch }
+    listeners.forEach((l) => l())
+    return
+  }
   state = updateState(patch)
   listeners.forEach((l) => l())
 }
@@ -55,6 +79,19 @@ function journey() {
 
 /** Merge a patch into the ACTIVE stage's progress and persist. */
 function setJourney(patch) {
+  if (isGodMode()) {
+    const base = godSnapshot ?? godState(state)
+    const sid = base.activeStage ?? 'text'
+    godSnapshot = {
+      ...base,
+      stageProgress: {
+        ...base.stageProgress,
+        [sid]: { ...base.stageProgress[sid], ...patch },
+      },
+    }
+    listeners.forEach((l) => l())
+    return
+  }
   const next = patchStageProgress(state, state.activeStage ?? 'text', patch)
   state = updateState({ stageProgress: next.stageProgress })
   listeners.forEach((l) => l())

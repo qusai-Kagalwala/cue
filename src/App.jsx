@@ -26,7 +26,9 @@ export default function App() {
 
   // v2-15 — the theme rides on <html data-theme>; CSS does the rest
   useEffect(() => {
-    document.documentElement.dataset.theme = theme === 'light' ? 'light' : ''
+    // v2-20c — 'god' is a third theme, set only by the session overlay.
+    document.documentElement.dataset.theme =
+      theme === 'light' ? 'light' : theme === 'god' ? 'god' : ''
   }, [theme])
   const [practiceLessonId, setPracticeLessonId] = useState(null) // v2-5c
 
