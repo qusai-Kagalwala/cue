@@ -5,7 +5,7 @@
 // T4.1 results + T4.2 auto-continue + T4.3 budget mode (Lesson 8).
 
 import { useEffect, useState } from 'react'
-import { useProgress, advanceLesson, setLessonStage } from '../hooks/useProgress'
+import { useProgress, advanceLesson, setLessonStage, markCoachDone } from '../hooks/useProgress'
 import { useEvaluation } from '../hooks/useEvaluation'
 import PersonaPicker from '../components/PersonaPicker'
 import ScenarioCard from '../components/ScenarioCard'
@@ -16,9 +16,12 @@ import ResultsPanel from '../components/ResultsPanel'
 import AutoContinue from '../components/AutoContinue'
 import DailyCard from '../components/DailyCard'
 import GuidedPrompt from '../components/GuidedPrompt'
+import CoachOverlay from '../components/CoachOverlay'
+import { L1_COACH } from '../data/coach'
 import AssistedPrompt from '../components/AssistedPrompt'
 import Completion from './Completion'
 import { SCREENS } from '../lib/screens'
+import { loadState } from '../lib/storage'
 
 export default function Challenge({ onNavigate }) {
   const {
@@ -34,6 +37,17 @@ export default function Challenge({ onNavigate }) {
   const [prompt, setPrompt] = useState('')
   const [conceptOpen, setConceptOpen] = useState(true)
   const [showShortcuts, setShowShortcuts] = useState(false)
+  // v2-19 — the First-Night Coach: once ever, only on Lesson 1's solo view,
+  // and only after the elements exist. loadState reads the real flag (in
+  // God Mode the demoer isn't a first-timer, so it stays off there too).
+  const [showCoach, setShowCoach] = useState(
+    () => !loadState().coachDone && currentLessonIndex === 0,
+  )
+
+  function dismissCoach() {
+    setShowCoach(false)
+    markCoachDone()
+  }
 
   const evaluating = status === 'evaluating'
 
@@ -178,11 +192,13 @@ export default function Challenge({ onNavigate }) {
           )}
         </section>
 
-        <ScenarioCard
-          scenario={currentLesson.scenario}
-          task={currentLesson.task}
-          hints={currentLesson.hints}
-        />
+        <div data-coach="scenario">
+          <ScenarioCard
+            scenario={currentLesson.scenario}
+            task={currentLesson.task}
+            hints={currentLesson.hints}
+          />
+        </div>
       </div>
 
       {/* ---- RIGHT PANEL: type (sticky under the top bar on desktop) ---- */}
@@ -201,13 +217,15 @@ export default function Challenge({ onNavigate }) {
           </div>
         )}
 
-        <PromptInput
-          value={prompt}
-          onChange={setPrompt}
-          onSubmit={handleSubmit}
-          tokenBudget={currentLesson.tokenBudget}
-          disabled={evaluating}
-        />
+        <div data-coach="prompt-input">
+          <PromptInput
+            value={prompt}
+            onChange={setPrompt}
+            onSubmit={handleSubmit}
+            tokenBudget={currentLesson.tokenBudget}
+            disabled={evaluating}
+          />
+        </div>
 
         {evaluating && <CurtainLoader />}
 
@@ -233,6 +251,9 @@ export default function Challenge({ onNavigate }) {
       </div>
 
       {showShortcuts && <ShortcutOverlay onClose={() => setShowShortcuts(false)} />}
+
+      {/* v2-19 — First-Night Coach: fires once on L1 */}
+      {showCoach && <CoachOverlay steps={L1_COACH} onDone={dismissCoach} />}
     </div>
   )
 }

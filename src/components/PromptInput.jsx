@@ -98,7 +98,9 @@ export default function PromptInput({
         className="w-full resize-none rounded-xl border border-line bg-raised p-4 font-mono text-sm leading-relaxed placeholder:text-faint focus:border-cue-dim disabled:opacity-60"
       />
 
-      <TokenCounter text={value} budget={tokenBudget} />
+      <div data-coach="token-counter">
+        <TokenCounter text={value} budget={tokenBudget} />
+      </div>
 
       <div className="flex items-center justify-between gap-2 pt-1">
         <span className="hidden font-mono text-xs text-faint lg:inline">
@@ -138,6 +140,7 @@ export default function PromptInput({
           )}
 
           <button
+            data-coach="submit"
             onClick={onSubmit}
             disabled={isEmpty || disabled}
             className="rounded-lg bg-cue px-6 py-2.5 font-medium text-stage transition-colors hover:bg-cue-bright disabled:cursor-not-allowed disabled:bg-raised disabled:text-faint"

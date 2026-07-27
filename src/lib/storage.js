@@ -29,6 +29,7 @@ export const DEFAULT_STATE = Object.freeze({
     },
   },
   matcherUsed: false,            // v2-7 — the persona matcher fires once, ever
+  coachDone: false,              // v2-19 — the First-Night Coach shows once, ever
   encoreDone: null,              // v2-9 — dateKey of the last claimed Encore
   dailyDone: null,               // v2-10 — dateKey of the last daily bonus
   theme: 'dark',                 // v2-15 — 'dark' | 'light' (light = L3 unlock)

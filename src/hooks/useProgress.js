@@ -124,6 +124,19 @@ export function getActiveStageId() {
   return state.activeStage ?? 'text'
 }
 
+
+/** v2-19 — replay: clear the flag so the coach fires again next time L1 renders. */
+export function replayCoach() {
+  if (isGodMode()) return
+  setState({ coachDone: false })
+}
+
+/** v2-19 — the First-Night Coach is once-only; burn the flag when done or skipped. */
+export function markCoachDone() {
+  if (isGodMode()) return // never persist in a demo session
+  setState({ coachDone: true })
+}
+
 export function setPersona(personaId) {
   setState({ persona: personaId })
 }

@@ -74,7 +74,7 @@ export default function App() {
         )}
         {screen === SCREENS.LIBRARY && <Library />}
         {screen === SCREENS.PROGRESS && <SeasonReport />}
-        {screen === SCREENS.PROGRAMME && <Programme />}
+        {screen === SCREENS.PROGRAMME && <Programme onNavigate={setScreen} />}
         {screen === SCREENS.ENCORE && (
           <Encore onExit={() => setScreen(SCREENS.MAP)} />
         )}
