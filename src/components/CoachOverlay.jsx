@@ -115,20 +115,30 @@ export default function CoachOverlay({ steps, onDone }) {
   const pad = 6 // ring padding around the target
   const trans = reducedMotion ? '' : 'transition-all duration-300 ease-out'
 
+  const vw = typeof window !== 'undefined' ? window.innerWidth : 0
+  const vh = typeof window !== 'undefined' ? window.innerHeight : 0
+
   // Tooltip placement: below the target if there's room, else above; for a
-  // centred (targetless) step, dead centre.
+  // centred (targetless) step, dead centre. CRUCIALLY, the horizontal
+  // position is clamped so the box (≈320px, or full width on tiny screens)
+  // never runs off either edge — otherwise text and the buttons get cut off.
+  const MARGIN = 16
+  const TIP_W = Math.min(320, vw - MARGIN * 2)
+  const clampLeft = (desired) =>
+    Math.max(MARGIN, Math.min(desired, vw - TIP_W - MARGIN))
+
   const tip = (() => {
     if (!rect) {
       return { position: 'centre' }
     }
+    // centre the tooltip horizontally under/over the target, then clamp
+    const centredLeft = rect.left + rect.width / 2 - TIP_W / 2
+    const left = clampLeft(centredLeft)
     const below = rect.top + rect.height + 12
-    const spaceBelow = window.innerHeight - below
-    if (spaceBelow > 160) return { top: below, left: rect.left, position: 'below' }
-    return { top: rect.top - 12, left: rect.left, position: 'above' }
+    const spaceBelow = vh - below
+    if (spaceBelow > 160) return { top: below, left, position: 'below' }
+    return { top: rect.top - 12, left, position: 'above' }
   })()
-
-  const vw = typeof window !== 'undefined' ? window.innerWidth : 0
-  const vh = typeof window !== 'undefined' ? window.innerHeight : 0
 
   return (
     <div
@@ -189,9 +199,10 @@ export default function CoachOverlay({ steps, onDone }) {
 
       {/* Tooltip */}
       <div
-        className={`absolute w-[min(20rem,calc(100vw-2rem))] rounded-xl border border-cue-dim bg-surface p-4 shadow-xl ${trans}`}
+        className={`absolute rounded-xl border border-cue-dim bg-surface p-4 shadow-xl ${trans}`}
         style={{
           zIndex: 2, // above the click-catching SVG dimmer (zIndex 0)
+          width: TIP_W,
           ...(tip.position === 'centre'
             ? { top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }
             : tip.position === 'above'
