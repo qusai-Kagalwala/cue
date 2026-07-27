@@ -5,7 +5,7 @@
 // T4.1 results + T4.2 auto-continue + T4.3 budget mode (Lesson 8).
 
 import { useEffect, useState } from 'react'
-import { useProgress, advanceLesson, setLessonStage, markCoachDone } from '../hooks/useProgress'
+import { useProgress, advanceLesson, setLessonStage, markCoachDone, markStageSuggestDone } from '../hooks/useProgress'
 import { useEvaluation } from '../hooks/useEvaluation'
 import PersonaPicker from '../components/PersonaPicker'
 import ScenarioCard from '../components/ScenarioCard'
@@ -17,6 +17,7 @@ import AutoContinue from '../components/AutoContinue'
 import DailyCard from '../components/DailyCard'
 import GuidedPrompt from '../components/GuidedPrompt'
 import CoachOverlay from '../components/CoachOverlay'
+import StageSuggest from '../components/StageSuggest'
 import { L1_COACH } from '../data/coach'
 import AssistedPrompt from '../components/AssistedPrompt'
 import Completion from './Completion'
@@ -43,11 +44,23 @@ export default function Challenge({ onNavigate }) {
   const [showCoach, setShowCoach] = useState(
     () => !loadState().coachDone && currentLessonIndex === 0,
   )
+  // v3-6a — the stage nudge: once ever, on L1, after a persona is chosen.
+  const [showStageSuggest, setShowStageSuggest] = useState(
+    () => !loadState().stageSuggestDone,
+  )
 
   function dismissCoach() {
     setShowCoach(false)
     markCoachDone()
   }
+
+  function dismissStageSuggest() {
+    setShowStageSuggest(false)
+    markStageSuggestDone()
+  }
+
+  // The coach waits until the stage nudge is resolved, so they don't stack.
+  const coachReady = showCoach && !showStageSuggest
 
   const evaluating = status === 'evaluating'
 
@@ -142,6 +155,13 @@ export default function Challenge({ onNavigate }) {
       {persona === null && (
         <div className="lg:col-span-2 lg:mb-2">
           <PersonaPicker onPick={setPersona} />
+        </div>
+      )}
+
+      {/* v3-6a — after a persona is chosen, a one-time stage nudge */}
+      {persona !== null && showStageSuggest && currentLessonIndex === 0 && (
+        <div className="lg:col-span-2 lg:mb-2">
+          <StageSuggest onDone={dismissStageSuggest} />
         </div>
       )}
 
@@ -253,7 +273,7 @@ export default function Challenge({ onNavigate }) {
       {showShortcuts && <ShortcutOverlay onClose={() => setShowShortcuts(false)} />}
 
       {/* v2-19 — First-Night Coach: fires once on L1 */}
-      {showCoach && <CoachOverlay steps={L1_COACH} onDone={dismissCoach} />}
+      {coachReady && <CoachOverlay steps={L1_COACH} onDone={dismissCoach} />}
     </div>
   )
 }

@@ -125,6 +125,12 @@ export function getActiveStageId() {
 }
 
 
+/** v3-6a — the stage-suggestion nudge is once-only; burn the flag when answered or dismissed. */
+export function markStageSuggestDone() {
+  if (isGodMode()) return
+  setState({ stageSuggestDone: true })
+}
+
 /** v2-19 — replay: clear the flag so the coach fires again next time L1 renders. */
 export function replayCoach() {
   if (isGodMode()) return
