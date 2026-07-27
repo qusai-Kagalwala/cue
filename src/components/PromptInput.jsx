@@ -33,6 +33,7 @@ export default function PromptInput({
 }) {
   const textareaRef = useRef(null)
   const recognitionRef = useRef(null)
+  const dictationBaseRef = useRef('') // v-fix — text before the live dictation
   const [listening, setListening] = useState(false)
   const [langIndex, setLangIndex] = useState(0)
 
@@ -63,14 +64,26 @@ export default function PromptInput({
     const rec = new SpeechRecognition()
     recognitionRef.current = rec
     rec.lang = VOICE_LANGS[langIndex].code
-    rec.continuous = false
-    rec.interimResults = false
+    // v-fix — LIVE dictation: keep listening and stream partial words so the
+    // user sees text appear AS they speak, not only after they stop.
+    rec.continuous = true
+    rec.interimResults = true
+
+    // Remember what was already typed; dictation is appended to this base.
+    dictationBaseRef.current = value.trim() ? value.replace(/\s*$/, ' ') : ''
 
     rec.onresult = (e) => {
-      const transcript = e.results[0]?.[0]?.transcript ?? ''
-      if (!transcript) return
-      // Append with a joining space, respect the char cap
-      const joined = (value.trim() ? value.replace(/\s*$/, ' ') : '') + transcript
+      // Rebuild the full dictation each event: everything final so far,
+      // plus the current interim guess. Interim results REPLACE (they don't
+      // append), so we always reconstruct from the base rather than stack.
+      let finalText = ''
+      let interim = ''
+      for (let i = 0; i < e.results.length; i += 1) {
+        const chunk = e.results[i][0]?.transcript ?? ''
+        if (e.results[i].isFinal) finalText += chunk
+        else interim += chunk
+      }
+      const joined = dictationBaseRef.current + finalText + interim
       onChange(joined.slice(0, MAX_PROMPT_CHARS))
     }
     rec.onend = () => setListening(false)

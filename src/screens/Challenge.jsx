@@ -5,7 +5,7 @@
 // T4.1 results + T4.2 auto-continue + T4.3 budget mode (Lesson 8).
 
 import { useEffect, useState } from 'react'
-import { useProgress, advanceLesson, setLessonStage, markCoachDone, markStageSuggestDone } from '../hooks/useProgress'
+import { useProgress, advanceLesson, setLessonStage, markCoachDone } from '../hooks/useProgress'
 import { useEvaluation } from '../hooks/useEvaluation'
 import PersonaPicker from '../components/PersonaPicker'
 import ScenarioCard from '../components/ScenarioCard'
@@ -17,7 +17,6 @@ import AutoContinue from '../components/AutoContinue'
 import DailyCard from '../components/DailyCard'
 import GuidedPrompt from '../components/GuidedPrompt'
 import CoachOverlay from '../components/CoachOverlay'
-import StageSuggest from '../components/StageSuggest'
 import { L1_COACH } from '../data/coach'
 import AssistedPrompt from '../components/AssistedPrompt'
 import Completion from './Completion'
@@ -31,7 +30,6 @@ export default function Challenge({ onNavigate }) {
     currentLessonIndex,
     totalLessons,
     coachDone,
-    stageSuggestDone,
     isComplete,
     lessonStage,
   } = useProgress()
@@ -45,14 +43,13 @@ export default function Challenge({ onNavigate }) {
   // true in the same tick and the overlay closes on the next render — no
   // session-local flag needed. And because a reset flips the flags back to
   // false, the tour naturally re-appears afterward, no remount required.
-  const showCoach = !coachDone && currentLessonIndex === 0
-  const showStageSuggest = !stageSuggestDone
+  const showCoach =
+    !coachDone && currentLessonIndex === 0 && lessonStage === 'solo' && persona !== null
 
   const dismissCoach = markCoachDone
-  const dismissStageSuggest = markStageSuggestDone
 
   // The coach waits until the stage nudge is resolved, so they don't stack.
-  const coachReady = showCoach && !showStageSuggest
+  const coachReady = showCoach
 
   const evaluating = status === 'evaluating'
 
@@ -147,13 +144,6 @@ export default function Challenge({ onNavigate }) {
       {persona === null && (
         <div className="lg:col-span-2 lg:mb-2">
           <PersonaPicker onPick={setPersona} />
-        </div>
-      )}
-
-      {/* v3-6a — after a persona is chosen, a one-time stage nudge */}
-      {persona !== null && showStageSuggest && currentLessonIndex === 0 && (
-        <div className="lg:col-span-2 lg:mb-2">
-          <StageSuggest onDone={dismissStageSuggest} />
         </div>
       )}
 

@@ -16,4 +16,4 @@ export const SCREENS = {
 }
 
 // v2-3a — Opening Act beat order (the product spec; v2-3b/3c import this)
-export const BEATS = ['title', 'name', 'audition', 'why', 'persona', 'curtain']
+export const BEATS = ['title', 'name', 'audition', 'why', 'persona', 'stage', 'curtain']

@@ -9,7 +9,8 @@ import { BEATS } from '../lib/screens'
 import { enterGodMode } from '../lib/godMode'
 import { PERSONAS } from '../data/lessons'
 import { loadState, updateState } from '../lib/storage'
-import { setPersona } from '../hooks/useProgress'
+import { setPersona, setActiveStage } from '../hooks/useProgress'
+import { STAGE_LIST, isStagePlayable } from '../data/stages'
 import { scoreWithRubric } from '../lib/rubric'
 import { auditionRank } from '../lib/ranks'
 import { AUDITION_MCQS, AUDITION_TASK } from '../data/audition'
@@ -377,6 +378,60 @@ function CurtainBeat({ onComplete, name }) {
   )
 }
 
+// ---- Beat 6: pick a stage to start with (v3-6a, moved out of the lesson) -
+// A gentle, skippable choice — text is the default home; the other stages
+// are offered only if playable. Non-locking: every stage stays reachable
+// from the map later.
+function StageBeat({ onNext }) {
+  // text is the default (the 'just start with writing' link below), so the
+  // grid offers the OTHER stages as deliberate choices.
+  const options = STAGE_LIST.filter((s) => s.id !== 'text' && isStagePlayable(s.id))
+
+  function choose(stageId) {
+    setActiveStage(stageId)
+    onNext()
+  }
+
+  return (
+    <div className="space-y-5 text-center">
+      <p className="font-mono text-xs uppercase tracking-widest text-faint">
+        one last thing
+      </p>
+      <h2 className="font-display text-2xl font-semibold text-cue">
+        Where would you like to start?
+      </h2>
+      <p className="mx-auto max-w-[42ch] leading-relaxed text-muted">
+        Cue teaches prompting across five stages. Begin wherever you like —
+        you can switch anytime from the map.
+      </p>
+
+      <div className="mx-auto grid max-w-md grid-cols-1 gap-2 sm:grid-cols-2">
+        {options.map((s) => (
+          <button
+            key={s.id}
+            onClick={() => choose(s.id)}
+            className="group rounded-xl border border-line bg-raised px-4 py-3 text-left transition-colors hover:border-cue-dim"
+          >
+            <span className="block text-sm font-medium text-ink group-hover:text-cue">
+              {s.label}
+            </span>
+            <span className="block font-mono text-[11px] leading-snug text-faint">
+              {s.blurb}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      <button
+        onClick={() => choose('text')}
+        className="font-mono text-xs text-muted underline-offset-2 hover:text-ink hover:underline"
+      >
+        just start with writing →
+      </button>
+    </div>
+  )
+}
+
 // ---- Shell --------------------------------------------------------------
 export default function OpeningAct({ onComplete }) {
   const [beatIndex, setBeatIndex] = useState(0)
@@ -402,6 +457,7 @@ export default function OpeningAct({ onComplete }) {
     audition: <AuditionBeat onNext={next} />,
     why: <WhyBeat onNext={next} />,
     persona: <PersonaBeat onNext={next} />,
+    stage: <StageBeat onNext={next} />,
     curtain: <CurtainBeat onComplete={onComplete} name={name} />,
   }
 

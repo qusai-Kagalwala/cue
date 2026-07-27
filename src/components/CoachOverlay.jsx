@@ -50,6 +50,7 @@ export default function CoachOverlay({ steps, onDone }) {
   // Resolve the opening step at init (lazy initialisers) so the first
   // render is already correct — no setState-in-effect on mount.
   const first = resolveFrom(steps, 0)
+  const [, forceTick] = useState(0)
   const [index, setIndex] = useState(first.i)
   const [rect, setRect] = useState(first.r)
   const doneRef = useRef(false)
@@ -85,7 +86,10 @@ export default function CoachOverlay({ steps, onDone }) {
   useEffect(() => {
     const step = steps[index]
     if (!step?.target) return
-    const reflow = () => setRect(measure(step.target))
+    const reflow = () => {
+      setRect(measure(step.target))
+      forceTick((n) => n + 1) // recompute viewport size for the dimmer
+    }
     window.addEventListener('resize', reflow)
     window.addEventListener('scroll', reflow, true)
     return () => {
@@ -123,16 +127,53 @@ export default function CoachOverlay({ steps, onDone }) {
     return { top: rect.top - 12, left: rect.left, position: 'above' }
   })()
 
-  return (
-    <div className="fixed inset-0 z-30" role="dialog" aria-modal="true" aria-label="Guided tour">
-      {/* Scrim: one dim layer. When a target exists, a bright ring sits on
-          top of it; the element underneath stays readable through the ring. */}
-      <div
-        className="absolute inset-0 bg-stage/75 backdrop-blur-[1px]"
-        onClick={() => goTo(index + 1)}
-      />
+  const vw = typeof window !== 'undefined' ? window.innerWidth : 0
+  const vh = typeof window !== 'undefined' ? window.innerHeight : 0
 
-      {/* Highlight ring around the target */}
+  return (
+    <div
+      className="fixed inset-0 z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Guided tour"
+    >
+      {/* One full-viewport dimmer covering the ENTIRE page — navbar included —
+          with a real rounded cutout punched out around the target, so the
+          highlighted element is the only thing not dimmed. z-50 sits above the
+          sticky header (z-10). Tapping the dim area advances. */}
+      <svg
+        width={vw}
+        height={vh}
+        className={`absolute inset-0 ${trans}`}
+        onClick={() => goTo(index + 1)}
+        style={{ cursor: 'pointer' }}
+      >
+        <defs>
+          <mask id="coach-cutout">
+            <rect x="0" y="0" width={vw} height={vh} fill="white" />
+            {rect && (
+              <rect
+                x={rect.left - pad}
+                y={rect.top - pad}
+                width={rect.width + pad * 2}
+                height={rect.height + pad * 2}
+                rx="12"
+                fill="black"
+              />
+            )}
+          </mask>
+        </defs>
+        <rect
+          x="0"
+          y="0"
+          width={vw}
+          height={vh}
+          fill="rgba(14,13,11,0.72)"
+          mask="url(#coach-cutout)"
+        />
+      </svg>
+
+      {/* Bright ring around the cutout so the target reads as 'spotlit' */}
       {rect && (
         <div
           className={`pointer-events-none absolute rounded-xl ring-2 ring-cue ${trans}`}
@@ -141,14 +182,13 @@ export default function CoachOverlay({ steps, onDone }) {
             left: rect.left - pad,
             width: rect.width + pad * 2,
             height: rect.height + pad * 2,
-            boxShadow: '0 0 0 9999px rgba(14,13,11,0.55)',
           }}
         />
       )}
 
       {/* Tooltip */}
       <div
-        className={`absolute w-[min(20rem,calc(100vw-2rem))] rounded-xl border border-cue-dim bg-surface p-4 shadow-xl ${trans}`}
+        className={`absolute z-51 w-[min(20rem,calc(100vw-2rem))] rounded-xl border border-cue-dim bg-surface p-4 shadow-xl ${trans}`}
         style={
           tip.position === 'centre'
             ? { top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }
