@@ -6,6 +6,7 @@
 
 import { useEffect, useState } from 'react'
 import { useProgress, advanceLesson, setLessonStage, markCoachDone } from '../hooks/useProgress'
+import { playScoreCue } from '../lib/sound'
 import { useEvaluation } from '../hooks/useEvaluation'
 import PersonaPicker from '../components/PersonaPicker'
 import ScenarioCard from '../components/ScenarioCard'
@@ -32,6 +33,7 @@ export default function Challenge({ onNavigate }) {
     coachDone,
     isComplete,
     lessonStage,
+    soundOn,
   } = useProgress()
   const { status, result, award, submit, reset } = useEvaluation()
   const [prompt, setPrompt] = useState('')
@@ -52,6 +54,11 @@ export default function Challenge({ onNavigate }) {
   const coachReady = showCoach
 
   const evaluating = status === 'evaluating'
+
+  // v3-7 — play the score-reveal cue once when a result lands.
+  useEffect(() => {
+    if (status === 'done' && result) playScoreCue(result.score, soundOn)
+  }, [status, result, soundOn])
 
   // T6.3 — screen-reader announcement when results land. The evaluating
   // phase is already announced by CurtainLoader's role="status"; this

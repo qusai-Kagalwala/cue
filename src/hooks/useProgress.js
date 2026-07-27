@@ -108,14 +108,12 @@ function setJourney(patch) {
  */
 export function setActiveStage(stageId) {
   if (!isStagePlayable(stageId)) return false
-  // v2-20a fix — in God Mode, switch the SNAPSHOT's active stage (the real
-  // `state` is frozen at 'text'). setState already routes to the snapshot in
-  // God Mode; we just must compare against the snapshot, not real state, or
-  // switching appears to work visually but content stays on text.
+  // v2-20a fix — compare against the SNAPSHOT (real state is frozen at 'text'
+  // in God Mode) and record the switch so content resolution follows it.
   const current = getSnapshot().activeStage ?? 'text'
   if (current === stageId) return true
   const base = getSnapshot()
-  if (isGodMode()) setGodStage(stageId) // so content resolution follows the switch
+  if (isGodMode()) setGodStage(stageId)
   setState({
     activeStage: stageId,
     stageProgress: {
@@ -128,7 +126,7 @@ export function setActiveStage(stageId) {
 
 /** v3-1b — the active stage id, for evaluation calls outside React. */
 export function getActiveStageId() {
-  // v2-20a fix — read the snapshot so God Mode's stage switches take effect
+  // v2-20a fix — read the snapshot so God Mode's stage switch takes effect
   // for content resolution and evaluation, not just the visible chip.
   return getSnapshot().activeStage ?? 'text'
 }
@@ -262,6 +260,12 @@ export function completeEncore(score) {
 
 /** v2-15 — theme switch. Light is a Level 3 unlock (the XP sink):
     below the gate the request is ignored, dark stays. */
+/** v3-7 — toggle score-reveal sound cues. */
+export function setSound(on) {
+  if (isGodMode()) return
+  setState({ soundOn: Boolean(on) })
+}
+
 export function setTheme(theme) {
   if (theme === 'light' && state.level < 3) return
   if (theme !== 'light' && theme !== 'dark') return
@@ -304,8 +308,6 @@ export function useProgress() {
   return {
     // state
     persona: s.persona,
-    coachDone: s.coachDone ?? false,
-    stageSuggestDone: s.stageSuggestDone ?? false,
     name: s.name ?? null,          // v2-3d — echoes across toast/finale/card
     activeStage: stageId,
     currentLessonIndex: j.currentLessonIndex,
@@ -321,6 +323,7 @@ export function useProgress() {
     encoreDoneToday: s.encoreDone === todayKey(),
     dailyDoneToday: s.dailyDone === todayKey(),
     theme: s.theme ?? 'dark',
+    soundOn: s.soundOn ?? false,
     dailyLessonIndex: dailyLessonIndexFor(todayKey(), TOTAL_LESSONS),
     // actions
     setPersona,

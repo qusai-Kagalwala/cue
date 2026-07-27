@@ -11,7 +11,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import { downloadExport, validateImport, applyImport } from '../lib/portability'
 
 export default function Settings({ onNavigate }) {
-  const { persona, setPersona, resetProgress, level, theme, setTheme } = useProgress()
+  const { persona, setPersona, resetProgress, level, theme, setTheme, soundOn, setSound } = useProgress()
   const [confirming, setConfirming] = useState(false)
   const [importError, setImportError] = useState(null)
   const [importReady, setImportReady] = useState(null) // validated file waiting for confirm
@@ -138,6 +138,28 @@ export default function Settings({ onNavigate }) {
             )
           })}
         </div>
+      </section>
+
+      {/* v3-7 — sound cues */}
+      <section className="space-y-2">
+        <div>
+          <h2 className="font-display font-semibold">Sound</h2>
+          <p className="text-sm text-muted">
+            A soft cue when your score lands — brighter for stronger prompts.
+            Off by default, in case you're somewhere quiet.
+          </p>
+        </div>
+        <button
+          onClick={() => setSound(!soundOn)}
+          aria-pressed={soundOn}
+          className={`rounded-full border px-4 py-2 text-sm transition-colors ${
+            soundOn
+              ? 'border-cue bg-cue/10 text-cue'
+              : 'border-line bg-raised text-ink hover:border-cue-dim hover:text-cue'
+          }`}
+        >
+          {soundOn ? '🔊 Sound on' : '🔇 Sound off'}
+        </button>
       </section>
 
       {/* Danger zone */}

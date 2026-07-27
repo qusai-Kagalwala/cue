@@ -141,65 +141,103 @@ def main():
     pairs = []  # (lessonId, prompt, real_score)
     for e in data.get("library", []):
         if e.get("prompt") and isinstance(e.get("score"), (int, float)):
-            pairs.append((e.get("lessonId", "?"), e["prompt"], e["score"]))
+            pairs.append((e.get("stage", "text"), e.get("lessonId", "?"), e["prompt"], e["score"]))
     for a in data.get("attempts", []):
         if a.get("prompt") and a.get("engine") != "heuristic" \
                 and isinstance(a.get("score"), (int, float)):
-            pairs.append((a.get("lessonId", "?"), a["prompt"], a["score"]))
+            pairs.append((a.get("stage", "text"), a.get("lessonId", "?"), a["prompt"], a["score"]))
     extra = Path(__file__).parent / "extra_pairs.csv"
     if extra.exists():
         with extra.open(encoding="utf-8") as f:
             for row in csv.DictReader(f):
                 if row.get("prompt") and row.get("score"):
-                    pairs.append((row.get("lessonId", "?"), row["prompt"], float(row["score"])))
+                    pairs.append((row.get("stage", "text"), row.get("lessonId", "?"),
+                                  row["prompt"], float(row["score"])))
 
-    # de-dupe on prompt text
+    # de-dupe on (stage, prompt text)
     seen, unique = set(), []
     for p in pairs:
-        if p[1] not in seen:
-            seen.add(p[1])
+        key = (p[0], p[2])
+        if key not in seen:
+            seen.add(key)
             unique.append(p)
-    pairs = [p for p in unique if p[0] in CURRENT or p[0] == "encore"]
+    # keep only lessons we know (l1..l8) or the encore shell
+    pairs = [p for p in unique if p[1] in CURRENT or p[1] == "encore"]
 
     n = len(pairs)
+    # v3-8 — report the per-stage split so it's clear which stages have data.
+    by_stage = {}
+    for (stage, _lid, _p, _s) in pairs:
+        by_stage[stage] = by_stage.get(stage, 0) + 1
     print(f"— calibration input: {n} prompt/score pairs")
+    print("  by stage: " + ", ".join(f"{k}={v}" for k, v in sorted(by_stage.items())))
     if n < 15:
         print("✗ Not enough pairs for ANY honest fit (need ≥15 global).")
         print("  Keep the current weights. Grow data via the logger rider,")
         print("  the library, and extra_pairs.csv, then rerun.")
         sys.exit(0)
 
-    X = [[detect(p)[d] for d in DIMS] for (_, p, _) in pairs]
-    y = [(s - 15) / 60 for (_, _, s) in pairs]  # map score → rubric's 0..1 scale
+    # v3-8 — the GLOBAL fit uses every pair regardless of stage (the six
+    # detectors are shared machinery). A per-stage fit only runs for stages
+    # that individually clear the threshold; below it, that stage keeps its
+    # shipped weights. This is the honest extension of the n≥15 rule to five
+    # stages: we never fit a stage on too little of its own data.
+    X = [[detect(p)[d] for d in DIMS] for (_, _, p, _) in pairs]
+    y = [(s - 15) / 60 for (_, _, _, s) in pairs]  # score → rubric 0..1 scale
+
+    STAGE_MIN = 15  # per-stage threshold, same honesty bar as the global one
+    ready = [k for k, v in by_stage.items() if v >= STAGE_MIN]
+    if ready:
+        print("  stages with enough data for their own fit: " + ", ".join(sorted(ready)))
+    else:
+        print("  no single stage clears the per-stage threshold yet — "
+              "global fit only, stage weights unchanged.")
 
     global_raw = ridge_fit(X, y)
     global_w = normalize_weights(global_raw) if global_raw else None
     if not global_w:
         sys.exit("✗ Regression degenerate (constant features?). Keep current weights.")
 
-    by_lesson = defaultdict(list)
-    for i, (lid, _, _) in enumerate(pairs):
-        by_lesson[lid].append(i)
+    # Group by (stage, lesson). The proposal below covers TEXT (whose shipped
+    # weights live here in CURRENT); non-text stages are reported separately
+    # so a human can port strong fits into rubric.js when the data is there.
+    by_stage_lesson = defaultdict(list)
+    for i, (stage, lid, _p, _s) in enumerate(pairs):
+        by_stage_lesson[(stage, lid)].append(i)
 
     proposed, notes = {}, []
     for lid in CURRENT:
-        idx = by_lesson.get(lid, [])
+        idx = by_stage_lesson.get(("text", lid), [])
         if len(idx) >= 8:
             fit = ridge_fit([X[i] for i in idx], [y[i] for i in idx], lam=1.0)
             w = normalize_weights(fit) if fit else None
             if w:
-                # blend per-lesson fit with current by sample confidence
                 conf = min(1.0, len(idx) / 25)
                 blended = [round(conf * w[j] + (1 - conf) * CURRENT[lid][DIMS[j]], 2)
                            for j in range(6)]
                 proposed[lid] = normalize_weights(blended)
-                notes.append(f"{lid}: per-lesson fit, n={len(idx)}, confidence {conf:.0%}")
+                notes.append(f"text/{lid}: per-lesson fit, n={len(idx)}, confidence {conf:.0%}")
                 continue
-        # not enough lesson data → nudge current 25% toward the global fit
         blended = [round(0.75 * CURRENT[lid][DIMS[j]] + 0.25 * global_w[j], 2)
                    for j in range(6)]
         proposed[lid] = normalize_weights(blended)
-        notes.append(f"{lid}: global nudge (n={len(by_lesson.get(lid, []))} — below 8)")
+        notes.append(f"text/{lid}: global nudge (n={len(idx)} — below 8)")
+
+    # v3-8 — non-text stages: report per-(stage,lesson) fits where the data
+    # exists, as suggestions to port into rubric.js by hand (this tool only
+    # ships text's weights; other stages' weights are code, not data here).
+    stage_notes = []
+    for (stage, lid), idx in sorted(by_stage_lesson.items()):
+        if stage == "text":
+            continue
+        if len(idx) >= 8:
+            fit = ridge_fit([X[i] for i in idx], [y[i] for i in idx], lam=1.0)
+            w = normalize_weights(fit) if fit else None
+            if w:
+                stage_notes.append(f"{stage}/{lid}: suggested {dict(zip(DIMS, w))} (n={len(idx)})")
+    if stage_notes:
+        notes.append("— non-text stage suggestions (port into rubric.js manually):")
+        notes.extend(stage_notes)
 
     # ---- outputs ----
     js = "const LESSON_WEIGHTS = {\n"
