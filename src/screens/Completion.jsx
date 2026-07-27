@@ -15,6 +15,7 @@ import { RESOURCES } from '../data/resources'
 import { scoreWithRubric } from '../lib/rubric'
 import { rankForLevel } from '../lib/ranks'
 import ShareCard from '../components/ShareCard'
+import CertificateActions from '../components/CertificateActions'
 import PromptDiff from '../components/PromptDiff'
 
 function Stat({ label, value, sub }) {
@@ -174,6 +175,9 @@ export default function Completion({ onGoToMap }) {
           })}
         </div>
       </div>
+
+      {/* certificate — PNG + PDF, per-stage and master */}
+      <CertificateActions />
 
       {/* v2-1 — journey share card */}
       <ShareCard label="Share your run" />

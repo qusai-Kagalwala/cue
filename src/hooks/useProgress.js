@@ -108,8 +108,6 @@ function setJourney(patch) {
  */
 export function setActiveStage(stageId) {
   if (!isStagePlayable(stageId)) return false
-  // v2-20a fix — compare against the SNAPSHOT (real state is frozen at 'text'
-  // in God Mode) and record the switch so content resolution follows it.
   const current = getSnapshot().activeStage ?? 'text'
   if (current === stageId) return true
   const base = getSnapshot()
@@ -126,8 +124,6 @@ export function setActiveStage(stageId) {
 
 /** v3-1b — the active stage id, for evaluation calls outside React. */
 export function getActiveStageId() {
-  // v2-20a fix — read the snapshot so God Mode's stage switch takes effect
-  // for content resolution and evaluation, not just the visible chip.
   return getSnapshot().activeStage ?? 'text'
 }
 
@@ -319,6 +315,7 @@ export function useProgress() {
     xpToNext: xpToNextLevel(s.xp),
     streak: s.streak.count,
     lessonScores: j.lessonScores,
+    stageProgress: s.stageProgress ?? {},
     totalLessons: TOTAL_LESSONS,
     encoreDoneToday: s.encoreDone === todayKey(),
     dailyDoneToday: s.dailyDone === todayKey(),
@@ -327,6 +324,7 @@ export function useProgress() {
     dailyLessonIndex: dailyLessonIndexFor(todayKey(), TOTAL_LESSONS),
     // actions
     setPersona,
+    setSound,
     setActiveStage,        // v3-1c fix — was missing from the snapshot
     completeLesson,
     advanceLesson,
