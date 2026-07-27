@@ -9,6 +9,7 @@ import { loadState, updateState } from './lib/storage'
 import { useProgress } from './hooks/useProgress'
 import OpeningAct from './screens/OpeningAct'
 import TopBar from './components/TopBar'
+import BottomNav from './components/BottomNav'
 import Challenge from './screens/Challenge'
 import LessonMap from './screens/LessonMap'
 import Sandbox from './screens/Sandbox'
@@ -60,7 +61,7 @@ export default function App() {
 
       <main
         key={screen}
-        className="cue-screen-enter mx-auto max-w-5xl px-4 pb-12 pt-6 lg:px-6"
+        className="cue-screen-enter mx-auto max-w-5xl px-4 pb-24 pt-6 lg:px-6 lg:pb-12"
       >
         {screen === SCREENS.CHALLENGE && <Challenge onNavigate={setScreen} />}
         {screen === SCREENS.MAP && (
@@ -87,6 +88,8 @@ export default function App() {
         {screen === SCREENS.SANDBOX && <Sandbox />}
         {screen === SCREENS.SETTINGS && <Settings onNavigate={setScreen} />}
       </main>
+
+      <BottomNav screen={screen} onNavigate={setScreen} />
     </div>
   )
 }

@@ -63,6 +63,9 @@ export default function TopBar({ screen, onNavigate }) {
             {xp} XP
           </span>
 
+          {/* Primary nav — desktop only; on mobile these live in the
+              bottom nav bar (BottomNav.jsx). */}
+          <div className="hidden items-center gap-1.5 lg:flex lg:gap-3">
           {/* Lesson map */}
           <IconButton
             label="Lesson map"
@@ -152,6 +155,7 @@ export default function TopBar({ screen, onNavigate }) {
               <path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.6-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3h0a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5h0a1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9v0a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z" />
           </svg>
           </IconButton>
+          </div>
         </div>
       </div>
     </header>
