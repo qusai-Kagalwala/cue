@@ -155,8 +155,13 @@ export default function CoachOverlay({ steps, onDone }) {
         width={vw}
         height={vh}
         className={`absolute inset-0 ${trans}`}
-        onClick={() => goTo(index + 1)}
-        style={{ cursor: 'pointer', zIndex: 0 }}
+        onClick={() => {
+          // Don't let the dim area advance/close on the LAST step — only the
+          // explicit "Got it" button should end the tour, so a stray tap
+          // can't race the button on touch devices.
+          if (!last) goTo(index + 1)
+        }}
+        style={{ cursor: last ? 'default' : 'pointer', zIndex: 0 }}
       >
         <defs>
           <mask id="coach-cutout">
@@ -223,15 +228,26 @@ export default function CoachOverlay({ steps, onDone }) {
           <div className="flex items-center gap-2">
             {!last && (
               <button
-                onClick={finish}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  finish()
+                }}
                 className="rounded-lg px-3 py-1.5 font-mono text-xs text-muted transition-colors hover:text-ink"
               >
                 skip
               </button>
             )}
             <button
-              onClick={() => goTo(index + 1)}
-              className="rounded-lg bg-cue px-4 py-1.5 text-sm font-medium text-stage transition-colors hover:bg-cue-bright"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                // On the last step end the tour directly (no resolveFrom
+                // round-trip); otherwise advance.
+                if (last) finish()
+                else goTo(index + 1)
+              }}
+              className="rounded-lg bg-cue px-5 py-2 text-sm font-medium text-stage transition-colors hover:bg-cue-bright"
             >
               {last ? 'Got it' : 'Next →'}
             </button>
