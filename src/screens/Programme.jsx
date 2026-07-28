@@ -5,10 +5,8 @@
 // Content lives in data/programme.js under its altitude rule.
 
 import { PROGRAMME } from '../data/programme'
-import { replayCoach } from '../hooks/useProgress'
-import { SCREENS } from '../lib/screens'
 
-export default function Programme({ onNavigate }) {
+export default function Programme() {
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <header className="space-y-1">
@@ -57,22 +55,6 @@ export default function Programme({ onNavigate }) {
           )}
         </section>
       ))}
-
-      {/* v2-19 — replay the First-Night Coach from the guide */}
-      <div className="border-t border-line pt-6">
-        <button
-          onClick={() => {
-            replayCoach()
-            onNavigate?.(SCREENS.CHALLENGE)
-          }}
-          className="rounded-lg border border-cue-dim px-4 py-2 text-sm text-cue transition-colors hover:bg-cue/10"
-        >
-          ↺ Replay the first-night tour
-        </button>
-        <p className="mt-2 font-mono text-xs text-faint">
-          Walks you through the challenge screen again, from Lesson 1.
-        </p>
-      </div>
     </div>
   )
 }

@@ -5,20 +5,19 @@
 // T4.1 results + T4.2 auto-continue + T4.3 budget mode (Lesson 8).
 
 import { useEffect, useState } from 'react'
-import { useProgress, advanceLesson, setLessonStage, markCoachDone } from '../hooks/useProgress'
+import { useProgress, advanceLesson, setLessonStage } from '../hooks/useProgress'
 import { playScoreCue } from '../lib/sound'
 import { useEvaluation } from '../hooks/useEvaluation'
 import PersonaPicker from '../components/PersonaPicker'
 import ScenarioCard from '../components/ScenarioCard'
 import PromptInput from '../components/PromptInput'
+import InlineHint from '../components/InlineHint'
 import ShortcutOverlay from '../components/ShortcutOverlay'
 import CurtainLoader from '../components/CurtainLoader'
 import ResultsPanel from '../components/ResultsPanel'
 import AutoContinue from '../components/AutoContinue'
 import DailyCard from '../components/DailyCard'
 import GuidedPrompt from '../components/GuidedPrompt'
-import CoachOverlay from '../components/CoachOverlay'
-import { L1_COACH } from '../data/coach'
 import AssistedPrompt from '../components/AssistedPrompt'
 import Completion from './Completion'
 import { SCREENS } from '../lib/screens'
@@ -30,7 +29,6 @@ export default function Challenge({ onNavigate }) {
     currentLesson,
     currentLessonIndex,
     totalLessons,
-    coachDone,
     isComplete,
     lessonStage,
     soundOn,
@@ -39,19 +37,6 @@ export default function Challenge({ onNavigate }) {
   const [prompt, setPrompt] = useState('')
   const [conceptOpen, setConceptOpen] = useState(true)
   const [showShortcuts, setShowShortcuts] = useState(false)
-  // v2-19 / v3-6a — the First-Night Coach and stage nudge derive straight
-  // from the LIVE flags in the store. The store writes synchronously and
-  // notifies immediately, so dismissing (markCoachDone) flips the flag to
-  // true in the same tick and the overlay closes on the next render — no
-  // session-local flag needed. And because a reset flips the flags back to
-  // false, the tour naturally re-appears afterward, no remount required.
-  const showCoach =
-    !coachDone && currentLessonIndex === 0 && lessonStage === 'solo' && persona !== null
-
-  const dismissCoach = markCoachDone
-
-  // The coach waits until the stage nudge is resolved, so they don't stack.
-  const coachReady = showCoach
 
   const evaluating = status === 'evaluating'
 
@@ -147,6 +132,18 @@ export default function Challenge({ onNavigate }) {
         {announcement}
       </div>
 
+      {/* First-visit hint on Lesson 1 — replaces the old coach tour with the
+          reliable inline-hint pattern. */}
+      {persona !== null && currentLessonIndex === 0 && (
+        <div className="lg:col-span-2">
+          <InlineHint id="challenge-l1">
+            Read the scenario and task, then write the prompt you think works
+            best. Cue scores it across six dimensions and tells you what to
+            sharpen. The clearer and more specific you are, the better.
+          </InlineHint>
+        </div>
+      )}
+
       {/* First visit only — spans both panels on desktop */}
       {persona === null && (
         <div className="lg:col-span-2 lg:mb-2">
@@ -201,7 +198,7 @@ export default function Challenge({ onNavigate }) {
           )}
         </section>
 
-        <div data-coach="scenario">
+        <div>
           <ScenarioCard
             scenario={currentLesson.scenario}
             task={currentLesson.task}
@@ -226,7 +223,7 @@ export default function Challenge({ onNavigate }) {
           </div>
         )}
 
-        <div data-coach="prompt-input">
+        <div>
           <PromptInput
             value={prompt}
             onChange={setPrompt}
@@ -260,9 +257,6 @@ export default function Challenge({ onNavigate }) {
       </div>
 
       {showShortcuts && <ShortcutOverlay onClose={() => setShowShortcuts(false)} />}
-
-      {/* v2-19 — First-Night Coach: fires once on L1 */}
-      {coachReady && <CoachOverlay steps={L1_COACH} onDone={dismissCoach} />}
     </div>
   )
 }

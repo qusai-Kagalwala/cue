@@ -8,7 +8,7 @@ import InlineHint from '../components/InlineHint'
 import { loadState, loadAttempts } from '../lib/storage'
 import { godAttempts } from '../lib/godMode'
 import { syncPlaybill } from '../lib/achievements'
-import { sharePlaybillCard } from '../lib/playbillCard'
+import { sharePlaybillCard, shareSingleAchievement } from '../lib/playbillCard'
 
 export default function Playbill() {
   const playbill = syncPlaybill({
@@ -80,6 +80,20 @@ export default function Playbill() {
                 ? `earned ${new Date(a.earnedAt).toLocaleDateString()}`
                 : 'not yet'}
             </p>
+            {a.earned && (
+              <button
+                type="button"
+                onClick={() =>
+                  shareSingleAchievement({
+                    achievement: a,
+                    name: loadState().name ?? null,
+                  })
+                }
+                className="mt-2 inline-flex items-center gap-1 rounded-md border border-cue-dim/60 px-2 py-1 font-mono text-[10px] text-cue transition-colors hover:bg-cue/10"
+              >
+                ↗ share
+              </button>
+            )}
           </li>
         ))}
       </ul>

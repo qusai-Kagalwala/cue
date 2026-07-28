@@ -122,6 +122,112 @@ function drawPlaybillCard({ achievements = [], name }) {
   return canvas
 }
 
+/**
+ * Draw ONE achievement as a share card (square, focused on the single
+ * sticker). opts: { achievement: {sticker,title,description,earnedAt}, name }
+ */
+function drawSingleCard({ achievement, name }) {
+  const canvas = document.createElement('canvas')
+  canvas.width = SIZE
+  canvas.height = SIZE
+  const ctx = canvas.getContext('2d')
+
+  ctx.fillStyle = C.stage
+  ctx.fillRect(0, 0, SIZE, SIZE)
+  const spot = ctx.createRadialGradient(SIZE / 2, SIZE / 2, 80, SIZE / 2, SIZE / 2, 700)
+  spot.addColorStop(0, 'rgba(245,185,66,0.18)')
+  spot.addColorStop(1, 'rgba(245,185,66,0)')
+  ctx.fillStyle = spot
+  ctx.fillRect(0, 0, SIZE, SIZE)
+
+  ctx.strokeStyle = C.cueDim
+  ctx.lineWidth = 2
+  roundRect(ctx, 48, 48, SIZE - 96, SIZE - 96, 20)
+  ctx.stroke()
+
+  ctx.textAlign = 'center'
+
+  // header
+  ctx.fillStyle = C.cue
+  ctx.font = `bold 46px ${SERIF}`
+  ctx.fillText('Cue', SIZE / 2, 150)
+  ctx.fillStyle = C.muted
+  ctx.font = `24px ${MONO}`
+  ctx.fillText('ACHIEVEMENT UNLOCKED', SIZE / 2, 200)
+
+  // big sticker in a ring
+  ctx.strokeStyle = C.cueDim
+  ctx.lineWidth = 3
+  ctx.beginPath()
+  ctx.arc(SIZE / 2, 480, 160, 0, Math.PI * 2)
+  ctx.stroke()
+  ctx.fillStyle = 'rgba(245,185,66,0.06)'
+  ctx.fill()
+  ctx.font = '180px sans-serif'
+  ctx.fillStyle = C.ink
+  ctx.fillText(achievement.sticker || 'star', SIZE / 2, 545)
+
+  // title
+  ctx.fillStyle = C.cue
+  ctx.font = `bold 56px ${SERIF}`
+  ctx.fillText((achievement.title || '').slice(0, 24), SIZE / 2, 720)
+
+  // description (wrapped, up to 2 lines)
+  ctx.fillStyle = C.muted
+  ctx.font = `28px ${SERIF}`
+  const desc = achievement.description || ''
+  const words = desc.split(' ')
+  let line = ''
+  let y = 770
+  for (const w of words) {
+    const test = line ? line + ' ' + w : w
+    if (ctx.measureText(test).width > SIZE - 220 && line) {
+      ctx.fillText(line, SIZE / 2, y)
+      line = w
+      y += 40
+    } else {
+      line = test
+    }
+  }
+  if (line) ctx.fillText(line, SIZE / 2, y)
+
+  // footer
+  ctx.fillStyle = C.muted
+  ctx.font = `22px ${MONO}`
+  const who = name ? `${name} · ` : ''
+  ctx.fillText(`${who}cue-orpin-five.vercel.app`, SIZE / 2, SIZE - 80)
+
+  return canvas
+}
+
+/** Share (or download) a single achievement card. */
+export async function shareSingleAchievement({ achievement, name }) {
+  const canvas = drawSingleCard({ achievement, name })
+  const blob = await new Promise((r) => canvas.toBlob(r, 'image/png'))
+  const file = new File([blob], 'cue-achievement.png', { type: 'image/png' })
+  if (navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({
+        files: [file],
+        title: achievement.title,
+        text: `I earned "${achievement.title}" on Cue.`,
+      })
+      return true
+    } catch {
+      /* cancelled → download */
+    }
+  }
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `cue-${(achievement.id || 'achievement')}.png`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+  return true
+}
+
 /** Trigger a PNG download of the Playbill card. */
 export async function downloadPlaybillCard(opts) {
   const canvas = drawPlaybillCard(opts)
