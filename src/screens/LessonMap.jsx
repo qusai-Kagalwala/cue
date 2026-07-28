@@ -7,6 +7,7 @@
 // lessons you've already finished.
 
 import { useProgress, goToLesson } from '../hooks/useProgress'
+import InlineHint from '../components/InlineHint'
 import { LESSONS } from '../data/lessons'
 import { SCREENS } from '../lib/screens'
 import StagePicker from '../components/StagePicker'
@@ -37,6 +38,9 @@ export default function LessonMap({ onNavigate, onPractice }) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
+      <InlineHint id="map">
+        This is your season. Each lesson has three tiers — try Solo first, then Guided and Assisted if you want more scaffolding.
+      </InlineHint>
       <header className="space-y-1">
         <p className="font-mono text-xs uppercase tracking-widest text-faint">
           Your progress

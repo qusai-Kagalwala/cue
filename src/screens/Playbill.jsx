@@ -4,6 +4,7 @@
 // (the Encore-lock philosophy, applied eight times).
 
 import { useState } from 'react'
+import InlineHint from '../components/InlineHint'
 import { loadState, loadAttempts } from '../lib/storage'
 import { godAttempts } from '../lib/godMode'
 import { syncPlaybill } from '../lib/achievements'
@@ -31,6 +32,9 @@ export default function Playbill() {
 
   return (
     <div className="space-y-4">
+      <InlineHint id="playbill">
+        Your achievement wall. Earn stickers by hitting milestones, then share the card once you've collected a few.
+      </InlineHint>
       <div className="flex items-center justify-between gap-3">
         <p className="font-mono text-xs text-faint">
           {earnedCount} of {playbill.length} stickers earned

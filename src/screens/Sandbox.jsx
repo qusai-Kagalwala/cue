@@ -9,6 +9,7 @@
 // quota is refunded.
 
 import { useState } from 'react'
+import InlineHint from '../components/InlineHint'
 import { useProgress } from '../hooks/useProgress'
 import { evaluateWithRetry } from '../lib/gemini'
 import { heuristicEvaluate } from '../lib/heuristic'
@@ -60,6 +61,9 @@ async function requestReview(pastedPrompt, pastedAnswer) {
 function QuotaStrip({ left, allowance }) {
   return (
     <div className="flex items-center justify-between rounded-xl border border-line bg-surface px-4 py-2.5 font-mono text-xs">
+      <InlineHint id="sandbox">
+        No lessons here — just a free space to test any prompt and get it scored. Great for trying ideas before a real challenge.
+      </InlineHint>
       <span className="text-muted">evaluations left today</span>
       <span className={left > 0 ? 'text-cue' : 'text-over'}>
         {left} / {allowance}

@@ -5,6 +5,7 @@
 // back out into the world, which is the whole point.
 
 import { useState } from 'react'
+import InlineHint from '../components/InlineHint'
 import { loadLibrary, removeFromLibrary } from '../lib/storage'
 
 export default function Library() {
@@ -28,6 +29,9 @@ export default function Library() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
+      <InlineHint id="library">
+        Every prompt you save lands here, with its score. Build a personal collection of what worked.
+      </InlineHint>
       <header className="space-y-1">
         <p className="font-mono text-xs uppercase tracking-widest text-faint">
           the library

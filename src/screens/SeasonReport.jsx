@@ -7,6 +7,7 @@
 // sibling; its tab sits here waiting.
 
 import { useState } from 'react'
+import InlineHint from '../components/InlineHint'
 import { loadAttempts } from '../lib/storage'
 import Playbill from './Playbill'
 import { LESSONS } from '../data/lessons'
@@ -101,6 +102,9 @@ export default function SeasonReport() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
+      <InlineHint id="progress">
+        Your stats across every lesson — scores, streaks, and how your prompting has sharpened over time.
+      </InlineHint>
       <header className="space-y-2">
         <p className="font-mono text-xs uppercase tracking-widest text-faint">
           your progress

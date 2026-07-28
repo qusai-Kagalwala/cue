@@ -30,6 +30,7 @@ export const DEFAULT_STATE = Object.freeze({
   },
   matcherUsed: false,            // v2-7 — the persona matcher fires once, ever
   coachDone: false,              // v2-19 — the First-Night Coach shows once, ever
+  hintsSeen: {},                 // inline first-visit hints already dismissed (by id)
   stageSuggestDone: false,       // v3-6a — the stage nudge appears once, ever
   encoreDone: null,              // v2-9 — dateKey of the last claimed Encore
   dailyDone: null,               // v2-10 — dateKey of the last daily bonus
@@ -309,4 +310,27 @@ export function appendAttempt({ lessonId, score, engine, prompt = null }) {
     console.warn('[cue] could not save attempt history.', err)
   }
   return entry
+}
+
+// ---------- inline first-visit hints ----------
+
+/** Has this inline hint already been dismissed? */
+export function isHintSeen(id) {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(KEY))
+    return Boolean(parsed?.hintsSeen?.[id])
+  } catch {
+    return false
+  }
+}
+
+/** Mark an inline hint as seen so it never shows again. */
+export function markHintSeen(id) {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(KEY)) ?? {}
+    const hintsSeen = { ...(parsed.hintsSeen ?? {}), [id]: true }
+    localStorage.setItem(KEY, JSON.stringify({ ...parsed, hintsSeen }))
+  } catch {
+    /* ignore */
+  }
 }
