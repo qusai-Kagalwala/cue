@@ -3,9 +3,11 @@
 // unearned sit greyed with the how-to — visible goals beat hidden ones
 // (the Encore-lock philosophy, applied eight times).
 
+import { useState } from 'react'
 import { loadState, loadAttempts } from '../lib/storage'
 import { godAttempts } from '../lib/godMode'
 import { syncPlaybill } from '../lib/achievements'
+import { sharePlaybillCard } from '../lib/playbillCard'
 
 export default function Playbill() {
   const playbill = syncPlaybill({
@@ -13,12 +15,34 @@ export default function Playbill() {
     attempts: godAttempts() ?? loadAttempts(), // v2-20c — synthetic in God Mode
   })
   const earnedCount = playbill.filter((a) => a.earned).length
+  const [sharing, setSharing] = useState(false)
+
+  async function share() {
+    setSharing(true)
+    try {
+      await sharePlaybillCard({
+        achievements: playbill,
+        name: loadState().name ?? null,
+      })
+    } finally {
+      setSharing(false)
+    }
+  }
 
   return (
     <div className="space-y-4">
-      <p className="font-mono text-xs text-faint">
-        {earnedCount} of {playbill.length} stickers earned
-      </p>
+      <div className="flex items-center justify-between gap-3">
+        <p className="font-mono text-xs text-faint">
+          {earnedCount} of {playbill.length} stickers earned
+        </p>
+        <button
+          onClick={share}
+          disabled={sharing || earnedCount === 0}
+          className="rounded-lg border border-cue-dim px-3 py-1.5 text-xs text-cue transition-colors hover:bg-cue/10 disabled:opacity-50"
+        >
+          {sharing ? 'Preparing…' : '↗ Share'}
+        </button>
+      </div>
 
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {playbill.map((a, i) => (
