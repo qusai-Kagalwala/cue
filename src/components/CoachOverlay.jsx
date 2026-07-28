@@ -1,20 +1,20 @@
 // src/components/CoachOverlay.jsx
-// v2-19a — The First-Night Coach: a reusable spotlight-tour engine.
-// Given a script of steps, it highlights real on-screen elements (found by
-// their [data-coach="key"] attribute), dims everything else, and shows a
-// tooltip with Next / Skip. The L1 script itself lives in data/coach.js
-// (v2-19b) — this file is just the machine.
+// The First-Night Coach: a reusable guided tour. Given a script of steps, it
+// highlights real on-screen elements (found by their [data-coach="key"]
+// attribute) and shows a card with Next / Skip. The L1 script lives in
+// data/coach.js — this file is just the machine.
 //
-// Design decisions:
-//  - Targets are located by data-coach attribute, so screens stay ignorant
-//    of the coach (no coupling; the tripwire against screens knowing about
-//    features holds).
-//  - A step whose target isn't in the DOM is SKIPPED automatically, so the
-//    tour never points at nothing (e.g. the theme toggle before Lv3).
-//  - Under prefers-reduced-motion the ring/tooltip appear without transition.
-//  - The scrim is four dimming rectangles around the target rather than one
-//    overlay with a hole, so the highlighted element stays fully interactive
-//    and crisp.
+// Design (rewritten for reliability on touch):
+//  - The dimmer is a plain layer with NO click handler and pointer-events
+//    NONE. It only darkens; it never competes with the buttons. This is the
+//    key fix — the previous full-screen click-catching SVG was swallowing
+//    taps on the tour's own buttons.
+//  - The card is FIXED to the bottom of the screen (a bottom sheet). Its
+//    position never depends on the target, so its buttons are always in the
+//    same reachable place and can't be pushed off-screen.
+//  - A soft highlight ring still marks the current target (pointer-events
+//    none, purely visual), so the tour still "points at" the L1 elements.
+//  - A step whose target isn't in the DOM is skipped automatically.
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 
@@ -27,13 +27,13 @@ function measure(key) {
   const el = document.querySelector(`[data-coach="${key}"]`)
   if (!el) return null
   const r = el.getBoundingClientRect()
-  if (r.width === 0 && r.height === 0) return null // present but not laid out
+  if (r.width === 0 && r.height === 0) return null
   return { top: r.top, left: r.left, width: r.width, height: r.height }
 }
 
-// Pure resolver: from step `from`, walk forward past any missing-target
-// steps and return the first that exists (targetless steps are valid).
-// Returns { i, r }; i === steps.length means "nothing left → finish".
+// From step `from`, walk forward past any missing-target steps and return the
+// first that exists (targetless steps are valid). i === steps.length means
+// "nothing left -> finish".
 function resolveFrom(steps, from) {
   let i = from
   while (i < steps.length) {
@@ -47,12 +47,12 @@ function resolveFrom(steps, from) {
 }
 
 export default function CoachOverlay({ steps, onDone }) {
-  // Resolve the opening step at init (lazy initialisers) so the first
-  // render is already correct — no setState-in-effect on mount.
   const first = resolveFrom(steps, 0)
-  const [, forceTick] = useState(0)
   const [index, setIndex] = useState(first.i)
-  const [rect, setRect] = useState(first.r)
+  // `tick` is bumped by resize/scroll listeners to force a re-measure during
+  // render — we never store the rect in state (that would need setState in an
+  // effect). The rect is derived below, on every render.
+  const [, setTick] = useState(0)
   const doneRef = useRef(false)
 
   const finish = useCallback(() => {
@@ -63,42 +63,37 @@ export default function CoachOverlay({ steps, onDone }) {
 
   const goTo = useCallback(
     (from) => {
-      const { i, r } = resolveFrom(steps, from)
+      const { i } = resolveFrom(steps, from)
       if (i >= steps.length) {
         finish()
         return
       }
       setIndex(i)
-      setRect(r)
     },
     [steps, finish],
   )
 
-  // If the very first resolved step was already past the end (no targets in
-  // the DOM at all), finish — done as an effect so it runs after render,
-  // not during it.
+  // If the opening step was already past the end, finish (after render).
   useEffect(() => {
     if (first.i >= steps.length) finish()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Keep the highlight aligned on resize / scroll (layout can shift).
+  // Subscribe to layout changes so the highlight ring re-measures. The
+  // listener only bumps `tick` (a re-render) — it never calls setState with a
+  // computed value inside the effect body, so there's no cascading-render
+  // lint issue. The rect itself is derived during render (below).
   useEffect(() => {
-    const step = steps[index]
-    if (!step?.target) return
-    const reflow = () => {
-      setRect(measure(step.target))
-      forceTick((n) => n + 1) // recompute viewport size for the dimmer
-    }
-    window.addEventListener('resize', reflow)
-    window.addEventListener('scroll', reflow, true)
+    const bump = () => setTick((n) => n + 1)
+    window.addEventListener('resize', bump)
+    window.addEventListener('scroll', bump, true)
     return () => {
-      window.removeEventListener('resize', reflow)
-      window.removeEventListener('scroll', reflow, true)
+      window.removeEventListener('resize', bump)
+      window.removeEventListener('scroll', bump, true)
     }
-  }, [index, steps])
+  }, [])
 
-  // Esc skips the whole tour.
+  // Keyboard: Esc skips, Enter / -> advances.
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'Escape') finish()
@@ -111,146 +106,72 @@ export default function CoachOverlay({ steps, onDone }) {
   const step = steps[index]
   if (!step) return null
 
+  // Derived, not stored: measure the current target every render. Re-runs on
+  // index change and on the tick bumps from resize/scroll listeners.
+  const rect = step.target ? measure(step.target) : null
+
   const last = index === steps.length - 1
-  const pad = 6 // ring padding around the target
+  const pad = 6
   const trans = reducedMotion ? '' : 'transition-all duration-300 ease-out'
 
-  const vw = typeof window !== 'undefined' ? window.innerWidth : 0
-  const vh = typeof window !== 'undefined' ? window.innerHeight : 0
-
-  // Tooltip placement: below the target if there's room, else above; for a
-  // centred (targetless) step, dead centre. CRUCIALLY, the horizontal
-  // position is clamped so the box (≈320px, or full width on tiny screens)
-  // never runs off either edge — otherwise text and the buttons get cut off.
-  const MARGIN = 16
-  const TIP_W = Math.min(320, vw - MARGIN * 2)
-  const clampLeft = (desired) =>
-    Math.max(MARGIN, Math.min(desired, vw - TIP_W - MARGIN))
-
-  const tip = (() => {
-    if (!rect) {
-      return { position: 'centre' }
-    }
-    // centre the tooltip horizontally under/over the target, then clamp
-    const centredLeft = rect.left + rect.width / 2 - TIP_W / 2
-    const left = clampLeft(centredLeft)
-    const below = rect.top + rect.height + 12
-    const spaceBelow = vh - below
-    if (spaceBelow > 160) return { top: below, left, position: 'below' }
-    return { top: rect.top - 12, left, position: 'above' }
-  })()
-
   return (
-    <div
-      className="fixed inset-0 z-50"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Guided tour"
-    >
-      {/* One full-viewport dimmer covering the ENTIRE page — navbar included —
-          with a real rounded cutout punched out around the target, so the
-          highlighted element is the only thing not dimmed. z-50 sits above the
-          sticky header (z-10). Tapping the dim area advances. */}
-      <svg
-        width={vw}
-        height={vh}
-        className={`absolute inset-0 ${trans}`}
-        onClick={() => {
-          // Don't let the dim area advance/close on the LAST step — only the
-          // explicit "Got it" button should end the tour, so a stray tap
-          // can't race the button on touch devices.
-          if (!last) goTo(index + 1)
-        }}
-        style={{ cursor: last ? 'default' : 'pointer', zIndex: 0 }}
-      >
-        <defs>
-          <mask id="coach-cutout">
-            <rect x="0" y="0" width={vw} height={vh} fill="white" />
-            {rect && (
-              <rect
-                x={rect.left - pad}
-                y={rect.top - pad}
-                width={rect.width + pad * 2}
-                height={rect.height + pad * 2}
-                rx="12"
-                fill="black"
-              />
-            )}
-          </mask>
-        </defs>
-        <rect
-          x="0"
-          y="0"
-          width={vw}
-          height={vh}
-          fill="rgba(14,13,11,0.72)"
-          mask="url(#coach-cutout)"
-        />
-      </svg>
+    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Guided tour">
+      {/* Dimmer: darkens the page. NO click handler, NO pointer events — it
+          can never intercept a tap meant for the card's buttons. */}
+      <div
+        className={`absolute inset-0 bg-stage/70 ${trans}`}
+        style={{ pointerEvents: 'none' }}
+        aria-hidden="true"
+      />
 
-      {/* Bright ring around the cutout so the target reads as 'spotlit' */}
+      {/* Highlight ring around the current target — purely visual. */}
       {rect && (
         <div
           className={`pointer-events-none absolute rounded-xl ring-2 ring-cue ${trans}`}
           style={{
-            zIndex: 1,
             top: rect.top - pad,
             left: rect.left - pad,
             width: rect.width + pad * 2,
             height: rect.height + pad * 2,
+            boxShadow: '0 0 0 4px rgba(245,185,66,0.15)',
           }}
         />
       )}
 
-      {/* Tooltip */}
+      {/* The card — FIXED to the bottom. Its buttons are the only interactive
+          elements in the overlay, always in the same reachable spot. */}
       <div
-        className={`absolute rounded-xl border border-cue-dim bg-surface p-4 shadow-xl ${trans}`}
-        style={{
-          zIndex: 2, // above the click-catching SVG dimmer (zIndex 0)
-          width: TIP_W,
-          ...(tip.position === 'centre'
-            ? { top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }
-            : tip.position === 'above'
-              ? { top: tip.top, left: tip.left, transform: 'translateY(-100%)' }
-              : { top: tip.top, left: tip.left }),
-        }}
-        onClick={(e) => e.stopPropagation()}
+        className={`absolute inset-x-0 bottom-0 ${trans}`}
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
-        {step.title && (
-          <h3 className="mb-1 font-display text-base font-semibold text-cue">{step.title}</h3>
-        )}
-        <p className="text-sm leading-relaxed text-ink">{step.body}</p>
+        <div className="mx-auto max-w-md p-4">
+          <div className="rounded-2xl border border-cue-dim bg-surface p-5 shadow-2xl">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-faint">
+              {index + 1} / {steps.length}
+            </span>
+            {step.title && (
+              <h3 className="mt-1 font-display text-lg font-semibold text-cue">
+                {step.title}
+              </h3>
+            )}
+            <p className="mt-1 text-sm leading-relaxed text-ink">{step.body}</p>
 
-        <div className="mt-4 flex items-center justify-between">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-faint">
-            {index + 1} / {steps.length}
-          </span>
-          <div className="flex items-center gap-2">
-            {!last && (
+            <div className="mt-5 flex items-center justify-between gap-3">
               <button
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  finish()
-                }}
-                className="rounded-lg px-3 py-1.5 font-mono text-xs text-muted transition-colors hover:text-ink"
+                onClick={finish}
+                className="rounded-lg px-3 py-2 font-mono text-xs text-muted transition-colors hover:text-ink"
               >
-                skip
+                {last ? '' : 'skip tour'}
               </button>
-            )}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                // On the last step end the tour directly (no resolveFrom
-                // round-trip); otherwise advance.
-                if (last) finish()
-                else goTo(index + 1)
-              }}
-              className="rounded-lg bg-cue px-5 py-2 text-sm font-medium text-stage transition-colors hover:bg-cue-bright"
-            >
-              {last ? 'Got it' : 'Next →'}
-            </button>
+              <button
+                type="button"
+                onClick={() => (last ? finish() : goTo(index + 1))}
+                className="rounded-lg bg-cue px-6 py-2.5 text-sm font-medium text-stage transition-colors hover:bg-cue-bright"
+              >
+                {last ? 'Got it' : 'Next →'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
