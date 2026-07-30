@@ -265,15 +265,20 @@ function validatePersona(body) {
 
 // ------------------------------------------------------------------- shared
 
-function callGemini(model, systemPrompt, userContent, signal, schema = RESPONSE_SCHEMA) {
+function callGemini(model, systemPrompt, userContent, signal, schema = RESPONSE_SCHEMA, imagePart = null) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
+  // v-draft-img — an optional inline image lets the Studio's draft mode SEE a
+  // reference the person uploads (Gemini vision), not just read a description.
+  const parts = imagePart
+    ? [{ text: userContent }, imagePart]
+    : [{ text: userContent }]
   return fetch(`${url}?key=${process.env.GEMINI_API_KEY}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     signal,
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: systemPrompt }] },
-      contents: [{ role: 'user', parts: [{ text: userContent }] }],
+      contents: [{ role: 'user', parts }],
       generationConfig: {
         responseMimeType: 'application/json',
         responseSchema: schema,
@@ -334,6 +339,18 @@ export default async function handler(req, res) {
     : mode === 'draft' ? DRAFT_SCHEMA
     : RESPONSE_SCHEMA
 
+  // v-draft-img — a draft can carry an uploaded image (base64) for Gemini to
+  // see. Validated lightly: must look like a data URL for a common image type.
+  let imagePart = null
+  if (mode === 'draft' && typeof req.body?.image === 'string' && req.body.image) {
+    const m = /^data:(image\/(png|jpeg|jpg|webp));base64,([A-Za-z0-9+/=]+)$/.exec(
+      req.body.image,
+    )
+    if (m) {
+      imagePart = { inlineData: { mimeType: m[1], data: m[3] } }
+    }
+  }
+
   try {
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 15_000)
@@ -341,7 +358,7 @@ export default async function handler(req, res) {
     let upstream = null
     let servedBy = null
     for (const model of MODELS) {
-      upstream = await callGemini(model, systemPrompt, userContent, controller.signal, schema)
+      upstream = await callGemini(model, systemPrompt, userContent, controller.signal, schema, imagePart)
       if (upstream.status !== 429) {
         servedBy = model
         break

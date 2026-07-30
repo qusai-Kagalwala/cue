@@ -101,7 +101,7 @@ export async function evaluatePrompt(lesson, userPrompt, stageId = 'text') {
  * v-draft — the Prompt-Drafting Studio call. Sends a goal (+ optional
  * reference) for a stage; returns { draftedPrompt, why[], tips[] }.
  */
-export async function draftPrompt({ stageId = 'text', goal, reference = '' }) {
+export async function draftPrompt({ stageId = 'text', goal, reference = '', image = null }) {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS)
 
@@ -116,6 +116,7 @@ export async function draftPrompt({ stageId = 'text', goal, reference = '' }) {
         stage: stageId,
         goal,
         reference,
+        image, // optional base64 data URL (image stages)
       }),
     })
   } catch (err) {

@@ -18,12 +18,15 @@ import InlineHint from '../components/InlineHint'
 
 // which stages truly analyse a reference vs. describe-only (honest UX)
 const ANALYSES_REFERENCE = { text: true, code: true, image: true }
+// stages where uploading an actual image helps (vision)
+const ACCEPTS_IMAGE = { image: true }
 
 export default function Studio() {
   const stages = STAGE_LIST.filter((s) => isStagePlayable(s.id))
   const [stageId, setStageId] = useState('text')
   const [goal, setGoal] = useState('')
   const [reference, setReference] = useState('')
+  const [image, setImage] = useState(null) // base64 data URL
   const [status, setStatus] = useState('idle') // idle | loading | done | error
   const [result, setResult] = useState(null)
   const [copied, setCopied] = useState(false)
@@ -32,13 +35,14 @@ export default function Studio() {
   const guide = guideFor(stageId)
   const stageLabel = (stages.find((x) => x.id === stageId)?.label) ?? 'Text'
   const refAnalysed = ANALYSES_REFERENCE[stageId]
+  const acceptsImage = ACCEPTS_IMAGE[stageId]
 
   async function run() {
     if (goal.trim().length < 3) return
     setStatus('loading')
     setResult(null)
     try {
-      const r = await draftPrompt({ stageId, goal, reference })
+      const r = await draftPrompt({ stageId, goal, reference, image })
       setResult(r)
       setStatus('done')
     } catch {
@@ -101,6 +105,7 @@ export default function Studio() {
               setStageId(s.id)
               setStatus('idle')
               setResult(null)
+              setImage(null)
             }}
             className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
               stageId === s.id
@@ -127,6 +132,51 @@ export default function Studio() {
           className="w-full resize-none rounded-xl border border-line bg-surface p-3 text-sm text-ink outline-none focus:border-cue-dim"
         />
       </div>
+
+      {/* image upload — only for the image stage, where Gemini can SEE it */}
+      {acceptsImage && (
+        <div className="space-y-2">
+          <label className="block font-mono text-xs text-faint">
+            upload a reference image{' '}
+            <span className="text-muted">(optional — Cue will look at it)</span>
+          </label>
+          {image ? (
+            <div className="flex items-center gap-3 rounded-xl border border-cue-dim bg-surface p-3">
+              <img
+                src={image}
+                alt="reference"
+                className="h-16 w-16 rounded-lg object-cover"
+              />
+              <button
+                onClick={() => setImage(null)}
+                className="rounded-md border border-line px-3 py-1 font-mono text-xs text-muted transition-colors hover:border-over hover:text-over"
+              >
+                remove
+              </button>
+            </div>
+          ) : (
+            <label className="flex cursor-pointer items-center justify-center rounded-xl border border-dashed border-line bg-surface p-4 text-sm text-muted transition-colors hover:border-cue-dim hover:text-cue">
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (!file) return
+                  if (file.size > 4 * 1024 * 1024) {
+                    // keep uploads small (proxy + base64 overhead)
+                    return
+                  }
+                  const reader = new FileReader()
+                  reader.onload = () => setImage(reader.result)
+                  reader.readAsDataURL(file)
+                }}
+              />
+              + tap to upload an image (max 4MB)
+            </label>
+          )}
+        </div>
+      )}
 
       {/* reference */}
       <div className="space-y-2">
