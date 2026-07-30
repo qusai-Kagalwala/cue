@@ -22,8 +22,21 @@ function Item({ label, active, onClick, children, reduce }) {
         active ? 'text-cue' : 'text-muted'
       }`}
     >
+      {/* Glass pill that glides behind the active item. layoutId makes it
+          animate its position/size from wherever it was to here. */}
+      {active && (
+        <motion.span
+          layoutId="nav-glass-pill"
+          className="absolute inset-1 -z-0 rounded-xl border border-cue/30 bg-cue/10 backdrop-blur-sm"
+          transition={
+            reduce
+              ? { duration: 0 }
+              : { type: 'spring', stiffness: 400, damping: 32 }
+          }
+        />
+      )}
       <motion.span
-        className="flex h-6 w-6 items-center justify-center"
+        className="relative z-10 flex h-6 w-6 items-center justify-center"
         animate={
           reduce
             ? {}
@@ -35,15 +48,7 @@ function Item({ label, active, onClick, children, reduce }) {
       >
         {children}
       </motion.span>
-      {label}
-      {/* animated active indicator that slides between items */}
-      {active && !reduce && (
-        <motion.span
-          layoutId="nav-active-dot"
-          className="absolute -top-px h-0.5 w-8 rounded-full bg-cue"
-          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-        />
-      )}
+      <span className="relative z-10">{label}</span>
     </motion.button>
   )
 }
