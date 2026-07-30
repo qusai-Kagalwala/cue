@@ -10,6 +10,7 @@ import { useProgress } from './hooks/useProgress'
 import OpeningAct from './screens/OpeningAct'
 import TopBar from './components/TopBar'
 import BottomNav from './components/BottomNav'
+import AnimatedBackground from './components/AnimatedBackground'
 import Challenge from './screens/Challenge'
 import LessonMap from './screens/LessonMap'
 import Sandbox from './screens/Sandbox'
@@ -57,7 +58,8 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-dvh bg-stage">
+    <div className="min-h-dvh">
+      <AnimatedBackground />
       <TopBar screen={screen} onNavigate={setScreen} />
 
       <main

@@ -256,3 +256,69 @@ body {
     }
   }
 }
+
+/* ---- animated background (cosmetic) ---- */
+/* Two soft drifting orbs behind all content. GPU-friendly (transform/opacity
+   only). Disabled entirely under reduced-motion. */
+.cue-bg-orb {
+  position: absolute;
+  width: 46rem;
+  height: 46rem;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.14;
+  will-change: transform;
+}
+
+.cue-bg-orb-1 {
+  background: radial-gradient(circle, var(--color-cue) 0%, transparent 70%);
+  top: -12rem;
+  left: -10rem;
+  animation: cue-drift-1 26s ease-in-out infinite;
+}
+
+.cue-bg-orb-2 {
+  background: radial-gradient(circle, var(--color-cue) 0%, transparent 70%);
+  bottom: -14rem;
+  right: -12rem;
+  opacity: 0.1;
+  animation: cue-drift-2 32s ease-in-out infinite;
+}
+
+@keyframes cue-drift-1 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(8rem, 6rem) scale(1.1);
+  }
+
+  66% {
+    transform: translate(3rem, 10rem) scale(0.95);
+  }
+}
+
+@keyframes cue-drift-2 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(-7rem, -5rem) scale(1.08);
+  }
+
+  66% {
+    transform: translate(-3rem, -9rem) scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cue-bg-orb {
+    animation: none;
+  }
+}

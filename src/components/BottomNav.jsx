@@ -18,7 +18,7 @@ function Item({ label, active, onClick, children, reduce }) {
       aria-label={label}
       aria-current={active ? 'page' : undefined}
       whileTap={reduce ? {} : { scale: 0.9 }}
-      className={`relative flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${
+      className={`relative flex flex-1 flex-col items-center gap-0.5 py-2 text-[9px] font-medium transition-colors ${
         active ? 'text-cue' : 'text-muted'
       }`}
     >
@@ -27,7 +27,7 @@ function Item({ label, active, onClick, children, reduce }) {
       {active && (
         <motion.span
           layoutId="nav-glass-pill"
-          className="absolute inset-1 -z-0 rounded-xl border border-cue/30 bg-cue/10 backdrop-blur-sm"
+          className="absolute inset-1 z-0 rounded-xl border border-cue/30 bg-cue/10 backdrop-blur-sm"
           transition={
             reduce
               ? { duration: 0 }
@@ -103,6 +103,18 @@ export default function BottomNav({ screen, onNavigate }) {
             <path d="M10 2v6L4.5 18a2 2 0 001.8 3h11.4a2 2 0 001.8-3L14 8V2" />
             <path d="M8.5 2h7" />
             <path d="M7 15h10" />
+          </svg>
+        </Item>
+
+        <Item
+          label="Studio"
+          reduce={reduce}
+          active={screen === SCREENS.STUDIO}
+          onClick={() => onNavigate(SCREENS.STUDIO)}
+        >
+          <svg viewBox="0 0 24 24" className="h-5 w-5" {...stroke} aria-hidden="true">
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z" />
           </svg>
         </Item>
 
