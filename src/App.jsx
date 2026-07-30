@@ -13,6 +13,7 @@ import BottomNav from './components/BottomNav'
 import Challenge from './screens/Challenge'
 import LessonMap from './screens/LessonMap'
 import Sandbox from './screens/Sandbox'
+import Studio from './screens/Studio'
 import GuidedPrompt from './components/GuidedPrompt'
 import Encore from './screens/Encore'
 import Library from './screens/Library'
@@ -86,6 +87,7 @@ export default function App() {
           />
         )}
         {screen === SCREENS.SANDBOX && <Sandbox />}
+        {screen === SCREENS.STUDIO && <Studio />}
         {screen === SCREENS.SETTINGS && <Settings onNavigate={setScreen} />}
       </main>
 

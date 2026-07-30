@@ -13,6 +13,7 @@ export const SCREENS = {
   PROGRESS: 'progress',
   PROGRAMME: 'programme',
   SETTINGS: 'settings',
+  STUDIO: 'studio',
 }
 
 // v2-3a — Opening Act beat order (the product spec; v2-3b/3c import this)

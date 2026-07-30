@@ -60,6 +60,22 @@ export default function LessonMap({ onNavigate, onPractice }) {
       </div>
 
 
+      {/* Studio entry — reachable on mobile where the bottom nav has no slot */}
+      <button
+        onClick={() => onNavigate?.(SCREENS.STUDIO)}
+        className="mb-1 flex w-full items-center justify-between rounded-xl border border-cue-dim bg-cue/5 p-4 text-left transition-colors hover:bg-cue/10"
+      >
+        <span>
+          <span className="block font-display font-semibold text-cue">
+            Draft a real prompt →
+          </span>
+          <span className="block font-mono text-xs text-muted">
+            The Studio: bring something you want to make, get a strong prompt
+          </span>
+        </span>
+        <span aria-hidden="true" className="text-cue">✎</span>
+      </button>
+
       <ol className="grid gap-3 lg:grid-cols-2">
         {LESSONS.map((lesson, i) => {
           const best = lessonScores[lesson.id]

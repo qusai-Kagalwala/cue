@@ -130,6 +130,19 @@ export default function TopBar({ screen, onNavigate }) {
             </svg>
           </IconButton>
 
+          {/* Studio — draft a real prompt */}
+          <IconButton
+            label="The Studio"
+            active={screen === SCREENS.STUDIO}
+            onClick={() => onNavigate(SCREENS.STUDIO)}
+          >
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor"
+              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z" />
+            </svg>
+          </IconButton>
+
           {/* v3-1c — current stage chip (hidden on tiny screens) */}
           <button
             onClick={() => onNavigate(SCREENS.MAP)}

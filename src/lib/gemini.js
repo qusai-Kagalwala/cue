@@ -98,6 +98,48 @@ export async function evaluatePrompt(lesson, userPrompt, stageId = 'text') {
 }
 
 /**
+ * v-draft — the Prompt-Drafting Studio call. Sends a goal (+ optional
+ * reference) for a stage; returns { draftedPrompt, why[], tips[] }.
+ */
+export async function draftPrompt({ stageId = 'text', goal, reference = '' }) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS)
+
+  let res
+  try {
+    res = await fetch('/api/evaluate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      body: JSON.stringify({
+        mode: 'draft',
+        stage: stageId,
+        goal,
+        reference,
+      }),
+    })
+  } catch (err) {
+    throw new EvalError(err.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK')
+  } finally {
+    clearTimeout(timer)
+  }
+
+  let body
+  try {
+    body = await res.json()
+  } catch {
+    throw new EvalError('BAD_JSON')
+  }
+  if (!res.ok) throw new EvalError(body?.error ?? 'UPSTREAM')
+
+  const r = body?.result
+  if (!r || typeof r.draftedPrompt !== 'string' || !Array.isArray(r.why)) {
+    throw new EvalError('BAD_JSON')
+  }
+  return { draftedPrompt: r.draftedPrompt, why: r.why, tips: r.tips ?? [] }
+}
+
+/**
  * Evaluate with one retry on transient failures (see policy above).
  * @throws {EvalError} after the final attempt fails
  */
