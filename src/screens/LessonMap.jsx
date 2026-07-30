@@ -7,6 +7,7 @@
 // lessons you've already finished.
 
 import { useProgress, goToLesson } from '../hooks/useProgress'
+import { motion, useReducedMotion } from 'motion/react'
 import InlineHint from '../components/InlineHint'
 import { LESSONS } from '../data/lessons'
 import { SCREENS } from '../lib/screens'
@@ -24,6 +25,7 @@ function LockIcon() {
 
 export default function LessonMap({ onNavigate, onPractice }) {
   const { currentLessonIndex, lessonScores, level } = useProgress()
+  const reduce = useReducedMotion()
 
   // Highest done index +1 stays unlocked even if the queue pointer
   // has been moved back by a replay.
@@ -66,7 +68,13 @@ export default function LessonMap({ onNavigate, onPractice }) {
           const locked = !done && i > unlockedThrough
 
           return (
-            <li key={lesson.id} className="space-y-1.5">
+            <motion.li
+              key={lesson.id}
+              className="space-y-1.5"
+              initial={reduce ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.28, delay: reduce ? 0 : i * 0.04, ease: 'easeOut' }}
+            >
               <button
                 onClick={() => !locked && handleReplay(i)}
                 disabled={locked}
@@ -83,8 +91,19 @@ export default function LessonMap({ onNavigate, onPractice }) {
                       : 'border-line bg-surface hover:border-cue-dim'
                 }`}
               >
-                {/* Number / state marker */}
-                <span
+                {/* Number / state marker — the current one gently pulses
+                    so the eye lands on where to go next. */}
+                <motion.span
+                  animate={
+                    current && !reduce
+                      ? { boxShadow: ['0 0 0 0 rgba(245,185,66,0.5)', '0 0 0 8px rgba(245,185,66,0)'] }
+                      : {}
+                  }
+                  transition={
+                    current && !reduce
+                      ? { duration: 1.6, repeat: Infinity, ease: 'easeOut' }
+                      : {}
+                  }
                   className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-mono text-sm ${
                     current
                       ? 'bg-cue text-stage'
@@ -94,7 +113,7 @@ export default function LessonMap({ onNavigate, onPractice }) {
                   }`}
                 >
                   {locked ? <LockIcon /> : done && !current ? '✓' : i + 1}
-                </span>
+                </motion.span>
 
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-display font-semibold">
@@ -135,7 +154,7 @@ export default function LessonMap({ onNavigate, onPractice }) {
                   </button>
                 </div>
               )}
-            </li>
+            </motion.li>
           )
         })}
       </ol>
