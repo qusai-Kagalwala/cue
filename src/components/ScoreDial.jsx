@@ -19,10 +19,10 @@ export default function ScoreDial({ score, offline = false }) {
   const [shown, setShown] = useState(prefersReduced ? clamped : 0)
   const rafRef = useRef(0)
   useEffect(() => {
-    if (prefersReduced) {
-      setShown(clamped)
-      return
-    }
+    // Reduced-motion: no animation. The initial state already holds the final
+    // value, so there's nothing to do — return without any setState.
+    if (prefersReduced) return undefined
+
     const DELAY = 150
     const DUR = 800
     let start = 0
@@ -36,7 +36,7 @@ export default function ScoreDial({ score, offline = false }) {
       const p = Math.min(1, elapsed / DUR)
       // ease-out so it decelerates into the final number
       const eased = 1 - Math.pow(1 - p, 3)
-      setShown(Math.round(eased * clamped))
+      setShown(Math.round(eased * clamped)) // inside a RAF callback, not the body
       if (p < 1) rafRef.current = requestAnimationFrame(tick)
     }
     rafRef.current = requestAnimationFrame(tick)
