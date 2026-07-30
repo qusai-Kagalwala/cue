@@ -8,27 +8,43 @@
 // Learn (the challenge), Map, Sandbox, Progress, Settings. Library and the
 // Programme stay reachable from within those screens.
 
+import { motion, useReducedMotion } from 'motion/react'
 import { SCREENS } from '../lib/screens'
 
-function Item({ label, active, onClick, children }) {
+function Item({ label, active, onClick, children, reduce }) {
   return (
-    <button
+    <motion.button
       onClick={onClick}
       aria-label={label}
       aria-current={active ? 'page' : undefined}
-      className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${
+      whileTap={reduce ? {} : { scale: 0.9 }}
+      className={`relative flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${
         active ? 'text-cue' : 'text-muted'
       }`}
     >
-      <span
-        className={`flex h-6 w-6 items-center justify-center ${
-          active ? 'scale-110' : ''
-        } transition-transform`}
+      <motion.span
+        className="flex h-6 w-6 items-center justify-center"
+        animate={
+          reduce
+            ? {}
+            : active
+              ? { scale: 1.15, y: -1 }
+              : { scale: 1, y: 0 }
+        }
+        transition={{ type: 'spring', stiffness: 500, damping: 18 }}
       >
         {children}
-      </span>
+      </motion.span>
       {label}
-    </button>
+      {/* animated active indicator that slides between items */}
+      {active && !reduce && (
+        <motion.span
+          layoutId="nav-active-dot"
+          className="absolute -top-px h-0.5 w-8 rounded-full bg-cue"
+          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+        />
+      )}
+    </motion.button>
   )
 }
 
@@ -41,6 +57,7 @@ const stroke = {
 }
 
 export default function BottomNav({ screen, onNavigate }) {
+  const reduce = useReducedMotion()
   return (
     <nav
       aria-label="Main"
@@ -50,6 +67,7 @@ export default function BottomNav({ screen, onNavigate }) {
       <div className="mx-auto flex max-w-lg items-stretch">
         <Item
           label="Learn"
+          reduce={reduce}
           active={screen === SCREENS.CHALLENGE}
           onClick={() => onNavigate(SCREENS.CHALLENGE)}
         >
@@ -61,6 +79,7 @@ export default function BottomNav({ screen, onNavigate }) {
 
         <Item
           label="Map"
+          reduce={reduce}
           active={screen === SCREENS.MAP}
           onClick={() => onNavigate(SCREENS.MAP)}
         >
@@ -71,6 +90,7 @@ export default function BottomNav({ screen, onNavigate }) {
 
         <Item
           label="Sandbox"
+          reduce={reduce}
           active={screen === SCREENS.SANDBOX}
           onClick={() => onNavigate(SCREENS.SANDBOX)}
         >
@@ -83,6 +103,7 @@ export default function BottomNav({ screen, onNavigate }) {
 
         <Item
           label="Progress"
+          reduce={reduce}
           active={screen === SCREENS.PROGRESS}
           onClick={() => onNavigate(SCREENS.PROGRESS)}
         >
@@ -94,6 +115,7 @@ export default function BottomNav({ screen, onNavigate }) {
 
         <Item
           label="Settings"
+          reduce={reduce}
           active={screen === SCREENS.SETTINGS}
           onClick={() => onNavigate(SCREENS.SETTINGS)}
         >

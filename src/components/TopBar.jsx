@@ -2,6 +2,8 @@
 // T0.3 shell → T1.4: STUB values replaced with live state from useProgress.
 
 import { SCREENS } from '../lib/screens'
+import { motion, useReducedMotion, useAnimationControls } from 'motion/react'
+import { useEffect, useRef } from 'react'
 import { STAGES } from '../data/stages'
 import { useProgress } from '../hooks/useProgress'
 import GodModeBadge from './GodModeBadge'
@@ -25,6 +27,23 @@ function IconButton({ label, active, onClick, children }) {
 
 export default function TopBar({ screen, onNavigate }) {
   const { streak, xp, level, activeStage: stage } = useProgress()
+  const reduce = useReducedMotion()
+
+  // Fire a little flame reaction whenever the streak goes UP (not on every
+  // render, not when it resets to 0). We track the previous value in a ref.
+  const flame = useAnimationControls()
+  const prevStreak = useRef(streak)
+  useEffect(() => {
+    const grew = streak > prevStreak.current
+    prevStreak.current = streak
+    if (grew && !reduce) {
+      flame.start({
+        scale: [1, 1.4, 0.95, 1.1, 1],
+        rotate: [0, -6, 5, -3, 0],
+        transition: { duration: 0.7, ease: 'easeOut' },
+      })
+    }
+  }, [streak, reduce, flame])
 
   return (
     <header className="sticky top-0 z-10 border-b border-line bg-stage/90 backdrop-blur">
@@ -47,13 +66,15 @@ export default function TopBar({ screen, onNavigate }) {
             title={`${streak} day streak`}
             className="flex items-center gap-1 rounded-full border border-line px-2.5 py-1 font-mono text-xs text-muted"
           >
-            <svg
+            <motion.svg
               viewBox="0 0 24 24"
               className={`h-3.5 w-3.5 ${streak > 0 ? 'fill-cue' : 'fill-faint'}`}
               aria-hidden="true"
+              animate={flame}
+              style={{ originX: '50%', originY: '80%' }}
             >
               <path d="M13.5 0.7c0.3 3.2-0.8 5.6-2.6 7.6-1.5 1.7-3.4 3.2-4.6 5.4C4.1 17.8 6.4 22.6 12 23.3c-2.2-1.5-2.9-4.6-1.2-6.7 0.6-0.8 1.5-1.4 2.1-2.4 0.5-0.8 0.8-1.8 0.7-2.8 2.6 1.9 4.4 4.8 3.4 8.1-0.4 1.5-1.4 2.7-2.5 3.7 4.6-1 7.3-4.9 7-9.1C21.2 8.5 17.3 3 13.5 0.7z" />
-            </svg>
+            </motion.svg>
             <span className="hidden sm:inline">{streak}</span>
           </span>
 
