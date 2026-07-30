@@ -201,6 +201,57 @@ const PERSONA_SYSTEM_PROMPT = [
   `no jargon, under 20 words.`,
 ].join('\n')
 
+// ---------------------------------------------------------------- draft mode
+// v-draft — the Prompt-Drafting Studio. The person brings a GOAL (what they
+// want to make) and optionally a reference/inspiration; we return a strong,
+// ready-to-use prompt for that stage PLUS short coaching on why it works, so
+// it teaches while it helps (same spirit as the lessons).
+const DRAFT_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    draftedPrompt: {
+      type: 'STRING',
+      description: 'A strong, ready-to-paste prompt for the target tool.',
+    },
+    why: {
+      type: 'ARRAY',
+      items: { type: 'STRING' },
+      description: '2–4 short notes on why the prompt is built this way (the coaching).',
+    },
+    tips: {
+      type: 'ARRAY',
+      items: { type: 'STRING' },
+      description: '1–3 optional tweaks the person could try.',
+    },
+  },
+  required: ['draftedPrompt', 'why'],
+}
+
+function buildDraftSystemPrompt(stage) {
+  const framing = STAGE_FRAMING[stage] ?? STAGE_FRAMING.text
+  return [
+    framing.persona,
+    'MODE: DRAFTING. The person describes what they want to create and (optionally) a reference. Your job is to WRITE them a strong prompt they can paste into the relevant tool, then briefly teach why it works.',
+    framing.craft ? `What makes a strong prompt here: ${Array.isArray(framing.craft) ? framing.craft.join(' ') : framing.craft}` : '',
+    'Rules: the draftedPrompt must be concrete and specific, ready to paste. Keep "why" notes short (one line each) and genuinely instructive — name the technique, not vague praise. Never include markdown fences in draftedPrompt. Do not invent facts about the reference you were not given.',
+  ].filter(Boolean).join('\n\n')
+}
+
+function validateDraft(body) {
+  if (typeof body?.goal !== 'string' || body.goal.trim().length < 3) return 'goal'
+  if (body.reference != null && typeof body.reference !== 'string') return 'reference'
+  return null
+}
+
+function buildDraftUserContent(body) {
+  const parts = [`GOAL: ${body.goal}`]
+  if (body.reference && body.reference.trim()) {
+    parts.push(`REFERENCE / INSPIRATION (describe-only unless it is text/code):\n${body.reference}`)
+  }
+  parts.push('Write the prompt and the coaching per your instructions.')
+  return parts.join('\n\n')
+}
+
 function validatePersona(body) {
   const { selfDescription } = body ?? {}
   if (
@@ -244,9 +295,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'METHOD_NOT_ALLOWED' })
   }
 
-  const mode = req.body?.mode === 'review' || req.body?.mode === 'persona'
-    ? req.body.mode
-    : 'lesson'
+  const mode =
+    req.body?.mode === 'review' ||
+    req.body?.mode === 'persona' ||
+    req.body?.mode === 'draft'
+      ? req.body.mode
+      : 'lesson'
 
   // v3-1b — stage validated for every mode, before mode-specific checks
   const stageField =
@@ -258,6 +312,7 @@ export default async function handler(req, res) {
     stageField ??
     (mode === 'review' ? validateReview(req.body)
       : mode === 'persona' ? validatePersona(req.body)
+      : mode === 'draft' ? validateDraft(req.body)
       : validateLesson(req.body))
   if (invalidField) {
     return res.status(400).json({ error: 'BAD_INPUT', field: invalidField })
@@ -266,13 +321,18 @@ export default async function handler(req, res) {
   const systemPrompt =
     mode === 'review' ? REVIEW_SYSTEM_PROMPT
     : mode === 'persona' ? PERSONA_SYSTEM_PROMPT
+    : mode === 'draft' ? buildDraftSystemPrompt(req.body.stage ?? 'text')
     : buildLessonSystemPrompt({ ...req.body, stage: req.body.stage ?? 'text' })
   const userContent =
     mode === 'review' ? buildReviewUserContent(req.body)
     : mode === 'persona'
       ? `<self_description>\n${req.body.selfDescription}\n</self_description>\n\nClassify per your instructions.`
+    : mode === 'draft' ? buildDraftUserContent(req.body)
       : req.body.userPrompt
-  const schema = mode === 'persona' ? PERSONA_SCHEMA : RESPONSE_SCHEMA
+  const schema =
+    mode === 'persona' ? PERSONA_SCHEMA
+    : mode === 'draft' ? DRAFT_SCHEMA
+    : RESPONSE_SCHEMA
 
   try {
     const controller = new AbortController()
