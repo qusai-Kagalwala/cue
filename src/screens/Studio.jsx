@@ -13,6 +13,7 @@ import { motion } from 'motion/react'
 import { STAGE_LIST, isStagePlayable } from '../data/stages'
 import { guideFor } from '../data/modelGuide'
 import { draftPrompt } from '../lib/gemini'
+import { saveToLibrary } from '../lib/storage'
 import InlineHint from '../components/InlineHint'
 
 // which stages truly analyse a reference vs. describe-only (honest UX)
@@ -26,8 +27,10 @@ export default function Studio() {
   const [status, setStatus] = useState('idle') // idle | loading | done | error
   const [result, setResult] = useState(null)
   const [copied, setCopied] = useState(false)
+  const [saved, setSaved] = useState(false)
 
   const guide = guideFor(stageId)
+  const stageLabel = (stages.find((x) => x.id === stageId)?.label) ?? 'Text'
   const refAnalysed = ANALYSES_REFERENCE[stageId]
 
   async function run() {
@@ -50,6 +53,21 @@ export default function Studio() {
       setTimeout(() => setCopied(false), 1600)
     } catch {
       /* clipboard blocked */
+    }
+  }
+
+  function saveDraft() {
+    // Studio drafts have no score; save with a stage-tagged title. The library
+    // de-dupes on prompt text, so re-saving is a no-op.
+    const ok = saveToLibrary({
+      lessonId: `studio:${stageId}`,
+      title: `Studio · ${stageLabel}`,
+      prompt: result.draftedPrompt,
+      score: null,
+    })
+    if (ok) {
+      setSaved(true)
+      setTimeout(() => setSaved(false), 1600)
     }
   }
 
@@ -161,12 +179,20 @@ export default function Studio() {
               <p className="font-mono text-xs uppercase tracking-widest text-faint">
                 your prompt
               </p>
-              <button
-                onClick={copyDraft}
-                className="rounded-md border border-cue-dim px-2.5 py-1 font-mono text-xs text-cue transition-colors hover:bg-cue/10"
-              >
-                {copied ? 'copied ✓' : 'copy'}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={saveDraft}
+                  className="rounded-md border border-line px-2.5 py-1 font-mono text-xs text-muted transition-colors hover:border-cue-dim hover:text-cue"
+                >
+                  {saved ? 'saved ✓' : 'save'}
+                </button>
+                <button
+                  onClick={copyDraft}
+                  className="rounded-md border border-cue-dim px-2.5 py-1 font-mono text-xs text-cue transition-colors hover:bg-cue/10"
+                >
+                  {copied ? 'copied ✓' : 'copy'}
+                </button>
+              </div>
             </div>
             <p className="whitespace-pre-wrap rounded-lg bg-raised p-3 text-sm leading-relaxed text-ink">
               {result.draftedPrompt}

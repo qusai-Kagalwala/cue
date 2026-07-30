@@ -62,9 +62,13 @@ export default function Library() {
             >
               <div className="mb-2 flex items-center justify-between gap-2">
                 <p className="font-mono text-xs text-faint">
-                  {entry.title} ·{' '}
-                  <span className="text-cue">{entry.score}</span> ·{' '}
-                  {new Date(entry.timestamp).toLocaleDateString()}
+                  {entry.title}
+                  {entry.score != null && (
+                    <>
+                      {' '}· <span className="text-cue">{entry.score}</span>
+                    </>
+                  )}{' '}
+                  · {new Date(entry.timestamp).toLocaleDateString()}
                 </p>
                 <div className="flex gap-2">
                   <button
