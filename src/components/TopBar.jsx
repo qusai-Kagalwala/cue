@@ -9,19 +9,28 @@ import { useProgress } from '../hooks/useProgress'
 import GodModeBadge from './GodModeBadge'
 
 function IconButton({ label, active, onClick, children }) {
+  const reduce = useReducedMotion()
   return (
-    <button
+    <motion.button
       onClick={onClick}
       aria-label={label}
       title={label}
+      whileTap={reduce ? {} : { scale: 0.88 }}
+      whileHover={reduce ? {} : { scale: 1.08 }}
       className={`rounded-lg p-2 transition-colors ${
         active
           ? 'bg-raised text-cue'
           : 'text-muted hover:bg-raised hover:text-ink'
       }`}
     >
-      {children}
-    </button>
+      <motion.span
+        className="block"
+        animate={reduce ? {} : active ? { scale: 1.05 } : { scale: 1 }}
+        transition={{ type: 'spring', stiffness: 500, damping: 18 }}
+      >
+        {children}
+      </motion.span>
+    </motion.button>
   )
 }
 
