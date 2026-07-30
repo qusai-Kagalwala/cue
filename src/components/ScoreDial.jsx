@@ -2,9 +2,47 @@
 // T4.1 — Circular score dial (0–100). Pure SVG, no libraries.
 // Color tells the story before the number does: amber for solid,
 // red-ish only when the prompt genuinely missed.
+// The number counts up in sync with the arc fill (reward motion, CSS+RAF).
+
+import { useEffect, useRef, useState } from 'react'
+
+const prefersReduced =
+  typeof window !== 'undefined' &&
+  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
 export default function ScoreDial({ score, offline = false }) {
   const clamped = Math.min(100, Math.max(0, Math.round(score)))
+
+  // Count the displayed number from 0 up to `clamped`, synced to the arc:
+  // 150ms delay (matching the arc), then ~800ms of counting. Reduced-motion
+  // shows the final number immediately.
+  const [shown, setShown] = useState(prefersReduced ? clamped : 0)
+  const rafRef = useRef(0)
+  useEffect(() => {
+    if (prefersReduced) {
+      setShown(clamped)
+      return
+    }
+    const DELAY = 150
+    const DUR = 800
+    let start = 0
+    const tick = (t) => {
+      if (!start) start = t
+      const elapsed = t - start - DELAY
+      if (elapsed <= 0) {
+        rafRef.current = requestAnimationFrame(tick)
+        return
+      }
+      const p = Math.min(1, elapsed / DUR)
+      // ease-out so it decelerates into the final number
+      const eased = 1 - Math.pow(1 - p, 3)
+      setShown(Math.round(eased * clamped))
+      if (p < 1) rafRef.current = requestAnimationFrame(tick)
+    }
+    rafRef.current = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [clamped])
+
   const R = 34
   const CIRC = 2 * Math.PI * R
   const filled = (clamped / 100) * CIRC
@@ -34,7 +72,7 @@ export default function ScoreDial({ score, offline = false }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="cue-dial-num font-display text-2xl font-bold">{clamped}</span>
+        <span className="cue-dial-num font-display text-2xl font-bold">{shown}</span>
         <span className="font-mono text-[10px] text-faint">/ 100</span>
       </div>
     </div>
