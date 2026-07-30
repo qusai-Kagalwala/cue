@@ -15,6 +15,7 @@ export default function AnimatedBackground() {
       {/* two soft amber spotlights drifting on different paths */}
       <div className="cue-bg-orb cue-bg-orb-1" />
       <div className="cue-bg-orb cue-bg-orb-2" />
+      <div className="cue-bg-orb cue-bg-orb-3" />
       {/* a faint vignette to keep edges calm */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(14,13,11,0.6)_100%)]" />
     </div>

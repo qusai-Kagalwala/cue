@@ -4,7 +4,7 @@
 // riding on its normal evaluation, once. Streaks maintain themselves —
 // completing any evaluation is streak activity.
 
-import { useProgress, goToLesson, setLessonStage } from '../hooks/useProgress'
+import { useProgress, goToLesson } from '../hooks/useProgress'
 import { LESSONS } from '../data/lessons'
 
 export default function DailyCard() {

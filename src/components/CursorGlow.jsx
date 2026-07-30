@@ -73,7 +73,7 @@ export default function CursorGlow() {
     <div
       ref={glowRef}
       aria-hidden="true"
-      className="pointer-events-none fixed left-0 top-0 -z-[5] h-64 w-64 rounded-full opacity-0 transition-opacity duration-500"
+      className="pointer-events-none fixed left-0 top-0 z-[-5] h-64 w-64 rounded-full opacity-0 transition-opacity duration-500"
       style={{
         background:
           'radial-gradient(circle, color-mix(in srgb, var(--color-cue) 22%, transparent) 0%, transparent 65%)',
