@@ -34,6 +34,10 @@ Shipping the Image Stage changed exactly one data file and **zero screens**.
 
 **The Sandbox** — bring real life in: **Freeplay** evaluates any prompt; **The Critic's Review** judges a prompt *and the answer it produced*, tracing answer weaknesses back to prompt gaps. Daily quota grows with your level.
 
+**The Studio** — the "I finished the lessons, now help me with a real thing" space: pick a mode (text · image · video · audio · code), describe what you want to make, optionally **upload a reference image** (Gemini sees it), and Cue drafts a strong prompt, explains *why* it's built that way, and shows a curated guide to which model fits and how to prompt it. Save drafts to the library.
+
+**Two-part feedback** — a live **Context Checklist** under the input flags what a strong prompt is still missing *before* you send (role, context, limits…), and the **Report Card** (Prompt Autopsy) opens *after* scoring to show how each of the six dimensions actually landed, how much each mattered for that lesson, and the single change that would raise the score most. The checklist helps you write it; the report card explains how it did.
+
 **The Encore & the daily** — a Level-4-gated daily boss (every dimension, tight token budget, 100 base XP) and a starred daily lesson riding +20 XP, both on one date-seeded picker.
 
 **Your Progress** — the **Season Report** (hand-rolled SVG score chart over your whole history, honest about offline estimates) and **The Playbill** (eight theatre-sticker achievements, earned states persisted).

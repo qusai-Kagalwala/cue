@@ -29,7 +29,7 @@ export default function PromptAutopsy({ autopsy }) {
         className="flex w-full items-center justify-between px-4 py-3 text-left"
       >
         <span className="font-mono text-xs uppercase tracking-widest text-faint">
-          why this score — the autopsy
+          the report card — why this score
         </span>
         <span className={`text-muted transition-transform ${open ? 'rotate-180' : ''}`}>
           ▾
@@ -47,8 +47,10 @@ export default function PromptAutopsy({ autopsy }) {
           >
             <div className="space-y-3 px-4 pb-4">
               <p className="text-xs leading-relaxed text-muted">
-                Six things make a prompt strong. Here's how yours did on each —
-                and the dots show how much each one mattered for this lesson.
+                The checklist told you what to add. This is how it actually
+                landed — each dimension graded, with dots showing how much it
+                counted toward <span className="text-cue">this</span> lesson's
+                score.
               </p>
 
               {autopsy.map((d) => {
@@ -82,6 +84,26 @@ export default function PromptAutopsy({ autopsy }) {
                   </div>
                 )
               })}
+
+              {(() => {
+                // the biggest lever: the dimension that mattered most here yet
+                // scored weakest (weight high, raw low). Unique to the report
+                // card — the pre-flight checklist can't rank by impact.
+                const lever = [...autopsy]
+                  .filter((d) => d.raw < 0.6)
+                  .sort((a, b) => b.weight * (1 - b.raw) - a.weight * (1 - a.raw))[0]
+                return lever ? (
+                  <div className="rounded-lg border border-cue-dim/50 bg-cue/5 p-2.5">
+                    <p className="font-mono text-[10px] uppercase tracking-widest text-cue">
+                      biggest win next time
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted">
+                      Strengthening <span className="text-ink">{lever.label}</span>{' '}
+                      would move this score the most.
+                    </p>
+                  </div>
+                ) : null
+              })()}
 
               <p className="pt-1 font-mono text-[10px] text-faint">
                 ●●● = counted most for this lesson · ● = minor here

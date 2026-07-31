@@ -36,10 +36,23 @@ export const PROGRAMME = [
       ['The stage (home)', 'Your current lesson — the app opens straight into it.'],
       ['The lesson map 🗺', 'All 8 lessons: replay any finished one for a better score (half XP), or re-practice the warm-up and rehearsal anytime.'],
       ['The Sandbox 🧪', 'Bring real life in. Freeplay scores any prompt you\'re working on. The Critic\'s Review reads a prompt AND the answer some AI gave you, and tells you what to fix.'],
+      ['The Studio 🎬', 'Bring something you want to make — text, an image, code, and more. Cue drafts a strong prompt for it, shows you why it works, and points you to the best tool for the job.'],
       ['The library 📖', 'Your best prompts (58+) are saved here automatically. Copy one whenever real life needs it.'],
       ['Your progress 📈', 'The Season Report charts every attempt you\'ve made. The Playbill collects your achievement stickers.'],
       ['Settings ⚙', 'Switch persona or theme, back up your data, or start fresh.'],
     ],
+  },
+  {
+    id: 'feedback',
+    title: 'Two kinds of feedback',
+    body: [
+      'Cue helps you before AND after you send a prompt — two different tools, on purpose:',
+    ],
+    items: [
+      ['The checklist (before)', 'As you type, a live nudge shows what a strong prompt is still missing — role, context, limits, and so on. Fix them before you submit.'],
+      ['The report card (after)', 'Once scored, open the report card to see how each part actually landed, how much each mattered for that lesson, and the one change that would raise your score the most.'],
+    ],
+    footer: 'The checklist helps you write it; the report card explains how it did.',
   },
   {
     id: 'rewards',

@@ -71,9 +71,13 @@ export default function ScoreDial({ score, offline = false }) {
           }}
         />
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="cue-dial-num font-display text-2xl font-bold">{shown}</span>
-        <span className="font-mono text-[10px] text-faint">/ 100</span>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="cue-dial-num font-display text-2xl font-bold leading-none">
+          {shown}
+        </span>
+        <span className="mt-1 ml-0.5 font-mono text-[10px] leading-none text-faint">
+          /100
+        </span>
       </div>
     </div>
   )

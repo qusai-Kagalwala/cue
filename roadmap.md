@@ -87,6 +87,41 @@ Shared identity (name, rank, streak); per-stage progress. ~90% content,
 2. Localization · adaptive tracks · sound cue — demoted to notes below
    Stages
 
+## ✅ v4 — RETENTION & POLISH (COMPLETE)
+
+Built after the core product was research-validated (Reddit community
+analysis confirmed the coach-not-generator thesis).
+
+1. **The Studio** — the post-lessons "help me with a real thing" mode. Pick
+   a stage, describe the goal, optionally **upload a reference image**
+   (Gemini vision), get a drafted prompt + why-it-works coaching + a
+   **curated model guide** (maintained as data, never drifts). Saves to the
+   library. New proxy `draft` mode; no new backend ✅
+2. **Prompt Autopsy / the Report Card** — surfaces the six per-dimension
+   scores already computed by the rubric: how each landed, how much each
+   mattered for that lesson, and the single highest-leverage fix. The
+   *after* half of the feedback loop ✅
+3. **Context Checker** — a live pre-submit nudge listing what a strong
+   prompt is still missing; in the challenge input, Freeplay, and the
+   Critic's Review. The *before* half. Both reuse the same rubric
+   detectors, deliberately differentiated (checklist writes it, report
+   card explains it) ✅
+4. **Motion pass** — reward-moment animation via `motion` (the one added
+   dep, scoped to rewards/nav): score count-up, XP + level-up celebration,
+   map entrance + current-lesson pulse, streak-flame reaction, animated
+   nav icons with a sliding glass pill. All reduced-motion safe ✅
+5. **Cosmetics** — three-orb animated background (drifting, breathing) and
+   a desktop cursor glow; both behind content, reduced-motion safe, no new
+   deps ✅
+
+**Notes:** no new storage keys — Autopsy and the Checker are stateless
+views over the rubric; the Studio reuses the library. Import/export and
+Settings unchanged. Neumorphism was considered and declined (contrast cost
+for a reading-heavy app).
+
+**The honest next lever is launch, not code** — every research-identified
+gap is now built or consciously declined.
+
 ## 📄 Final Phase — Docs & Submission (deliberately last)
 
 SRS + UML assembled from the living docs (this file, decisions.md,
