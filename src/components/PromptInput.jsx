@@ -8,6 +8,8 @@
 // features beat broken ones. Dictation APPENDS to whatever's typed;
 // keyboard flow untouched.
 
+import ContextChecker from './ContextChecker'
+import { getActiveStageId } from '../hooks/useProgress'
 import { useEffect, useRef, useState } from 'react'
 import TokenCounter from './TokenCounter'
 
@@ -115,6 +117,9 @@ export default function PromptInput({
         <TokenCounter text={value} budget={tokenBudget} />
       </div>
 
+      {/* Context Checker — live 'you might be missing…' nudge */}
+      <ContextChecker prompt={value} stageId={getActiveStageId()} />
+
       <div className="flex items-center justify-between gap-2 pt-1">
         <span className="hidden font-mono text-xs text-faint lg:inline">
           ctrl+enter to submit
@@ -141,11 +146,10 @@ export default function PromptInput({
                 aria-pressed={listening}
                 aria-label={listening ? 'Stop dictation' : 'Dictate your prompt'}
                 title={listening ? 'Stop dictation' : 'Dictate your prompt'}
-                className={`rounded-lg border px-3 py-2 text-sm transition-colors disabled:opacity-50 ${
-                  listening
+                className={`rounded-lg border px-3 py-2 text-sm transition-colors disabled:opacity-50 ${listening
                     ? 'animate-pulse border-over text-over'
                     : 'border-line text-muted hover:border-cue-dim hover:text-cue'
-                }`}
+                  }`}
               >
                 {listening ? '● rec' : '🎤'}
               </button>
