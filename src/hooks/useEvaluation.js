@@ -9,6 +9,7 @@
 //      trimmed prompt) replays the cached result: zero network, zero XP,
 //      zero quota. Change one character and it's a fresh evaluation again.
 
+import { scoreWithRubric } from '../lib/rubric'
 import { useRef, useState } from 'react'
 import { evaluateWithRetry } from '../lib/gemini'
 import { heuristicEvaluate } from '../lib/heuristic'
@@ -61,6 +62,16 @@ export function useEvaluation() {
       } catch (err) {
         setErrorCode(err.code ?? 'UNKNOWN')
         evaluation = heuristicEvaluate(lesson, userPrompt, getActiveStageId())
+      }
+
+      // Prompt Autopsy — attach the per-dimension breakdown. The rubric's
+      // detection is deterministic on the prompt text, so this explains the
+      // shape even when Gemini produced the score. Harmless if it fails.
+      try {
+        const breakdown = scoreWithRubric(lesson, userPrompt, getActiveStageId())
+        if (breakdown?.autopsy) evaluation = { ...evaluation, autopsy: breakdown.autopsy }
+      } catch {
+        /* autopsy is a bonus; never let it break scoring */
       }
 
       // --- The single transition into `done` with a fresh result. ---

@@ -3,6 +3,7 @@
 // result — flash-lite (primary), flash (backup bucket), or offline.
 // Honest about the machinery without making noise about it.
 
+import PromptAutopsy from './PromptAutopsy'
 import { useState } from 'react'
 import ScoreDial from './ScoreDial'
 import XPToast from './XPToast'
@@ -79,6 +80,8 @@ export default function ResultsPanel({ result, award, takeaway }) {
 
       <FeedbackList label="What worked" items={result.strengths} tone="text-good" />
       <FeedbackList label="Push it further" items={result.improvements} tone="text-cue" />
+
+      {result.autopsy && <PromptAutopsy autopsy={result.autopsy} />}
 
       {/* Rewrite — real evaluations only; heuristics can't rewrite honestly */}
       {result.rewrittenExample && (

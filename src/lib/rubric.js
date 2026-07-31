@@ -595,6 +595,18 @@ export function scoreWithRubric(lesson, userPrompt, stageId = 'text') {
     improvements.push(`Over the ${lesson.tokenBudget}-token budget — cut filler words first.`)
   }
 
+  // Prompt Autopsy — the per-dimension breakdown, already computed above.
+  // Each row: what the dimension is (label), how well it landed (raw 0..1),
+  // how much it mattered for THIS lesson (weight), and a plain verdict.
+  const labels = rubric.labels ?? {}
+  const autopsy = ranked.map((r) => ({
+    dim: r.dim,
+    label: labels[r.dim] ?? r.dim,
+    raw: r.raw, // 0..1 — how well this dimension was met
+    weight: r.weight, // 0..1 — how much it counted here
+    verdict: r.raw >= 0.6 ? 'strong' : r.raw >= 0.35 ? 'partial' : 'missing',
+  }))
+
   return {
     score,
     strengths,
@@ -603,5 +615,6 @@ export function scoreWithRubric(lesson, userPrompt, stageId = 'text') {
     budgetRespected,
     offline: true,
     dimensions, // v2 live-checklist hook — additive, harmless today
+    autopsy, // Prompt Autopsy — per-dimension breakdown for the detailed view
   }
 }
