@@ -474,6 +474,25 @@ export function labelsFor(stageId) {
   return rubricFor(stageId).labels
 }
 
+// Context Checker — which strong-prompt dimensions is this prompt still
+// missing? Returns [{ dim, label }] for dimensions the detectors score low.
+// Universal (no lesson weighting) so it works while free-writing or drafting.
+const CHECK_THRESHOLD = 0.35
+export function checkContext(prompt, stageId = 'text') {
+  const text = (prompt ?? '').trim()
+  if (text.length === 0) return []
+  const rubric = rubricFor(stageId)
+  const labels = rubric.labels ?? {}
+  const missing = []
+  for (const dim of Object.keys(rubric.detectors)) {
+    const raw = rubric.detectors[dim](text, {})
+    if (raw < CHECK_THRESHOLD) {
+      missing.push({ dim, label: labels[dim] ?? dim })
+    }
+  }
+  return missing
+}
+
 /** v2-5d/v3-1b — weights for a lesson within a stage (checklist ordering). */
 export function weightsFor(lessonId, stageId = 'text') {
   return rubricFor(stageId).weights[lessonId] ?? DEFAULT_WEIGHTS

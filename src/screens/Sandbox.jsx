@@ -8,6 +8,7 @@
 // verdict. If the API is unreachable, the review says so and the spent
 // quota is refunded.
 
+import ContextChecker from '../components/ContextChecker'
 import { useState } from 'react'
 import InlineHint from '../components/InlineHint'
 import { useProgress } from '../hooks/useProgress'
@@ -229,6 +230,8 @@ export default function Sandbox() {
                     placeholder="Paste your prompt here…"
                     className="w-full resize-none rounded-xl border border-line bg-raised p-3 font-mono text-sm leading-relaxed placeholder:text-faint focus:border-cue-dim"
                   />
+                  {/* live 'what's missing' nudge on the pasted prompt */}
+                  <ContextChecker prompt={pastedPrompt} stageId="text" />
                 </div>
                 <div className="space-y-1.5">
                   <label htmlFor="review-answer" className="font-mono text-xs uppercase tracking-widest text-faint">
