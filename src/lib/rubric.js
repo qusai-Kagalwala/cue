@@ -545,6 +545,71 @@ const LESSON_WEIGHTS_RAG = {
   l8: { role: 0.05, context: 0.15, constraints: 0.15, format: 0.05, specificity: 0.20, length: 0.40 },
 }
 
+// ----------------------------------------------------------- automation stage
+// v6 — Automation / Workflow Brief. Teaches DESCRIBING a workflow well enough
+// to hand to n8n, Zapier, Make, or an AI that builds it: trigger, systems,
+// steps, conditions, output. A decomposition-and-clarity skill. (Teaches
+// describing, never running — stays inside the no-backend constraint.)
+
+// role → the trigger that starts the workflow
+const AUTO_TRIGGER =
+  /\b(when|whenever|every (time|day|hour|morning|monday|week)|on (a |new |each )?|as soon as|if (a |an |someone|the) .{1,30} (arrives|comes in|is (added|created|received|paid))|triggered by|starts? when|at \d|daily|hourly|new (email|order|row|form|message|payment))\b/i
+// context → the systems / apps / data involved
+const AUTO_SYSTEMS =
+  /\b(gmail|email|sheet|spreadsheet|excel|slack|whatsapp|telegram|calendar|drive|dropbox|notion|airtable|trello|form|typeform|webhook|api|database|crm|shopify|stripe|razorpay|upi|sms|paytm|google (sheet|form|drive|calendar))\b/i
+// constraints → conditions, filters, edge rules
+const AUTO_CONDITION =
+  /\b(only if|unless|if the|when the .{1,30} is|filter|skip if|except|provided that|as long as|in case|otherwise|if not|greater than|less than|contains|matches|is (empty|missing|over|under|more than))\b/i
+// format → the output / final action / destination
+const AUTO_OUTPUT =
+  /\b(send|save|post|create|add to|notify|email me|message|write to|log|update|append|generate|forward|reply|store in|put in|export|deliver|alert)\b/i
+// specificity → the steps, in order
+const AUTO_STEPS =
+  /\b(then|next|after (that|which)|first|second|third|step \d|1\.|2\.|->|→|followed by|finally|once .{1,20} (done|complete))\b/i
+
+const AUTO_DETECTORS = {
+  role: (p) => (AUTO_TRIGGER.test(p) ? 1 : 0),
+  context(p) {
+    const hits = (p.match(new RegExp(AUTO_SYSTEMS.source, 'gi')) ?? []).length
+    return clamp01(hits / 2)
+  },
+  constraints(p) {
+    const hits = (p.match(new RegExp(AUTO_CONDITION.source, 'gi')) ?? []).length
+    return clamp01(hits / 2)
+  },
+  format(p) {
+    const hits = (p.match(new RegExp(AUTO_OUTPUT.source, 'gi')) ?? []).length
+    return clamp01(hits / 2)
+  },
+  specificity(p) {
+    let s = 0
+    const hits = (p.match(new RegExp(AUTO_STEPS.source, 'gi')) ?? []).length
+    s += clamp01(hits / 2) * 0.7
+    if (/\n\s*[-*\d]|\d\.\s/.test(p)) s += 0.3 // enumerated steps
+    return clamp01(s)
+  },
+  length(p, lesson) {
+    const words = p.trim().split(/\s+/).filter(Boolean).length
+    if (lesson.tokenBudget != null) {
+      const t = estimateTokens(p)
+      return t <= lesson.tokenBudget ? 1 : clamp01(1 - (t - lesson.tokenBudget) / lesson.tokenBudget)
+    }
+    // a workflow brief rewards one clear scoped flow, not a tangle
+    return words < 8 ? 0.2 : words < 15 ? 0.6 : words <= 140 ? 1 : clamp01(1 - (words - 140) / 140)
+  },
+}
+
+const LESSON_WEIGHTS_AUTO = {
+  l1: { role: 0.50, context: 0.15, constraints: 0.05, format: 0.10, specificity: 0.10, length: 0.10 },
+  l2: { role: 0.10, context: 0.50, constraints: 0.05, format: 0.10, specificity: 0.15, length: 0.10 },
+  l3: { role: 0.10, context: 0.15, constraints: 0.05, format: 0.10, specificity: 0.50, length: 0.10 },
+  l4: { role: 0.10, context: 0.15, constraints: 0.50, format: 0.05, specificity: 0.10, length: 0.10 },
+  l5: { role: 0.10, context: 0.15, constraints: 0.05, format: 0.50, specificity: 0.10, length: 0.10 },
+  l6: { role: 0.45, context: 0.20, constraints: 0.10, format: 0.05, specificity: 0.10, length: 0.10 },
+  l7: { role: 0.10, context: 0.15, constraints: 0.35, format: 0.15, specificity: 0.15, length: 0.10 },
+  l8: { role: 0.10, context: 0.15, constraints: 0.10, format: 0.10, specificity: 0.15, length: 0.40 },
+}
+
 // ---------------------------------------------------------------- v3-1b
 // STAGE REGISTRY. Six dimension SLOTS are fixed (docs/v3-stages.md §3);
 // each stage supplies its own detectors, weights, and human labels for
@@ -611,6 +676,14 @@ const STAGE_RUBRICS = {
     labels: {
       role: 'Task framed', context: 'Sources given', constraints: 'Noise cut',
       format: 'Well structured', specificity: 'On-target', length: 'Right amount',
+    },
+  },
+  automation: {
+    detectors: AUTO_DETECTORS,
+    weights: LESSON_WEIGHTS_AUTO,
+    labels: {
+      role: 'Trigger set', context: 'Systems named', constraints: 'Conditions set',
+      format: 'Output defined', specificity: 'Steps clear', length: 'Scoped',
     },
   },
 }
