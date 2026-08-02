@@ -133,10 +133,19 @@ export default function SeasonReport() {
       {tab === 'playbill' && <Playbill />}
 
       {tab === 'report' && (chrono.length === 0 ? (
-        <div className="rounded-xl border border-line bg-surface p-6 text-center">
-          <p className="text-muted">No performances on record yet.</p>
-          <p className="mt-1 font-mono text-xs text-faint">
-            complete an assessment and your season begins here
+        <div className="rounded-xl border border-line bg-surface p-8 text-center">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full border border-cue-dim/50 bg-cue/5 text-2xl">
+            🎭
+          </div>
+          <p className="font-display text-base font-semibold text-ink">
+            Your season hasn't opened yet
+          </p>
+          <p className="mx-auto mt-1 max-w-[40ch] text-sm text-muted">
+            Complete your first assessment and this becomes a living chart of
+            every performance — your scores, your streak, and how far you've come.
+          </p>
+          <p className="mt-3 font-mono text-xs text-faint">
+            one lesson and the curtain rises
           </p>
         </div>
       ) : (

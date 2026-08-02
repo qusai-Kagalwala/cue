@@ -47,10 +47,19 @@ export default function Library() {
       </header>
 
       {entries.length === 0 ? (
-        <div className="rounded-xl border border-line bg-surface p-6 text-center">
-          <p className="text-muted">The shelf is empty — for now.</p>
-          <p className="mt-1 font-mono text-xs text-faint">
-            score 58+ on any assessment and your prompt appears here
+        <div className="rounded-xl border border-line bg-surface p-8 text-center">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full border border-cue-dim/50 bg-cue/5 text-2xl">
+            📚
+          </div>
+          <p className="font-display text-base font-semibold text-ink">
+            Your best prompts collect here
+          </p>
+          <p className="mx-auto mt-1 max-w-[38ch] text-sm text-muted">
+            Score 58+ on any assessment and the prompt earns a place on your
+            shelf — a growing library of your sharpest work to reuse in real life.
+          </p>
+          <p className="mt-3 font-mono text-xs text-faint">
+            go play a lesson to add your first
           </p>
         </div>
       ) : (
