@@ -610,6 +610,72 @@ const LESSON_WEIGHTS_AUTO = {
   l8: { role: 0.10, context: 0.15, constraints: 0.10, format: 0.10, specificity: 0.15, length: 0.40 },
 }
 
+// --------------------------------------------------------------- system stage
+// v6 — System Prompt / Agent Instructions. Teaches writing the persistent rules
+// that govern an AI's behavior — identity, scope, boundaries, style, concrete
+// rules — the instruction that runs on EVERY turn, not a one-off ask.
+
+// role → the identity/persona the AI holds
+const SYS_IDENTITY =
+  /\b(you are|act as|your role is|you're a|you are a|behave as|assume the (role|persona)|take on the role|you will be|serve as)\b/i
+// context → the domain / scope it operates in
+const SYS_SCOPE =
+  /\b(you help|you (handle|assist|answer|support)|your (job|purpose|domain|focus) is|only (help|answer|discuss)|specializ|for (customers|students|users) (of|who)|topics? (of|about|related)|within|the domain of)\b/i
+// constraints → boundaries: what it must NOT do, refusal rules
+const SYS_BOUNDARY =
+  /\b(never|always|do not|don't|must not|refuse|decline|avoid|do not (answer|discuss|reveal|share)|if (asked|someone asks) .{1,40} (refuse|decline|say|do not)|under no circumstances|not allowed|off-limits|stay away from|will not)\b/i
+// format → persistent style/tone rules
+const SYS_STYLE =
+  /\b(respond in|reply in|keep (your|the|it)|tone|be (concise|brief|formal|friendly|polite|warm)|use (simple|short|plain)|format (as|your)|always (answer|write|reply) in|style|voice|in (hindi|english|a .{1,15} tone)|no more than|under \d+ words)\b/i
+// specificity → concrete behavior rules, do/don't examples
+const SYS_RULES =
+  /\b(for example|e\.g\.|when (a|the|someone) .{1,40} (do|say|respond|reply)|if .{1,40} then|rule \d|1\.|2\.|specifically|always .{1,30} when|for instance|such as|step \d)\b/i
+
+const SYS_DETECTORS = {
+  role: (p) => (SYS_IDENTITY.test(p) ? 1 : 0),
+  context(p) {
+    let s = SYS_SCOPE.test(p) ? 0.6 : 0
+    const sentences = p.split(/[.!?\n]+/).filter((x) => x.trim().length > 12)
+    s += clamp01(sentences.length / 4) * 0.4
+    return clamp01(s)
+  },
+  constraints(p) {
+    const hits = (p.match(new RegExp(SYS_BOUNDARY.source, 'gi')) ?? []).length
+    return clamp01(hits / 2)
+  },
+  format(p) {
+    const hits = (p.match(new RegExp(SYS_STYLE.source, 'gi')) ?? []).length
+    return clamp01(hits / 2)
+  },
+  specificity(p) {
+    let s = 0
+    const hits = (p.match(new RegExp(SYS_RULES.source, 'gi')) ?? []).length
+    s += clamp01(hits / 2) * 0.7
+    if (/\n\s*[-*\d]|\d\.\s/.test(p)) s += 0.3 // enumerated rules
+    return clamp01(s)
+  },
+  length(p, lesson) {
+    const words = p.trim().split(/\s+/).filter(Boolean).length
+    if (lesson.tokenBudget != null) {
+      const t = estimateTokens(p)
+      return t <= lesson.tokenBudget ? 1 : clamp01(1 - (t - lesson.tokenBudget) / lesson.tokenBudget)
+    }
+    // a system prompt rewards complete-but-tight: durable, not brittle or bloated
+    return words < 10 ? 0.2 : words < 25 ? 0.6 : words <= 220 ? 1 : clamp01(1 - (words - 220) / 220)
+  },
+}
+
+const LESSON_WEIGHTS_SYS = {
+  l1: { role: 0.50, context: 0.15, constraints: 0.05, format: 0.10, specificity: 0.10, length: 0.10 },
+  l2: { role: 0.10, context: 0.50, constraints: 0.05, format: 0.10, specificity: 0.15, length: 0.10 },
+  l3: { role: 0.10, context: 0.10, constraints: 0.55, format: 0.05, specificity: 0.10, length: 0.10 },
+  l4: { role: 0.10, context: 0.10, constraints: 0.05, format: 0.55, specificity: 0.10, length: 0.10 },
+  l5: { role: 0.05, context: 0.15, constraints: 0.10, format: 0.05, specificity: 0.55, length: 0.10 },
+  l6: { role: 0.50, context: 0.20, constraints: 0.10, format: 0.05, specificity: 0.05, length: 0.10 },
+  l7: { role: 0.10, context: 0.15, constraints: 0.35, format: 0.15, specificity: 0.15, length: 0.10 },
+  l8: { role: 0.10, context: 0.15, constraints: 0.15, format: 0.10, specificity: 0.10, length: 0.40 },
+}
+
 // ---------------------------------------------------------------- v3-1b
 // STAGE REGISTRY. Six dimension SLOTS are fixed (docs/v3-stages.md §3);
 // each stage supplies its own detectors, weights, and human labels for
@@ -684,6 +750,14 @@ const STAGE_RUBRICS = {
     labels: {
       role: 'Trigger set', context: 'Systems named', constraints: 'Conditions set',
       format: 'Output defined', specificity: 'Steps clear', length: 'Scoped',
+    },
+  },
+  system: {
+    detectors: SYS_DETECTORS,
+    weights: LESSON_WEIGHTS_SYS,
+    labels: {
+      role: 'Identity set', context: 'Scope given', constraints: 'Boundaries set',
+      format: 'Style defined', specificity: 'Rules concrete', length: 'Tight ruleset',
     },
   },
 }
