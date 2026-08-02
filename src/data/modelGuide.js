@@ -152,6 +152,26 @@ export const MODEL_GUIDE = {
       },
     ],
   },
+  automation: {
+    blurb: 'Describing a workflow to hand to an automation tool or AI builder.',
+    models: [
+      {
+        name: 'n8n',
+        best: 'Flexible, self-hostable workflows with many integrations.',
+        tip: 'Describe the trigger, each step in order, and the conditions between them.',
+      },
+      {
+        name: 'Zapier',
+        best: 'Quick app-to-app automations, huge integration library.',
+        tip: 'Name the trigger app and the action app; keep it one clear flow.',
+      },
+      {
+        name: 'Make (Integromat)',
+        best: 'Visual multi-step scenarios with branching logic.',
+        tip: 'Spell out the branches — what happens if a condition is or isn\'t met.',
+      },
+    ],
+  },
 }
 
 /** Guide for a stage, defensively falling back to text. */

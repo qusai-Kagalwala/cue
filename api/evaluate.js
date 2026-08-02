@@ -102,6 +102,19 @@ const STAGE_FRAMING = {
       `answer accurately and without being misled by irrelevant material.`,
     ].join('\n'),
   },
+  automation: {
+    persona: `You are the evaluator inside "Cue", teaching people to BRIEF an automation — describing a workflow clearly enough to hand to n8n, Zapier, Make, or an AI that builds it.`,
+    craft: [
+      `Judge the prompt as a WORKFLOW BRIEF. Strong briefs state: the TRIGGER (what`,
+      `starts it — a new email, a payment, a time of day) · the SYSTEMS involved (the`,
+      `apps, sheets, or services) · the STEPS in order (first this, then that) · the`,
+      `CONDITIONS (only if, unless, filters) · and the OUTPUT (what to send, save, or`,
+      `create, and where). It should describe ONE scoped workflow, not a tangle. The`,
+      `skill is decomposition and clarity: could someone (or a tool) build exactly this`,
+      `from the description alone, with no guessing? Judge the BRIEF only — do not`,
+      `imagine running it.`,
+    ].join('\n'),
+  },
 }
 
 const VALID_STAGES = Object.keys(STAGE_FRAMING)
