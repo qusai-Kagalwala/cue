@@ -479,6 +479,72 @@ const LESSON_WEIGHTS_AGENT = {
   l8: { role: 0.10, context: 0.15, constraints: 0.15, format: 0.05, specificity: 0.15, length: 0.40 },
 }
 
+// ------------------------------------------------------------------ rag stage
+// v6 — RAG / Context Design. Teaches what context to FEED an AI: include the
+// right sources, cut the noise, structure it, keep it on-target. Same six
+// dimensions re-pointed at context quality.
+
+// role → the task the context serves / how it's framed
+const RAG_FRAME =
+  /\b(answer|summari[sz]e|based on|using (the|this|only)|from the (following|text|document|notes)|given (the|this|these)|the task is|help me (with|understand)|explain|compare|extract|find in)\b/i
+// context → the actual source material included
+const RAG_SOURCE =
+  /\b(here (is|are)|the following|according to|the document|the text|this article|these notes|source:|context:|"[^"]{15,}"|\bper the\b|the transcript|the data|the report|the email|the chapter)\b/i
+// constraints → cutting noise: what to exclude / focus on
+const RAG_NOISE =
+  /\b(only|just (the|use)|ignore|exclude|don't (include|use)|not the|skip the|focus (on|only)|leave out|disregard|nothing else|no other|relevant (parts?|section)|specifically the)\b/i
+// format → how the context is structured
+const RAG_STRUCT =
+  /\b(section|labell?ed|under (the )?heading|part 1|first[,:]|:\s|---|###|numbered|bullet|separate|organi[sz]ed|structured|below is|above is|\n\s*[-*\d])/i
+// specificity → on-target relevance signals
+const RAG_TARGET =
+  /\b(specifically|exactly|the part (about|where)|regarding|about the|on the topic of|the question of|as it relates|pertaining|the section on|relevant to)\b/i
+
+const RAG_DETECTORS = {
+  role: (p) => (RAG_FRAME.test(p) ? 1 : 0),
+  context(p) {
+    let s = RAG_SOURCE.test(p) ? 0.55 : 0
+    if (/"[^"]{15,}"|```/.test(p)) s += 0.25 // quoted / fenced source material
+    const sentences = p.split(/[.!?\n]+/).filter((x) => x.trim().length > 12)
+    s += clamp01(sentences.length / 4) * 0.2
+    return clamp01(s)
+  },
+  constraints(p) {
+    const hits = (p.match(new RegExp(RAG_NOISE.source, 'gi')) ?? []).length
+    return clamp01(hits / 2)
+  },
+  format(p) {
+    let s = 0
+    if (RAG_STRUCT.test(p)) s += 0.6
+    if (/\n\s*[-*\d]|:\s*\n|###|---/.test(p)) s += 0.4 // real structural markers
+    return clamp01(s)
+  },
+  specificity(p) {
+    const hits = (p.match(new RegExp(RAG_TARGET.source, 'gi')) ?? []).length
+    return clamp01(hits / 2)
+  },
+  length(p, lesson) {
+    const words = p.trim().split(/\s+/).filter(Boolean).length
+    if (lesson.tokenBudget != null) {
+      const t = estimateTokens(p)
+      return t <= lesson.tokenBudget ? 1 : clamp01(1 - (t - lesson.tokenBudget) / lesson.tokenBudget)
+    }
+    // context design rewards enough-but-not-a-dump: a sweet spot, not max length
+    return words < 8 ? 0.2 : words < 20 ? 0.6 : words <= 200 ? 1 : clamp01(1 - (words - 200) / 200)
+  },
+}
+
+const LESSON_WEIGHTS_RAG = {
+  l1: { role: 0.40, context: 0.15, constraints: 0.05, format: 0.05, specificity: 0.25, length: 0.10 },
+  l2: { role: 0.10, context: 0.50, constraints: 0.05, format: 0.05, specificity: 0.20, length: 0.10 },
+  l3: { role: 0.05, context: 0.15, constraints: 0.50, format: 0.05, specificity: 0.15, length: 0.10 },
+  l4: { role: 0.05, context: 0.15, constraints: 0.05, format: 0.50, specificity: 0.15, length: 0.10 },
+  l5: { role: 0.05, context: 0.15, constraints: 0.10, format: 0.05, specificity: 0.55, length: 0.10 },
+  l6: { role: 0.45, context: 0.20, constraints: 0.10, format: 0.05, specificity: 0.10, length: 0.10 },
+  l7: { role: 0.05, context: 0.20, constraints: 0.35, format: 0.10, specificity: 0.20, length: 0.10 },
+  l8: { role: 0.05, context: 0.15, constraints: 0.15, format: 0.05, specificity: 0.20, length: 0.40 },
+}
+
 // ---------------------------------------------------------------- v3-1b
 // STAGE REGISTRY. Six dimension SLOTS are fixed (docs/v3-stages.md §3);
 // each stage supplies its own detectors, weights, and human labels for
@@ -537,6 +603,14 @@ const STAGE_RUBRICS = {
     labels: {
       role: 'Agent framed', context: 'Codebase given', constraints: 'Guardrails set',
       format: 'Output shape', specificity: 'Acceptance criteria', length: 'Scope discipline',
+    },
+  },
+  rag: {
+    detectors: RAG_DETECTORS,
+    weights: LESSON_WEIGHTS_RAG,
+    labels: {
+      role: 'Task framed', context: 'Sources given', constraints: 'Noise cut',
+      format: 'Well structured', specificity: 'On-target', length: 'Right amount',
     },
   },
 }

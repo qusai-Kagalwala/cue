@@ -97,7 +97,7 @@ export default function PromptDiff({ before, after }) {
         label="now · the callback"
         tokens={afterTokens}
         empty="(blank)"
-        highlightClass="rounded-sm bg-cue/15 px-0.5 text-cue"
+        highlightClass="rounded-md bg-cue/15 px-0.5 text-cue"
         mutedWhenChanged="text-ink"
       />
     </div>
