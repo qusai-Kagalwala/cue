@@ -38,6 +38,11 @@ import { LESSON_META_AGENT } from './lessons.meta.agent'
 import { SOLO_AGENT } from './scenarios.agent.solo'
 import { ASSISTED_AGENT } from './scenarios.agent.assisted'
 import { GUIDED_AGENT } from './scenarios.agent.guided'
+// v6 — the RAG / Context Design Stage content pack
+import { LESSON_META_RAG } from './lessons.meta.rag'
+import { SOLO_RAG } from './scenarios.rag.solo'
+import { ASSISTED_RAG } from './scenarios.rag.assisted'
+import { GUIDED_RAG } from './scenarios.rag.guided'
 
 export const DEFAULT_STAGE = 'text'
 
@@ -130,6 +135,22 @@ export const STAGES = {
     },
     weightsKey: 'agent',
     proxyMode: 'agent',
+  },
+  // v6 — SHIPPED. RAG / Context Design: what context to feed an AI so it
+  // answers well. Content pack + rubric only; not one screen changed.
+  rag: {
+    id: 'rag',
+    label: 'Context',
+    blurb: 'Sources, focus, structure — feeding an AI the right context.',
+    locked: false,
+    lessons: LESSON_META_RAG,
+    scenarios: {
+      solo: SOLO_RAG,
+      assisted: ASSISTED_RAG,
+      guided: GUIDED_RAG,
+    },
+    weightsKey: 'rag',
+    proxyMode: 'rag',
   },
 }
 
