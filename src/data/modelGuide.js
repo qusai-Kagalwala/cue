@@ -132,6 +132,26 @@ export const MODEL_GUIDE = {
       },
     ],
   },
+  rag: {
+    blurb: 'Designing the context you feed an AI — what to include and cut.',
+    models: [
+      {
+        name: 'NotebookLM',
+        best: 'Grounding answers in your own documents and sources.',
+        tip: 'Add only the relevant sources; ask questions that point at specific ones.',
+      },
+      {
+        name: 'Claude Projects',
+        best: 'Persistent context across a long piece of work.',
+        tip: 'Curate the project knowledge — trim stale or off-topic files.',
+      },
+      {
+        name: 'Gemini (long context)',
+        best: 'Very large documents held in one prompt.',
+        tip: 'Label sections and say which part to focus on so it doesn\'t drift.',
+      },
+    ],
+  },
 }
 
 /** Guide for a stage, defensively falling back to text. */

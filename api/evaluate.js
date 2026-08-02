@@ -89,6 +89,19 @@ const STAGE_FRAMING = {
       `and correctly on the first run.`,
     ].join('\n'),
   },
+  rag: {
+    persona: `You are the evaluator inside "Cue", teaching people CONTEXT DESIGN — what information to give an AI so it answers well (the core skill behind RAG and long-context prompting).`,
+    craft: [
+      `Judge the prompt as an act of CONTEXT DESIGN, not just a question. Strong context`,
+      `prompts: frame the task clearly · include the right source material (quoted text,`,
+      `notes, data — the facts the model needs) · CUT THE NOISE (say what to ignore or`,
+      `focus on) · STRUCTURE the context (sections, labels, order) so it's easy to use ·`,
+      `stay ON-TARGET (only relevant material) · and give the RIGHT AMOUNT — enough to`,
+      `answer, not an undifferentiated dump. The skill is curation: including what helps`,
+      `and excluding what distracts. Judge whether the context provided would let an AI`,
+      `answer accurately and without being misled by irrelevant material.`,
+    ].join('\n'),
+  },
 }
 
 const VALID_STAGES = Object.keys(STAGE_FRAMING)
