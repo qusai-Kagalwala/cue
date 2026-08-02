@@ -9,7 +9,7 @@
 // data file (stays accurate — you maintain it).
 
 import { useState } from 'react'
-import { motion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
 import { STAGE_LIST, isStagePlayable } from '../data/stages'
 import { guideFor } from '../data/modelGuide'
 import { draftPrompt } from '../lib/gemini'
@@ -32,6 +32,7 @@ export default function Studio() {
   const [copied, setCopied] = useState(false)
   const [saved, setSaved] = useState(false)
 
+  const reduce = useReducedMotion()
   const guide = guideFor(stageId)
   const stageLabel = (stages.find((x) => x.id === stageId)?.label) ?? 'Text'
   const refAnalysed = ANALYSES_REFERENCE[stageId]
@@ -129,7 +130,7 @@ export default function Studio() {
           onChange={(e) => setGoal(e.target.value)}
           rows={3}
           placeholder="e.g. a moody poster for a jazz night at a small cafe"
-          className="w-full resize-none rounded-xl border border-line bg-surface p-3 text-sm text-ink outline-none focus:border-cue-dim"
+          className="w-full resize-none rounded-xl border border-line bg-surface p-3 text-sm text-ink outline-none transition-colors focus:border-cue focus:ring-1 focus:ring-cue/30"
         />
       </div>
 
@@ -198,17 +199,19 @@ export default function Studio() {
               ? 'paste a sample, or describe the style you’re after'
               : 'describe the sound / clip you’re inspired by'
           }
-          className="w-full resize-none rounded-xl border border-line bg-surface p-3 text-sm text-ink outline-none focus:border-cue-dim"
+          className="w-full resize-none rounded-xl border border-line bg-surface p-3 text-sm text-ink outline-none transition-colors focus:border-cue focus:ring-1 focus:ring-cue/30"
         />
       </div>
 
-      <button
+      <motion.button
         onClick={run}
         disabled={status === 'loading' || goal.trim().length < 3}
+        whileTap={reduce ? {} : { scale: 0.98 }}
+        transition={{ type: 'spring', stiffness: 500, damping: 20 }}
         className="w-full rounded-xl bg-cue px-4 py-2.5 font-medium text-stage transition-colors hover:bg-cue-bright disabled:opacity-50"
       >
         {status === 'loading' ? 'Drafting…' : 'Draft my prompt'}
-      </button>
+      </motion.button>
 
       {status === 'error' && (
         <p className="rounded-lg border border-over/40 bg-over/5 p-3 text-sm text-over">

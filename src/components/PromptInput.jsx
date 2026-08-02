@@ -8,8 +8,7 @@
 // features beat broken ones. Dictation APPENDS to whatever's typed;
 // keyboard flow untouched.
 
-import ContextChecker from './ContextChecker'
-import { getActiveStageId } from '../hooks/useProgress'
+import { motion, useReducedMotion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 import TokenCounter from './TokenCounter'
 
@@ -95,6 +94,8 @@ export default function PromptInput({
     rec.start()
   }
 
+  const reduce = useReducedMotion()
+
   return (
     <section className="space-y-2">
       <label htmlFor="prompt-input" className="sr-only">
@@ -110,15 +111,12 @@ export default function PromptInput({
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Write your prompt here…"
-        className="w-full resize-none rounded-xl border border-line bg-raised p-4 font-mono text-sm leading-relaxed placeholder:text-faint focus:border-cue-dim disabled:opacity-60"
+        className="w-full resize-none rounded-xl border border-line bg-raised p-4 font-mono text-sm leading-relaxed outline-none transition-colors placeholder:text-faint focus:border-cue focus:ring-1 focus:ring-cue/30 disabled:opacity-60"
       />
 
       <div data-coach="token-counter">
         <TokenCounter text={value} budget={tokenBudget} />
       </div>
-
-      {/* Context Checker — live 'you might be missing…' nudge */}
-      <ContextChecker prompt={value} stageId={getActiveStageId()} />
 
       <div className="flex items-center justify-between gap-2 pt-1">
         <span className="hidden font-mono text-xs text-faint lg:inline">
@@ -146,24 +144,28 @@ export default function PromptInput({
                 aria-pressed={listening}
                 aria-label={listening ? 'Stop dictation' : 'Dictate your prompt'}
                 title={listening ? 'Stop dictation' : 'Dictate your prompt'}
-                className={`rounded-lg border px-3 py-2 text-sm transition-colors disabled:opacity-50 ${listening
+                className={`rounded-lg border px-3 py-2 text-sm transition-colors disabled:opacity-50 ${
+                  listening
                     ? 'animate-pulse border-over text-over'
                     : 'border-line text-muted hover:border-cue-dim hover:text-cue'
-                  }`}
+                }`}
               >
                 {listening ? '● rec' : '🎤'}
               </button>
             </>
           )}
 
-          <button
+          <motion.button
             data-coach="submit"
             onClick={onSubmit}
             disabled={isEmpty || disabled}
+            whileTap={reduce || isEmpty || disabled ? {} : { scale: 0.96 }}
+            whileHover={reduce || isEmpty || disabled ? {} : { scale: 1.03 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 20 }}
             className="rounded-lg bg-cue px-6 py-2.5 font-medium text-stage transition-colors hover:bg-cue-bright disabled:cursor-not-allowed disabled:bg-raised disabled:text-faint"
           >
             Submit
-          </button>
+          </motion.button>
         </div>
       </div>
     </section>
