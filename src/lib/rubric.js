@@ -410,6 +410,75 @@ const LESSON_WEIGHTS_CODE = {
   l8: { role: 0.10, context: 0.15, constraints: 0.10, format: 0.10, specificity: 0.20, length: 0.35 },
 }
 
+// ---------------------------------------------------------------- agent stage
+// v5 — The Agentic Track. Teaches how to BRIEF a coding agent (Claude Code,
+// Copilot, Cursor): the skill that grows as base models get smarter. Same six
+// dimensions, re-pointed at agent instruction. Detectors mirror the CODE
+// approach (named patterns → 0..1).
+
+// role → which agent / expertise it should assume
+const AGENT_ROLE =
+  /\b(act as|you are|as a|assume the role|senior|expert|principal|staff|the agent|coding agent|pair( |-)?program|reviewer|architect|work as|behave as|take the role)\b/i
+// context → the codebase facts it needs
+const AGENT_CONTEXT =
+  /\b(my (repo|codebase|project|stack)|we use|built (with|on)|the codebase|existing|our (stack|convention|setup)|framework|monorepo|in `?[\w./-]+\.\w+`?|uses? (react|node|python|typescript|django|flask|next|vue)|version \d|conventions?|follows the)\b/i
+// constraints → guardrails: what NOT to do, scope limits, stop conditions
+const AGENT_CONSTRAINT =
+  /\b(do ?n['o]?t|don't|do not|never|only|must not|avoid|without|keep|preserve|leave .{1,20} unchanged|no new (dep|package|librar)|out of scope|scope|stay within|stop (if|when|after|and ask)|ask (me |first|before)|don't touch|no breaking|backward.?compatible|limit(ed)? to|restrict)\b/i
+// format → the output shape expected from the agent
+const AGENT_FORMAT =
+  /\b(a diff|full file|entire file|only the (diff|change)|pull request|pr description|with tests|unit tests|commit message|step by step|plan first|explain (your |the )?(changes?|reasoning)|list the files|return (the )?(patch|diff|code|files?)|show (me )?(only|the))\b/i
+// specificity → the exact ask: acceptance criteria, signature, examples
+const AGENT_SPECIFIC =
+  /\b(acceptance criteria|the function should|signature|input .{1,30} output|given .{1,30} (return|expect)|for example|e\.g\.|edge case|when .{1,30} then|test(s)? that|should (return|handle|reject|pass|fail)|exactly|specifically|the endpoint|the component|named?|parameters?)\b/i
+
+const AGENT_DETECTORS = {
+  role: (p) => (AGENT_ROLE.test(p) ? 1 : 0),
+  context(p) {
+    let s = AGENT_CONTEXT.test(p) ? 0.55 : 0
+    const sentences = p.split(/[.!?\n]+/).filter((x) => x.trim().length > 12)
+    s += clamp01(sentences.length / 3) * 0.25
+    if (/`[^`]+`|\.\w{2,4}\b/.test(p)) s += 0.2 // file/path/identifier mentions
+    return clamp01(s)
+  },
+  constraints(p) {
+    const hits = (p.match(new RegExp(AGENT_CONSTRAINT.source, 'gi')) ?? []).length
+    return clamp01(hits / 2)
+  },
+  format(p) {
+    const hits = (p.match(new RegExp(AGENT_FORMAT.source, 'gi')) ?? []).length
+    return clamp01(hits / 2)
+  },
+  specificity(p) {
+    let s = 0
+    const hits = (p.match(new RegExp(AGENT_SPECIFIC.source, 'gi')) ?? []).length
+    s += clamp01(hits / 3) * 0.55
+    if (/\b[a-z_]\w*\s*\([^)]*\)/i.test(p)) s += 0.25 // a signature
+    if (/[`'"][^`'"]{2,}[`'"]/.test(p)) s += 0.2 // quoted example
+    return clamp01(s)
+  },
+  length(p, lesson) {
+    const words = p.trim().split(/\s+/).filter(Boolean).length
+    if (lesson.tokenBudget != null) {
+      const t = estimateTokens(p)
+      return t <= lesson.tokenBudget ? 1 : clamp01(1 - (t - lesson.tokenBudget) / lesson.tokenBudget)
+    }
+    // agent briefs reward scope discipline: one clear task, not a sprawl
+    return words < 6 ? 0.1 : words < 12 ? 0.5 : words <= 130 ? 1 : clamp01(1 - (words - 130) / 130)
+  },
+}
+
+const LESSON_WEIGHTS_AGENT = {
+  l1: { role: 0.05, context: 0.40, constraints: 0.10, format: 0.05, specificity: 0.30, length: 0.10 },
+  l2: { role: 0.10, context: 0.45, constraints: 0.10, format: 0.05, specificity: 0.20, length: 0.10 },
+  l3: { role: 0.05, context: 0.15, constraints: 0.10, format: 0.40, specificity: 0.20, length: 0.10 },
+  l4: { role: 0.05, context: 0.15, constraints: 0.50, format: 0.05, specificity: 0.15, length: 0.10 },
+  l5: { role: 0.05, context: 0.20, constraints: 0.10, format: 0.10, specificity: 0.45, length: 0.10 },
+  l6: { role: 0.50, context: 0.15, constraints: 0.10, format: 0.05, specificity: 0.10, length: 0.10 },
+  l7: { role: 0.05, context: 0.20, constraints: 0.40, format: 0.10, specificity: 0.15, length: 0.10 },
+  l8: { role: 0.10, context: 0.15, constraints: 0.15, format: 0.05, specificity: 0.15, length: 0.40 },
+}
+
 // ---------------------------------------------------------------- v3-1b
 // STAGE REGISTRY. Six dimension SLOTS are fixed (docs/v3-stages.md §3);
 // each stage supplies its own detectors, weights, and human labels for
@@ -460,6 +529,14 @@ const STAGE_RUBRICS = {
     labels: {
       role: 'Stack named', context: 'Goal explained', constraints: 'Edge cases',
       format: 'Output shape', specificity: 'Interface defined', length: 'Scope discipline',
+    },
+  },
+  agent: {
+    detectors: AGENT_DETECTORS,
+    weights: LESSON_WEIGHTS_AGENT,
+    labels: {
+      role: 'Agent framed', context: 'Codebase given', constraints: 'Guardrails set',
+      format: 'Output shape', specificity: 'Acceptance criteria', length: 'Scope discipline',
     },
   },
 }
