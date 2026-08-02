@@ -115,6 +115,19 @@ const STAGE_FRAMING = {
       `imagine running it.`,
     ].join('\n'),
   },
+  system: {
+    persona: `You are the evaluator inside "Cue", teaching people to write a SYSTEM PROMPT — the persistent instruction that governs an AI's behavior on every turn (for a custom GPT, an assistant, or an API app).`,
+    craft: [
+      `Judge the prompt as a SYSTEM PROMPT that runs on EVERY turn, not a one-off ask.`,
+      `Strong system prompts set: the IDENTITY (who the AI is) · the SCOPE (what it`,
+      `helps with and what's out of bounds) · firm BOUNDARIES (what it must never do,`,
+      `refusal rules) · a persistent STYLE (tone, format, language) · and CONCRETE RULES`,
+      `(specific do/don't behaviors, examples). It should be complete but tight — durable`,
+      `across many conversations, not brittle or bloated. The skill is governing behavior`,
+      `in advance. Judge whether this instruction would keep an AI on-role, in-scope, and`,
+      `safe across a whole conversation, not just one reply.`,
+    ].join('\n'),
+  },
 }
 
 const VALID_STAGES = Object.keys(STAGE_FRAMING)

@@ -172,6 +172,26 @@ export const MODEL_GUIDE = {
       },
     ],
   },
+  system: {
+    blurb: 'Writing the persistent rules that govern an AI on every turn.',
+    models: [
+      {
+        name: 'Custom GPTs',
+        best: 'A shareable assistant with a fixed role and behavior.',
+        tip: 'Put identity, scope, and hard boundaries up top; add do/don\'t examples.',
+      },
+      {
+        name: 'Claude Projects',
+        best: 'Persistent instructions across a body of work.',
+        tip: 'State the role and refusal rules once; keep them tight and durable.',
+      },
+      {
+        name: 'API system prompt',
+        best: 'Full control over an assistant in your own app.',
+        tip: 'Number the rules; be explicit about what to never do and how to refuse.',
+      },
+    ],
+  },
 }
 
 /** Guide for a stage, defensively falling back to text. */
