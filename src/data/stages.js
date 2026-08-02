@@ -33,6 +33,11 @@ import { LESSON_META_CODE } from './lessons.meta.code'
 import { SOLO_CODE } from './scenarios.code.solo'
 import { ASSISTED_CODE } from './scenarios.code.assisted'
 import { GUIDED_CODE } from './scenarios.code.guided'
+// v5 — the Agent Stage content pack
+import { LESSON_META_AGENT } from './lessons.meta.agent'
+import { SOLO_AGENT } from './scenarios.agent.solo'
+import { ASSISTED_AGENT } from './scenarios.agent.assisted'
+import { GUIDED_AGENT } from './scenarios.agent.guided'
 
 export const DEFAULT_STAGE = 'text'
 
@@ -109,6 +114,22 @@ export const STAGES = {
     },
     weightsKey: 'code',
     proxyMode: 'code',
+  },
+  // v5 — SHIPPED. The Agentic Track: briefing a coding agent (Claude Code,
+  // Cursor, Copilot). Content pack + rubric only; not one screen changed.
+  agent: {
+    id: 'agent',
+    label: 'Agent',
+    blurb: 'Task, guardrails, acceptance — briefing an AI that edits your code.',
+    locked: false,
+    lessons: LESSON_META_AGENT,
+    scenarios: {
+      solo: SOLO_AGENT,
+      assisted: ASSISTED_AGENT,
+      guided: GUIDED_AGENT,
+    },
+    weightsKey: 'agent',
+    proxyMode: 'agent',
   },
 }
 
