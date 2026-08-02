@@ -43,6 +43,11 @@ import { LESSON_META_RAG } from './lessons.meta.rag'
 import { SOLO_RAG } from './scenarios.rag.solo'
 import { ASSISTED_RAG } from './scenarios.rag.assisted'
 import { GUIDED_RAG } from './scenarios.rag.guided'
+// v6 — the Automation / Workflow Brief Stage content pack
+import { LESSON_META_AUTOMATION } from './lessons.meta.automation'
+import { SOLO_AUTOMATION } from './scenarios.automation.solo'
+import { ASSISTED_AUTOMATION } from './scenarios.automation.assisted'
+import { GUIDED_AUTOMATION } from './scenarios.automation.guided'
 
 export const DEFAULT_STAGE = 'text'
 
@@ -151,6 +156,22 @@ export const STAGES = {
     },
     weightsKey: 'rag',
     proxyMode: 'rag',
+  },
+  // v6 — SHIPPED. Automation / Workflow Brief: describing a workflow to hand
+  // to n8n, Zapier, Make, or an AI. Content pack + rubric only.
+  automation: {
+    id: 'automation',
+    label: 'Automation',
+    blurb: 'Trigger, steps, conditions — briefing a workflow to build.',
+    locked: false,
+    lessons: LESSON_META_AUTOMATION,
+    scenarios: {
+      solo: SOLO_AUTOMATION,
+      assisted: ASSISTED_AUTOMATION,
+      guided: GUIDED_AUTOMATION,
+    },
+    weightsKey: 'automation',
+    proxyMode: 'automation',
   },
 }
 
