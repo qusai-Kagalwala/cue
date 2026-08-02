@@ -74,6 +74,21 @@ const STAGE_FRAMING = {
       `PROMPT only — whether it would get correct, unambiguous code on the first try.`,
     ].join('\n'),
   },
+  agent: {
+    persona: `You are the evaluator inside "Cue", teaching people to BRIEF a coding agent (Claude Code, GitHub Copilot, Cursor) — an autonomous assistant that edits real files across a codebase.`,
+    craft: [
+      `Judge the prompt as a brief to a coding AGENT that will act with little oversight.`,
+      `Strong agent briefs state: which agent/expertise to assume · the codebase context`,
+      `(language, framework, the specific files/paths, conventions) · firm GUARDRAILS (what`,
+      `NOT to touch, no new dependencies, when to stop and ask) · the expected OUTPUT shape`,
+      `(a diff, full file, with tests, a PR description) · clear ACCEPTANCE CRITERIA (the`,
+      `signature, given/return examples, edge cases) · and tight scope (one task, not a`,
+      `sprawl). The agentic difference from a plain code prompt is GUARDRAILS and STOP`,
+      `conditions — reward briefs that constrain an autonomous actor. Do NOT write the code`,
+      `or imagine the repo; judge the BRIEF only — whether it would steer an agent safely`,
+      `and correctly on the first run.`,
+    ].join('\n'),
+  },
 }
 
 const VALID_STAGES = Object.keys(STAGE_FRAMING)

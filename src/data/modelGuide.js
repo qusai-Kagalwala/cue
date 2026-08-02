@@ -112,6 +112,26 @@ export const MODEL_GUIDE = {
       },
     ],
   },
+  agent: {
+    blurb: 'Briefing an autonomous coding agent that edits real files.',
+    models: [
+      {
+        name: 'Claude Code',
+        best: 'Multi-file changes, reasoning across a codebase, careful agentic edits.',
+        tip: 'State the files, firm guardrails (what not to touch), and when to stop and ask.',
+      },
+      {
+        name: 'Cursor',
+        best: 'In-editor agentic edits with the repo as live context.',
+        tip: 'Point it at the exact files; give acceptance criteria, not just a goal.',
+      },
+      {
+        name: 'GitHub Copilot (agent)',
+        best: 'Scoped tasks and PRs inside a known repo.',
+        tip: 'Keep one task per brief; name the output shape — a diff, tests, a PR.',
+      },
+    ],
+  },
 }
 
 /** Guide for a stage, defensively falling back to text. */
