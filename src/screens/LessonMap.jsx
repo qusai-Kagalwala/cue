@@ -76,6 +76,23 @@ export default function LessonMap({ onNavigate, onPractice }) {
         <span aria-hidden="true" className="text-cue">✎</span>
       </button>
 
+      {/* Library entry — reachable on mobile where the bottom nav has no slot
+          (parity with desktop TopBar, which links the Library directly) */}
+      <button
+        onClick={() => onNavigate?.(SCREENS.LIBRARY)}
+        className="mb-1 flex w-full items-center justify-between rounded-xl border border-line bg-surface p-4 text-left transition-colors hover:border-cue-dim"
+      >
+        <span>
+          <span className="block font-display font-semibold text-ink">
+            Your prompt library →
+          </span>
+          <span className="block font-mono text-xs text-muted">
+            The best prompts you've written, saved to reuse in real life
+          </span>
+        </span>
+        <span aria-hidden="true" className="text-muted">📚</span>
+      </button>
+
       <ol className="grid gap-3 lg:grid-cols-2">
         {LESSONS.map((lesson, i) => {
           const best = lessonScores[lesson.id]
