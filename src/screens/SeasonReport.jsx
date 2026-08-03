@@ -74,9 +74,9 @@ function ScoreChart({ attempts }) {
       {attempts.map((a, i) => (
         <circle
           key={i} cx={x(i)} cy={y(a.score)} r="3.5"
-          fill={a.engine === 'heuristic' ? 'var(--color-faint)' : 'var(--color-cue)'}
+          fill={a.engine === 'heuristic' ? 'var(--color-sense)' : 'var(--color-cue)'}
         >
-          <title>{`${a.lessonId} · ${a.score}${a.engine === 'heuristic' ? ' (offline estimate)' : ''}`}</title>
+          <title>{`${a.lessonId} · ${a.score}${a.engine === 'heuristic' ? ' (Cue Sense)' : ''}`}</title>
         </circle>
       ))}
 
@@ -204,7 +204,7 @@ export default function SeasonReport() {
 
           {totals.heuristicCount > 0 && (
             <p className="font-mono text-[10px] text-faint">
-              grey dots are offline estimates ({totals.heuristicCount} of{' '}
+              teal dots are Cue Sense reads ({totals.heuristicCount} of{' '}
               {totals.total}) — amber dots were scored by the real evaluator
             </p>
           )}

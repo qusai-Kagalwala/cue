@@ -34,6 +34,10 @@
   --color-over: #e5484d;
   /* over token budget, errors */
   --color-good: #63c174;
+
+  /* Cue Sense — the instant on-device read (distinct from amber AI + green good) */
+  --color-sense: #4db6c4;
+  --color-sense-dim: #1f4a52;
   /* success ticks */
 
   /* ---- Type roles ---- */
@@ -266,43 +270,31 @@ body {
 }
 
 /* ---- animated background (cosmetic) ---- */
-/* Three soft drifting orbs behind all content. GPU-friendly (transform/opacity
-   only). Disabled under reduced-motion. */
+/* Two soft drifting orbs behind all content. GPU-friendly (transform/opacity
+   only). Disabled entirely under reduced-motion. */
 .cue-bg-orb {
   position: absolute;
+  width: 46rem;
+  height: 46rem;
   border-radius: 9999px;
-  filter: blur(70px);
-  will-change: transform, opacity;
+  filter: blur(80px);
+  opacity: 0.14;
+  will-change: transform;
 }
 
 .cue-bg-orb-1 {
-  width: 42rem;
-  height: 42rem;
   background: radial-gradient(circle, var(--color-cue) 0%, transparent 70%);
-  top: -10rem;
-  left: -8rem;
-  opacity: 0.22;
-  animation: cue-drift-1 18s ease-in-out infinite;
+  top: -12rem;
+  left: -10rem;
+  animation: cue-drift-1 26s ease-in-out infinite;
 }
 
 .cue-bg-orb-2 {
-  width: 40rem;
-  height: 40rem;
   background: radial-gradient(circle, var(--color-cue) 0%, transparent 70%);
-  bottom: -12rem;
-  right: -10rem;
-  opacity: 0.18;
-  animation: cue-drift-2 22s ease-in-out infinite;
-}
-
-.cue-bg-orb-3 {
-  width: 34rem;
-  height: 34rem;
-  background: radial-gradient(circle, var(--color-cue-bright) 0%, transparent 70%);
-  top: 30%;
-  left: 40%;
-  opacity: 0.12;
-  animation: cue-drift-3 27s ease-in-out infinite;
+  bottom: -14rem;
+  right: -12rem;
+  opacity: 0.1;
+  animation: cue-drift-2 32s ease-in-out infinite;
 }
 
 @keyframes cue-drift-1 {
@@ -310,22 +302,14 @@ body {
   0%,
   100% {
     transform: translate(0, 0) scale(1);
-    opacity: 0.22;
   }
 
-  25% {
-    transform: translate(12rem, 8rem) scale(1.15);
-    opacity: 0.28;
+  33% {
+    transform: translate(8rem, 6rem) scale(1.1);
   }
 
-  50% {
-    transform: translate(6rem, 14rem) scale(0.9);
-    opacity: 0.18;
-  }
-
-  75% {
-    transform: translate(14rem, 4rem) scale(1.05);
-    opacity: 0.24;
+  66% {
+    transform: translate(3rem, 10rem) scale(0.95);
   }
 }
 
@@ -334,41 +318,14 @@ body {
   0%,
   100% {
     transform: translate(0, 0) scale(1);
-    opacity: 0.18;
-  }
-
-  25% {
-    transform: translate(-10rem, -7rem) scale(1.12);
-    opacity: 0.24;
-  }
-
-  50% {
-    transform: translate(-4rem, -13rem) scale(0.92);
-    opacity: 0.14;
-  }
-
-  75% {
-    transform: translate(-12rem, -3rem) scale(1.06);
-    opacity: 0.2;
-  }
-}
-
-@keyframes cue-drift-3 {
-
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-    opacity: 0.12;
   }
 
   33% {
-    transform: translate(-9rem, 7rem) scale(1.2);
-    opacity: 0.18;
+    transform: translate(-7rem, -5rem) scale(1.08);
   }
 
   66% {
-    transform: translate(8rem, -6rem) scale(0.85);
-    opacity: 0.08;
+    transform: translate(-3rem, -9rem) scale(0.96);
   }
 }
 

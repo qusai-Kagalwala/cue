@@ -50,7 +50,7 @@ export default function Challenge({ onNavigate }) {
   // region only speaks on completion, so nothing double-announces.
   const announcement =
     status === 'done' && result
-      ? `Evaluation complete. ${result.offline ? 'Offline estimate. ' : ''}Score ${result.score} out of 100. ${award ? `${award.xpGained} XP earned.` : ''}`
+      ? `Evaluation complete. ${result.offline ? 'Cue Sense read. ' : ''}Score ${result.score} out of 100. ${award ? `${award.xpGained} XP earned.` : ''}`
       : ''
 
   // `?` toggles the overlay, Esc closes it — never while typing, and
