@@ -16,6 +16,7 @@ import Challenge from './screens/Challenge'
 import LessonMap from './screens/LessonMap'
 import Sandbox from './screens/Sandbox'
 import Studio from './screens/Studio'
+import Completion from './screens/Completion'
 import GuidedPrompt from './components/GuidedPrompt'
 import Encore from './screens/Encore'
 import Library from './screens/Library'
@@ -92,6 +93,9 @@ export default function App() {
         )}
         {screen === SCREENS.SANDBOX && <Sandbox />}
         {screen === SCREENS.STUDIO && <Studio />}
+        {screen === SCREENS.COMPLETION && (
+          <Completion onGoToMap={() => setScreen(SCREENS.MAP)} />
+        )}
         {screen === SCREENS.SETTINGS && <Settings onNavigate={setScreen} />}
       </main>
 
