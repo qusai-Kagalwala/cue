@@ -1,0 +1,43 @@
+{
+  "version": 6,
+  "data": {
+    "name": "Test User",
+    "library": [
+      {
+        "stage": "text",
+        "lessonId": "l1",
+        "score": 72,
+        "prompt": "Act as a teacher and explain gravity in 3 simple bullet points for a beginner"
+      },
+      {
+        "stage": "text",
+        "lessonId": "l6",
+        "score": 80,
+        "prompt": "You are a career coach; review my CV summary and suggest 2 improvements under 50 words"
+      }
+    ],
+    "attempts": [
+      {
+        "stage": "text",
+        "lessonId": "l3",
+        "score": 88,
+        "engine": "gemini",
+        "prompt": "Write a formal email requesting a deadline extension: 3 short paragraphs, polite, with a subject line"
+      },
+      {
+        "stage": "text",
+        "lessonId": "l2",
+        "score": 44,
+        "engine": "gemini",
+        "prompt": "summarize the reading"
+      },
+      {
+        "stage": "text",
+        "lessonId": "l1",
+        "score": 35,
+        "engine": "heuristic",
+        "prompt": "this one is Cue Sense so should be SKIPPED by the script"
+      }
+    ]
+  }
+}

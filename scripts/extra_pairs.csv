@@ -1,1 +1,21 @@
 stage,lessonId,prompt,score
+text,l1,explain this,22
+text,l1,tell me about photosynthesis,41
+text,l1,Explain photosynthesis in 3 simple points a 10-year-old would understand,76
+text,l2,summarize it,25
+text,l2,Summarize the notes below on the water cycle for a quick revision,63
+text,l2,"Given my notes below on the French Revolution, summarize the 3 main causes in order",78
+text,l3,give me steps,30
+text,l3,List the setup steps as a numbered list with a short heading for each,74
+text,l4,write about my trip,34
+text,l4,"Describe my Goa trip in under 50 words, no clichés, casual tone",71
+text,l5,format phone numbers,38
+text,l5,Format phone numbers. Example: 9876543210 becomes +91 98765 43210,69
+text,l6,help with my cv,36
+text,l6,"Act as a senior recruiter and review my CV summary, flagging 2 weak spots",77
+text,l7,make it better,20
+text,l7,"Good, but make the tone more formal and add a subject line to the email",64
+text,l8,short answer about refunds please with all details included,47
+text,l8,In one line: what is our refund window for a customer who paid by UPI?,72
+agent,l4,refactor my code,18
+agent,l4,"Refactor parseToken in auth.ts; don't change the signature, no new deps, return a diff",68
