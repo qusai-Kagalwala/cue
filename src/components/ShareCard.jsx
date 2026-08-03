@@ -9,7 +9,7 @@ import { rankForLevel } from '../lib/ranks'
 import { makeShareCard } from '../lib/shareCard'
 
 export default function ShareCard({ score = null, label = 'Share your card' }) {
-  const { level, xp, streak, name } = useProgress()
+  const { level, xp, streak, name, avatar } = useProgress()
   const [card, setCard] = useState(null) // { blob, url }
   const [busy, setBusy] = useState(false)
   const [variant, setVariant] = useState(0) // v6 — redraw cycles card styles
@@ -28,6 +28,7 @@ export default function ShareCard({ score = null, label = 'Share your card' }) {
         name,                       // journey card shows it under the rank
         rank: rankForLevel(level),
         variant: v,
+        avatar,
       })
       setCard((prev) => {
         if (prev) URL.revokeObjectURL(prev.url)

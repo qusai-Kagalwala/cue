@@ -146,6 +146,10 @@ export function markCoachDone() {
   setState({ coachDone: true })
 }
 
+export function setAvatar(avatarId) {
+  setState({ avatar: avatarId })
+}
+
 export function setPersona(personaId) {
   setState({ persona: personaId })
 }
@@ -305,6 +309,7 @@ export function useProgress() {
     // state
     persona: s.persona,
     name: s.name ?? null,          // v2-3d — echoes across toast/finale/card
+    avatar: s.avatar ?? null,      // v6 — chosen theatre DP
     activeStage: stageId,
     currentLessonIndex: j.currentLessonIndex,
     lessonStage: j.lessonStage ?? 'guided',
@@ -324,6 +329,7 @@ export function useProgress() {
     dailyLessonIndex: dailyLessonIndexFor(todayKey(), TOTAL_LESSONS),
     // actions
     setPersona,
+    setAvatar,
     setSound,
     setActiveStage,        // v3-1c fix — was missing from the snapshot
     completeLesson,

@@ -6,12 +6,13 @@
 import { useState } from 'react'
 import { useProgress } from '../hooks/useProgress'
 import { PERSONAS } from '../data/lessons'
+import { AVATARS, DEFAULT_AVATAR } from '../lib/avatars'
 import { SCREENS } from '../lib/screens'
 import ConfirmDialog from '../components/ConfirmDialog'
 import { downloadExport, validateImport, applyImport } from '../lib/portability'
 
 export default function Settings({ onNavigate }) {
-  const { persona, setPersona, resetProgress, level, theme, setTheme, soundOn, setSound } = useProgress()
+  const { persona, setPersona, avatar, setAvatar, resetProgress, level, theme, setTheme, soundOn, setSound } = useProgress()
   const [confirming, setConfirming] = useState(false)
   const [importError, setImportError] = useState(null)
   const [importReady, setImportReady] = useState(null) // validated file waiting for confirm
@@ -69,6 +70,36 @@ export default function Settings({ onNavigate }) {
       </header>
 
       {/* Persona */}
+      <section className="space-y-3">
+        <div>
+          <h2 className="font-display font-semibold">Your stage face</h2>
+          <p className="text-sm text-muted">
+            Pick a display picture — it appears on your share card and
+            certificate. Purely for fun.
+          </p>
+        </div>
+        <div className="grid grid-cols-6 gap-2 sm:grid-cols-8">
+          {AVATARS.map((a) => {
+            const active = (avatar ?? DEFAULT_AVATAR) === a.id
+            return (
+              <button
+                key={a.id}
+                onClick={() => setAvatar(a.id)}
+                aria-pressed={active}
+                title={a.label}
+                className={`flex aspect-square items-center justify-center rounded-xl border text-2xl transition-colors ${
+                  active
+                    ? 'border-cue bg-cue/10'
+                    : 'border-line bg-raised hover:border-cue-dim'
+                }`}
+              >
+                {a.emoji}
+              </button>
+            )
+          })}
+        </div>
+      </section>
+
       <section className="space-y-3">
         <div>
           <h2 className="font-display font-semibold">Persona</h2>

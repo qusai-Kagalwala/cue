@@ -9,6 +9,14 @@
 
 const W = 1400
 const H = 990 // ~A4 landscape ratio
+
+// v6 — avatar emoji map (inlined; this file has no imports by design).
+// Keep in sync with src/lib/avatars.js.
+const AVATAR_EMOJI = {
+  masks: '🎭', star: '🌟', spotlight: '🔦', curtain: '🎬', quill: '🪶',
+  crown: '👑', ticket: '🎟️', trophy: '🏆', comedy: '😄', owl: '🦉',
+  rocket: '🚀', flame: '🔥',
+}
 const C = {
   stage: '#0e0d0b',
   paper: '#14120f',
@@ -55,7 +63,7 @@ function todayLong() {
  * Draw a certificate to a canvas and return it.
  * opts: { stageId? ('all' for master), name, rank, xp }
  */
-function drawCertificate({ stageId = 'all', name, rank, xp }) {
+function drawCertificate({ stageId = 'all', name, rank, xp, avatar = null }) {
   const canvas = document.createElement('canvas')
   canvas.width = W
   canvas.height = H
@@ -101,12 +109,25 @@ function drawCertificate({ stageId = 'all', name, rank, xp }) {
 
   // recipient
   ctx.fillStyle = C.muted
+  // avatar disc above the name, if chosen
+  if (avatar) {
+    ctx.beginPath()
+    ctx.arc(W / 2, 340, 34, 0, Math.PI * 2)
+    ctx.fillStyle = C.cueDim
+    ctx.fill()
+    ctx.font = '38px sans-serif'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(AVATAR_EMOJI[avatar] ?? '🎭', W / 2, 342)
+    ctx.textBaseline = 'alphabetic'
+    ctx.fillStyle = C.muted
+  }
+
   ctx.font = `22px ${SERIF}`
-  ctx.fillText('This certifies that', W / 2, 372)
+  ctx.fillText('This certifies that', W / 2, avatar ? 408 : 372)
 
   ctx.fillStyle = C.ink
   ctx.font = `bold 66px ${SERIF}`
-  ctx.fillText(name || 'A Prompt Practitioner', W / 2, 452)
+  ctx.fillText(name || 'A Prompt Practitioner', W / 2, avatar ? 484 : 452)
 
   // underline flourish under the name
   ctx.strokeStyle = C.cueDim

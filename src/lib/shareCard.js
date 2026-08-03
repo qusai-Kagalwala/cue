@@ -1,5 +1,7 @@
 // src/lib/shareCard.js
 // v2-1 — Canvas share card, 1080×1080, fully client-side.
+import { avatarEmoji } from './avatars'
+
 // System font stacks only: canvas can't reliably wait on webfonts, and a
 // card that sometimes renders in fallback anyway should ALWAYS render in
 // fallback — deterministic beats occasionally-prettier.
@@ -43,7 +45,7 @@ function roundRect(ctx, x, y, w, h, r) {
  *   score card (a result):     same + { score }
  * Returns { blob, url } — caller revokes the URL when done.
  */
-export async function makeShareCard({ score = null, level, rank, xp, streak, name = null, variant = 0 }) {
+export async function makeShareCard({ score = null, level, rank, xp, streak, name = null, variant = 0, avatar = null }) {
   const V = CARD_VARIANTS[((variant % CARD_VARIANTS.length) + CARD_VARIANTS.length) % CARD_VARIANTS.length]
   const canvas = document.createElement('canvas')
   canvas.width = SIZE
@@ -69,13 +71,27 @@ export async function makeShareCard({ score = null, level, rank, xp, streak, nam
 
   ctx.textAlign = 'center'
 
+  // Avatar (the stage face) — a themed disc with the chosen emoji
+  if (avatar) {
+    const ax = SIZE / 2
+    const ay = 120
+    ctx.beginPath()
+    ctx.arc(ax, ay, 46, 0, Math.PI * 2)
+    ctx.fillStyle = V.dim
+    ctx.fill()
+    ctx.font = '52px sans-serif'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(avatarEmoji(avatar), ax, ay + 3)
+    ctx.textBaseline = 'alphabetic'
+  }
+
   // Cue mark
   ctx.fillStyle = V.accent
   ctx.font = `bold 92px ${SERIF}`
-  ctx.fillText('Cue', SIZE / 2, 190)
+  ctx.fillText('Cue', SIZE / 2, avatar ? 250 : 190)
   ctx.fillStyle = C.muted
   ctx.font = `28px ${MONO}`
-  ctx.fillText('your cue to ask better', SIZE / 2, 240)
+  ctx.fillText('your cue to ask better', SIZE / 2, avatar ? 300 : 240)
 
   // Centerpiece: score (result card) or rank (journey card)
   if (score != null) {

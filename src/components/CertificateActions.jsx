@@ -6,15 +6,17 @@
 import { useState } from 'react'
 import { useProgress } from '../hooks/useProgress'
 import { rankForLevel } from '../lib/ranks'
+import { STAGE_LIST } from '../data/stages'
 import {
   downloadCertificatePNG,
   printCertificatePDF,
 } from '../lib/certificate'
 
-const ALL_STAGES = ['text', 'image', 'video', 'audio', 'code']
+// derived from the registry so new stages count toward the master certificate
+const ALL_STAGES = STAGE_LIST.map((s) => s.id)
 
 export default function CertificateActions() {
-  const { name, level, xp, activeStage, stageProgress } = useProgress()
+  const { name, level, xp, avatar, activeStage, stageProgress } = useProgress()
   const [busy, setBusy] = useState(false)
   const rank = rankForLevel(level)
 
@@ -25,14 +27,14 @@ export default function CertificateActions() {
   async function png(stageId) {
     setBusy(true)
     try {
-      await downloadCertificatePNG({ stageId, name, rank, xp })
+      await downloadCertificatePNG({ stageId, name, rank, xp, avatar })
     } finally {
       setBusy(false)
     }
   }
 
   function pdf(stageId) {
-    printCertificatePDF({ stageId, name, rank, xp })
+    printCertificatePDF({ stageId, name, rank, xp, avatar })
   }
 
   return (
