@@ -10,6 +10,7 @@
 // and no-ops writes.
 
 import { __registerGodActiveStage } from './storage'
+import { STAGE_LIST } from '../data/stages'
 
 let active = false
 let listeners = new Set()
@@ -46,7 +47,8 @@ export function exitGodMode() {
 // achievement earned, both themes + the god palette available, Encore
 // and daily unclaimed-but-reachable, library seeded so it isn't empty.
 const ALL_LESSONS = ['l1', 'l2', 'l3', 'l4', 'l5', 'l6', 'l7', 'l8']
-const ALL_STAGES = ['text', 'image', 'video', 'audio', 'code']
+// derived from the registry so new stages are covered automatically
+const ALL_STAGES = STAGE_LIST.map((s) => s.id)
 
 function fullScores() {
   const s = {}

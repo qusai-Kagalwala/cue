@@ -126,10 +126,10 @@ function drawCertificate({ stageId = 'all', name, rank, xp }) {
   ctx.fillStyle = C.cue
   ctx.font = `bold 40px ${SERIF}`
   if (isMaster) {
-    ctx.fillText('All Five Stages of Prompt Craft', W / 2, 596)
+    ctx.fillText('The Full Programme of Prompt Craft', W / 2, 596)
     ctx.fillStyle = C.muted
     ctx.font = `20px ${MONO}`
-    ctx.fillText('text · image · video · audio · code', W / 2, 632)
+    ctx.fillText('from prompting to directing AI', W / 2, 632)
   } else {
     ctx.fillText(`The ${STAGE_TITLES[stageId] ?? 'Prompting'} Stage`, W / 2, 596)
     ctx.fillStyle = C.muted
@@ -156,7 +156,7 @@ function drawCertificate({ stageId = 'all', name, rank, xp }) {
   ctx.textAlign = 'left'
   ctx.fillStyle = C.muted
   ctx.font = `16px ${MONO}`
-  ctx.fillText('Awarded by Cue', 140, footY + 54)
+  ctx.fillText('Awarded by Cue · Created by Qusai Kagalwala', 140, footY + 54)
   ctx.textAlign = 'right'
   ctx.fillText(typeof xp === 'number' ? `${xp} XP earned` : '', W - 140, footY + 54)
 
