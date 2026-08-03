@@ -48,6 +48,11 @@ import { LESSON_META_AUTOMATION } from './lessons.meta.automation'
 import { SOLO_AUTOMATION } from './scenarios.automation.solo'
 import { ASSISTED_AUTOMATION } from './scenarios.automation.assisted'
 import { GUIDED_AUTOMATION } from './scenarios.automation.guided'
+// v6 — the System Prompt / Agent Instructions Stage content pack
+import { LESSON_META_SYSTEM } from './lessons.meta.system'
+import { SOLO_SYSTEM } from './scenarios.system.solo'
+import { ASSISTED_SYSTEM } from './scenarios.system.assisted'
+import { GUIDED_SYSTEM } from './scenarios.system.guided'
 
 export const DEFAULT_STAGE = 'text'
 
@@ -172,6 +177,22 @@ export const STAGES = {
     },
     weightsKey: 'automation',
     proxyMode: 'automation',
+  },
+  // v6 — SHIPPED. System Prompt / Agent Instructions: the persistent rules
+  // that govern an AI on every turn. Content pack + rubric only.
+  system: {
+    id: 'system',
+    label: 'System',
+    blurb: 'Identity, boundaries, rules — the AI\'s standing instructions.',
+    locked: false,
+    lessons: LESSON_META_SYSTEM,
+    scenarios: {
+      solo: SOLO_SYSTEM,
+      assisted: ASSISTED_SYSTEM,
+      guided: GUIDED_SYSTEM,
+    },
+    weightsKey: 'system',
+    proxyMode: 'system',
   },
 }
 
