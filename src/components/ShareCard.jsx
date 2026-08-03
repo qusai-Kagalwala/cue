@@ -12,11 +12,12 @@ export default function ShareCard({ score = null, label = 'Share your card' }) {
   const { level, xp, streak, name } = useProgress()
   const [card, setCard] = useState(null) // { blob, url }
   const [busy, setBusy] = useState(false)
+  const [variant, setVariant] = useState(0) // v6 — redraw cycles card styles
 
   // Revoke the object URL when the card changes or unmounts
   useEffect(() => () => card && URL.revokeObjectURL(card.url), [card])
 
-  async function generate() {
+  async function generate(v = variant) {
     setBusy(true)
     try {
       const next = await makeShareCard({
@@ -26,6 +27,7 @@ export default function ShareCard({ score = null, label = 'Share your card' }) {
         streak,
         name,                       // journey card shows it under the rank
         rank: rankForLevel(level),
+        variant: v,
       })
       setCard((prev) => {
         if (prev) URL.revokeObjectURL(prev.url)
@@ -80,10 +82,15 @@ export default function ShareCard({ score = null, label = 'Share your card' }) {
               {navigator.canShare ? 'Share' : 'Download'}
             </button>
             <button
-              onClick={generate}
-              className="rounded-lg border border-line px-4 py-2 font-mono text-xs text-muted hover:text-ink"
+              onClick={() => {
+                const next = variant + 1
+                setVariant(next)
+                generate(next)
+              }}
+              disabled={busy}
+              className="rounded-lg border border-line px-4 py-2 font-mono text-xs text-muted transition-colors hover:text-ink disabled:opacity-60"
             >
-              redraw
+              🎨 restyle
             </button>
           </div>
         </div>

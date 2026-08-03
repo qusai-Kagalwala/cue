@@ -14,6 +14,16 @@ const C = {
   cue: '#f5b942',
   cueDim: '#6b5320',
 }
+
+// v6 — share-card style variants. redraw cycles through these. Each themes the
+// spotlight, accent (Cue mark, score, rank), and frame; ink/muted stay for
+// legibility. Amber is the classic/default (index 0).
+export const CARD_VARIANTS = [
+  { id: 'amber',   accent: '#f5b942', dim: '#6b5320', spot: '245,185,66' },
+  { id: 'crimson', accent: '#e5674d', dim: '#6b2e20', spot: '229,103,77' },
+  { id: 'violet',  accent: '#a98cf0', dim: '#3f2f6b', spot: '169,140,240' },
+  { id: 'emerald', accent: '#5fc98a', dim: '#245239', spot: '95,201,138' },
+]
 const SERIF = 'Georgia, "Times New Roman", serif'
 const MONO = '"Courier New", monospace'
 
@@ -33,7 +43,8 @@ function roundRect(ctx, x, y, w, h, r) {
  *   score card (a result):     same + { score }
  * Returns { blob, url } — caller revokes the URL when done.
  */
-export async function makeShareCard({ score = null, level, rank, xp, streak, name = null }) {
+export async function makeShareCard({ score = null, level, rank, xp, streak, name = null, variant = 0 }) {
+  const V = CARD_VARIANTS[((variant % CARD_VARIANTS.length) + CARD_VARIANTS.length) % CARD_VARIANTS.length]
   const canvas = document.createElement('canvas')
   canvas.width = SIZE
   canvas.height = SIZE
@@ -45,13 +56,13 @@ export async function makeShareCard({ score = null, level, rank, xp, streak, nam
 
   // Spotlight: soft amber radial from the top
   const spot = ctx.createRadialGradient(SIZE / 2, -200, 100, SIZE / 2, -200, 900)
-  spot.addColorStop(0, 'rgba(245,185,66,0.22)')
-  spot.addColorStop(1, 'rgba(245,185,66,0)')
+  spot.addColorStop(0, `rgba(${V.spot},0.22)`)
+  spot.addColorStop(1, `rgba(${V.spot},0)`)
   ctx.fillStyle = spot
   ctx.fillRect(0, 0, SIZE, SIZE)
 
   // Frame
-  ctx.strokeStyle = C.cueDim
+  ctx.strokeStyle = V.dim
   ctx.lineWidth = 4
   roundRect(ctx, 40, 40, SIZE - 80, SIZE - 80, 32)
   ctx.stroke()
@@ -59,7 +70,7 @@ export async function makeShareCard({ score = null, level, rank, xp, streak, nam
   ctx.textAlign = 'center'
 
   // Cue mark
-  ctx.fillStyle = C.cue
+  ctx.fillStyle = V.accent
   ctx.font = `bold 92px ${SERIF}`
   ctx.fillText('Cue', SIZE / 2, 190)
   ctx.fillStyle = C.muted
@@ -88,11 +99,11 @@ export async function makeShareCard({ score = null, level, rank, xp, streak, nam
     ctx.font = maxFont
     ctx.fillText('/100', startX + numW + gap, baseline)
     ctx.textAlign = 'center'
-    ctx.fillStyle = C.cue
+    ctx.fillStyle = V.accent
     ctx.font = `bold 64px ${SERIF}`
     ctx.fillText(rank, SIZE / 2, 690)
   } else {
-    ctx.fillStyle = C.cue
+    ctx.fillStyle = V.accent
     ctx.font = `bold 140px ${SERIF}`
     ctx.fillText(rank, SIZE / 2, 560)
     ctx.fillStyle = C.muted
