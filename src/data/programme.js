@@ -36,23 +36,24 @@ export const PROGRAMME = [
       ['The stage (home)', 'Your current lesson — the app opens straight into it.'],
       ['The lesson map 🗺', 'All 8 lessons: replay any finished one for a better score (half XP), or re-practice the warm-up and rehearsal anytime.'],
       ['The Sandbox 🧪', 'Bring real life in. Freeplay scores any prompt you\'re working on. The Critic\'s Review reads a prompt AND the answer some AI gave you, and tells you what to fix.'],
-      ['The Studio 🎬', 'Bring something you want to make — text, an image, code, and more. Cue drafts a strong prompt for it, shows you why it works, and points you to the best tool for the job.'],
       ['The library 📖', 'Your best prompts (58+) are saved here automatically. Copy one whenever real life needs it.'],
       ['Your progress 📈', 'The Season Report charts every attempt you\'ve made. The Playbill collects your achievement stickers.'],
       ['Settings ⚙', 'Switch persona or theme, back up your data, or start fresh.'],
     ],
   },
   {
-    id: 'feedback',
-    title: 'Two kinds of feedback',
+    id: 'directing',
+    title: 'The advanced stages — directing AI',
     body: [
-      'Cue helps you before AND after you send a prompt — two different tools, on purpose:',
+      'Past the everyday stages, Cue teaches the skills that matter more as AI gets smarter — not phrasing a prompt, but directing a system:',
     ],
     items: [
-      ['The checklist (before)', 'As you type, a live nudge shows what a strong prompt is still missing — role, context, limits, and so on. Fix them before you submit.'],
-      ['The report card (after)', 'Once scored, open the report card to see how each part actually landed, how much each mattered for that lesson, and the one change that would raise your score the most.'],
+      ['Agent 🤖', 'Briefing a coding agent (like Claude Code or Cursor): the task, the guardrails, and how you\'ll know it\'s done.'],
+      ['Context 📚', 'Choosing what to feed an AI so it answers well — the right sources, the noise cut, the structure clear.'],
+      ['Automation ⚙️', 'Describing a workflow you could hand to n8n or Zapier: the trigger, the steps, the conditions, the output.'],
+      ['System 🎛️', 'Writing the standing rules that govern an AI every turn — who it is, what it won\'t do, how it sounds.'],
     ],
-    footer: 'The checklist helps you write it; the report card explains how it did.',
+    footer: 'Same three steps as every stage — these just aim higher.',
   },
   {
     id: 'rewards',
@@ -91,14 +92,14 @@ export const PROGRAMME = [
       ['…share my score?', 'After a real evaluation, or from the finale: "Share this score" makes a card you can post or download.'],
       ['…retake the audition?', 'Finish all 8 lessons — the finale offers the same task again and shows how far you\'ve come, word by word.'],
       ['…practice without spending my Sandbox evaluations?', 'The warm-up and rehearsal steps are always free, from any lesson on the map.'],
-      ['…use Cue offline?', 'Keep going — scoring switches to a built-in estimate (marked clearly) until you\'re back online.'],
+      ['…use Cue offline?', 'Keep going — Cue Sense, its own on-device read of your prompt, scores you instantly (marked in teal) until the full AI is back.'],
     ],
   },
   {
     id: 'next',
     title: 'And next…',
     body: [
-      'Cue teaches text today. More stages are coming — the same three steps, for talking to image, video, and audio AI. Same theatre, new productions. 🎭',
+      'Cue teaches nine stages — Text, Image, Video, Audio for everyday craft, and Code, Agent, Context, Automation, System for directing AI. The same three steps across all of them. Same theatre, many productions. 🎭',
     ],
   },
 ]

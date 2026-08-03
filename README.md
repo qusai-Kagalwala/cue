@@ -10,16 +10,26 @@ Cue is an interactive web app that teaches anyone — students, everyday users, 
 
 ---
 
-## 🎭 Now multi-modal — the Stages
+## 🎭 Multi-modal — the nine Stages
 
-Cue teaches **text** and **image** prompting through the same machine, with
-video, audio, and code stages built and awaiting content. A "stage" is a
-content pack — 8 lessons, 48 practice scenarios, and its own six-dimension
-rubric — flowing through the *unchanged* app: same ladder, same XP, same
-Encore, same Season Report. Your name, rank, streak and stickers travel
-across every stage; each stage keeps its own lesson progress.
+Cue teaches **nine stages** of prompt craft through one machine, grouped into
+everyday craft and the agentic track:
 
-Shipping the Image Stage changed exactly one data file and **zero screens**.
+**Everyday craft** — Text · Image · Video · Audio
+**Directing AI** — Code · Agent · Context · Automation · System
+
+The advanced stages teach the skills that grow as base models get smarter:
+briefing a coding **Agent** (Claude Code, Cursor), designing **Context** for an
+AI (the skill behind RAG), describing an **Automation** (n8n, Zapier), and
+writing a **System** prompt (the persistent rules that govern an AI).
+
+A "stage" is a content pack — 8 lessons, 24 scenarios across three tiers, and
+its own six-dimension rubric — flowing through the *unchanged* app: same
+ladder, same XP, same Encore, same Season Report. Your name, rank, streak and
+stickers travel across every stage; each keeps its own lesson progress.
+
+Every stage after the first two changed exactly one data file each and **zero
+screens** — the architecture's core claim, proven nine times over.
 
 ## ✨ What's inside
 
@@ -34,10 +44,6 @@ Shipping the Image Stage changed exactly one data file and **zero screens**.
 
 **The Sandbox** — bring real life in: **Freeplay** evaluates any prompt; **The Critic's Review** judges a prompt *and the answer it produced*, tracing answer weaknesses back to prompt gaps. Daily quota grows with your level.
 
-**The Studio** — the "I finished the lessons, now help me with a real thing" space: pick a mode (text · image · video · audio · code), describe what you want to make, optionally **upload a reference image** (Gemini sees it), and Cue drafts a strong prompt, explains *why* it's built that way, and shows a curated guide to which model fits and how to prompt it. Save drafts to the library.
-
-**Two-part feedback** — a live **Context Checklist** under the input flags what a strong prompt is still missing *before* you send (role, context, limits…), and the **Report Card** (Prompt Autopsy) opens *after* scoring to show how each of the six dimensions actually landed, how much each mattered for that lesson, and the single change that would raise the score most. The checklist helps you write it; the report card explains how it did.
-
 **The Encore & the daily** — a Level-4-gated daily boss (every dimension, tight token budget, 100 base XP) and a starred daily lesson riding +20 XP, both on one date-seeded picker.
 
 **Your Progress** — the **Season Report** (hand-rolled SVG score chart over your whole history, honest about offline estimates) and **The Playbill** (eight theatre-sticker achievements, earned states persisted).
@@ -50,7 +56,7 @@ Shipping the Image Stage changed exactly one data file and **zero screens**.
 
 **The Programme** — a built-in user guide (Settings → 🎭): every feature, where to find it, how to use it — the booklet at the theatre door.
 
-**Two stages live** — Text (emails, essays, explanations) and Image (subject, scene, framing, lighting, style). The image rubric knows lens terms, aspect ratios, art movements, and negative prompts; the checklist relabels itself per stage.
+**Nine stages live** — Text and Image (with lens terms, aspect ratios, art movements, negative prompts), plus Video, Audio, Code, and the four agentic-era stages (Agent, Context, Automation, System). Each has its own six-dimension rubric; the checklist relabels itself per stage.
 
 ## 🛠️ Stack
 
@@ -59,8 +65,8 @@ Shipping the Image Stage changed exactly one data file and **zero screens**.
 | Frontend | React 19 (Vite) |
 | Styling | Tailwind CSS v4 — CSS-first tokens; dark default + AA-checked light theme (L3 unlock) |
 | AI evaluation | Gemini Flash-Lite → Flash fallback chain via a stateless serverless proxy; three modes (lesson / review / persona), strict `responseSchema` JSON |
-| Offline scoring | Six-dimension weighted rubric **per stage** — powers the fallback, the Audition, the live checklist, and both practice tiers at zero quota |
-| Stages | Text + Image shipped; Video, Audio, Code rubrics built, content pending |
+| Cue Sense | Six-dimension weighted rubric **per stage** — Cue's on-device read that powers instant scoring, the Audition, the live checklist, and both practice tiers at zero quota |
+| Stages | All nine shipped: Text · Image · Video · Audio · Code · Agent · Context · Automation · System |
 | Persistence | localStorage only — state, attempt history, library, playbill; full export/import |
 | Hosting | Vercel (frontend + `/api` function, single deploy) |
 | Backend | **None** — one stateless function, no database, no auth, no analytics |
@@ -98,7 +104,7 @@ Each in three persona variants, each with a one-line takeaway, each climbable in
 
 ## 🗺️ Status
 
-**✅ v2.0 complete**, **✅ v3 Phase A + B complete** — the machine is stage-aware and the Image Stage is live. Video, audio, and code rubrics are shipped and waiting on content packs. Docs (SRS + UML) land as the final phase. See [`task.md`](./task.md), [`roadmap.md`](./roadmap.md), and the architecture contract in [`docs/v3-stages.md`](./docs/v3-stages.md). See [`task.md`](./task.md) and [`roadmap.md`](./roadmap.md).
+**✅ v2.0 complete**, **✅ v3–v6 complete** — the machine is stage-aware and all nine stages are live, including the full agentic track (Agent, Context, Automation, System). Docs (SRS + UML) land as the final phase. See [`task.md`](./task.md), [`roadmap.md`](./roadmap.md), and the architecture contract in [`docs/v3-stages.md`](./docs/v3-stages.md). See [`task.md`](./task.md) and [`roadmap.md`](./roadmap.md).
 
 ## 📄 About
 
