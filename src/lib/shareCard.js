@@ -68,15 +68,29 @@ export async function makeShareCard({ score = null, level, rank, xp, streak, nam
 
   // Centerpiece: score (result card) or rank (journey card)
   if (score != null) {
+    // Big number + "/100" balanced as one unit on a shared baseline
+    // (was a cramped centered stack). Measure both, center the block.
+    const numStr = String(Math.round(score))
+    const numFont = `bold 280px ${SERIF}`
+    const maxFont = `36px ${MONO}`
+    const baseline = 560
+    const gap = 18
+    ctx.font = numFont
+    const numW = ctx.measureText(numStr).width
+    ctx.font = maxFont
+    const maxW = ctx.measureText('/100').width
+    const startX = SIZE / 2 - (numW + gap + maxW) / 2
+    ctx.textAlign = 'left'
     ctx.fillStyle = C.ink
-    ctx.font = `bold 300px ${SERIF}`
-    ctx.fillText(String(Math.round(score)), SIZE / 2, 580)
+    ctx.font = numFont
+    ctx.fillText(numStr, startX, baseline)
     ctx.fillStyle = C.muted
-    ctx.font = `32px ${MONO}`
-    ctx.fillText('/ 100', SIZE / 2, 640)
+    ctx.font = maxFont
+    ctx.fillText('/100', startX + numW + gap, baseline)
+    ctx.textAlign = 'center'
     ctx.fillStyle = C.cue
     ctx.font = `bold 64px ${SERIF}`
-    ctx.fillText(rank, SIZE / 2, 740)
+    ctx.fillText(rank, SIZE / 2, 690)
   } else {
     ctx.fillStyle = C.cue
     ctx.font = `bold 140px ${SERIF}`
