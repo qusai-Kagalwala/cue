@@ -676,6 +676,93 @@ const LESSON_WEIGHTS_SYS = {
   l8: { role: 0.10, context: 0.15, constraints: 0.15, format: 0.10, specificity: 0.10, length: 0.40 },
 }
 
+// ============================================================ COMPREHEND
+// v7 capstone — the AI→human direction: reading, judging, and acting on an AI
+// RESPONSE (not writing a prompt). The learner is shown a hand-authored AI
+// answer with deliberate flaws and writes their reading/critique/correction.
+// The six fixed slots are repointed to the quality of a CRITICAL RESPONSE:
+//   role→Grounded  context→Specific  constraints→Critical
+//   format→Accurate  specificity→Actionable  length→Discerning
+
+// Refers to what the AI actually said — quotes, restates, cites the response.
+const CMP_GROUNDED =
+  /\b(the (response|answer|reply|output)|it (said|says|claims?|states?|gave|mentions?|assumes?)|according to|you (said|wrote|gave)|the (ai|model|assistant)|this (says|claims?)|in (the|its) (answer|response)|restat|to summari[sz]e|paraphras)/i
+
+// Names the exact issue/gap/claim rather than a vague verdict.
+const CMP_SPECIFIC =
+  /\b(specifically|the (part|line|claim|step|section|sentence|number|figure|date|paragraph) (where|about|that)|point \d|step \d|the (second|third|first|last|final) |missing (the|a|an)?|doesn'?t (mention|cover|address|include|explain)|left out|skipped|omit|the phrase|the word|where it)/i
+
+// Questions/doubts rather than accepting — the critical stance.
+const CMP_CRITICAL =
+  /\b(but |however|actually|wrong|incorrect|inaccurate|mistake|error|flaw|misleading|assumes?|assumption|unsupported|no (evidence|source|basis)|can'?t (be|verify|trust|confirm)|not (sure|clear|true|right|correct)|questionable|doubt|suspect|seems? off|contradict|overstat|too (broad|vague|general)|hallucinat|made up|fabricat|is this|why does)/i
+
+// Points to a concrete fix, follow-up, or next step.
+const CMP_ACTIONABLE =
+  /\b(should|need to|ask (it|the ai|again|for)|follow.?up|redo|revise|rewrite|fix|correct|clarify|add|remove|replace|instead|next (step|i)|i'?ll |verify|double.?check|confirm|request|tell it to|prompt it|try (again|asking)|re.?run|the fix|to fix)/i
+
+// Separates usable from unusable / calibrates trust.
+const CMP_DISCERNING =
+  /\b(usable|useful|keep|use (the|this|that)|discard|ignore|drop|the good (part|bit)|worth|reliable|trustworthy|safe to|not safe|don'?t (use|trust|rely)|partly|mostly (right|wrong|good)|the (core|main) (point|idea) (is|holds)|holds up|falls apart|good enough|not (good )?enough|before (using|acting|trusting))/i
+
+const CMP_DETECTORS = {
+  // Grounded — refers to the actual response
+  role: (p) => (CMP_GROUNDED.test(p) ? 1 : 0),
+  // Specific — names the exact issue/gap
+  context(p) {
+    let s = CMP_SPECIFIC.test(p) ? 0.6 : 0
+    const sentences = p.split(/[.!?\n]+/).filter((x) => x.trim().length > 12)
+    s += clamp01(sentences.length / 4) * 0.4
+    return clamp01(s)
+  },
+  // Critical — questions rather than accepts
+  constraints(p) {
+    const hits = (p.match(new RegExp(CMP_CRITICAL.source, 'gi')) ?? []).length
+    return clamp01(hits / 2)
+  },
+  // Accurate — the critique is well-formed (a proxy: grounded + critical together,
+  // not just vibes). Rewards responses that both refer to the answer AND name a
+  // concrete issue, which correlates with a correct (not invented) critique.
+  format(p) {
+    let s = 0
+    if (CMP_GROUNDED.test(p)) s += 0.5
+    if (CMP_SPECIFIC.test(p) || CMP_CRITICAL.test(p)) s += 0.5
+    return clamp01(s)
+  },
+  // Actionable — points to a concrete fix or next step
+  specificity(p) {
+    let s = 0
+    const hits = (p.match(new RegExp(CMP_ACTIONABLE.source, 'gi')) ?? []).length
+    s += clamp01(hits / 2) * 0.7
+    if (/\n\s*[-*\d]|\d\.\s/.test(p)) s += 0.3 // enumerated steps
+    return clamp01(s)
+  },
+  // Discerning — right level of trust / separates usable from not.
+  // Reuses the length slot for the "discernment" signal; still respects budgets.
+  length(p, lesson) {
+    if (lesson.tokenBudget != null) {
+      const t = estimateTokens(p)
+      return t <= lesson.tokenBudget ? 1 : clamp01(1 - (t - lesson.tokenBudget) / lesson.tokenBudget)
+    }
+    let s = CMP_DISCERNING.test(p) ? 0.7 : 0
+    const words = p.trim().split(/\s+/).filter(Boolean).length
+    s += words < 8 ? 0 : words <= 160 ? 0.3 : clamp01(0.3 - (words - 160) / 320)
+    return clamp01(s)
+  },
+}
+
+const LESSON_WEIGHTS_CMP = {
+  // verify → critique → correct → act
+  l1: { role: 0.50, context: 0.20, constraints: 0.05, format: 0.10, specificity: 0.05, length: 0.10 }, // read closely
+  l2: { role: 0.15, context: 0.50, constraints: 0.10, format: 0.05, specificity: 0.10, length: 0.10 }, // spot the gap
+  l3: { role: 0.15, context: 0.10, constraints: 0.50, format: 0.10, specificity: 0.05, length: 0.10 }, // catch the flaw
+  l4: { role: 0.15, context: 0.10, constraints: 0.30, format: 0.30, specificity: 0.05, length: 0.10 }, // check the claim
+  l5: { role: 0.15, context: 0.15, constraints: 0.20, format: 0.05, specificity: 0.10, length: 0.35 }, // judge the fit
+  l6: { role: 0.10, context: 0.10, constraints: 0.15, format: 0.05, specificity: 0.50, length: 0.10 }, // correct it
+  l7: { role: 0.15, context: 0.20, constraints: 0.10, format: 0.10, specificity: 0.15, length: 0.30 }, // extract the value
+  l8: { role: 0.10, context: 0.10, constraints: 0.15, format: 0.10, specificity: 0.30, length: 0.25 }, // act on it
+}
+
+
 // ---------------------------------------------------------------- v3-1b
 // STAGE REGISTRY. Six dimension SLOTS are fixed (docs/v3-stages.md §3);
 // each stage supplies its own detectors, weights, and human labels for
@@ -758,6 +845,14 @@ const STAGE_RUBRICS = {
     labels: {
       role: 'Identity set', context: 'Scope given', constraints: 'Boundaries set',
       format: 'Style defined', specificity: 'Rules concrete', length: 'Tight ruleset',
+    },
+  },
+  comprehend: {
+    detectors: CMP_DETECTORS,
+    weights: LESSON_WEIGHTS_CMP,
+    labels: {
+      role: 'Grounded', context: 'Specific', constraints: 'Critical',
+      format: 'Accurate', specificity: 'Actionable', length: 'Discerning',
     },
   },
 }

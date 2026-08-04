@@ -14,7 +14,7 @@ import { useProgress, setActiveStage } from '../hooks/useProgress'
 import { STAGE_LIST, isStagePlayable } from '../data/stages'
 
 // Which stages are the "advanced / agentic" cluster. Everything else is core.
-const ADVANCED = new Set(['code', 'agent', 'rag', 'automation', 'system'])
+const ADVANCED = new Set(['code', 'agent', 'rag', 'automation', 'system', 'comprehend'])
 
 function StageButton({ stage, active, playable, onChoose, index, reduce }) {
   return (

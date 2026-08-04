@@ -53,6 +53,10 @@ import { LESSON_META_SYSTEM } from './lessons.meta.system'
 import { SOLO_SYSTEM } from './scenarios.system.solo'
 import { ASSISTED_SYSTEM } from './scenarios.system.assisted'
 import { GUIDED_SYSTEM } from './scenarios.system.guided'
+import { LESSON_META_COMPREHEND } from './lessons.meta.comprehend'
+import { SOLO_COMPREHEND } from './scenarios.comprehend.solo'
+import { ASSISTED_COMPREHEND } from './scenarios.comprehend.assisted'
+import { GUIDED_COMPREHEND } from './scenarios.comprehend.guided'
 
 export const DEFAULT_STAGE = 'text'
 
@@ -193,6 +197,20 @@ export const STAGES = {
     },
     weightsKey: 'system',
     proxyMode: 'system',
+  },
+  comprehend: {
+    id: 'comprehend',
+    label: 'Reading',
+    blurb: 'Read the AI\'s answer well — verify, critique, correct, and act on it.',
+    locked: false,
+    lessons: LESSON_META_COMPREHEND,
+    scenarios: {
+      solo: SOLO_COMPREHEND,
+      assisted: ASSISTED_COMPREHEND,
+      guided: GUIDED_COMPREHEND,
+    },
+    weightsKey: 'comprehend',
+    proxyMode: 'comprehend',
   },
 }
 

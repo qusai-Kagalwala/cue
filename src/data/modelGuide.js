@@ -192,6 +192,26 @@ export const MODEL_GUIDE = {
       },
     ],
   },
+  comprehend: {
+    blurb: 'Reading an AI\'s answer well — verifying, critiquing, correcting, and acting on it.',
+    models: [
+      {
+        name: 'Restate before you trust',
+        best: 'Any long or confident-sounding answer.',
+        tip: 'Say back what it actually claimed in your own words — gaps and leaps surface fast.',
+      },
+      {
+        name: 'Ask it to cite or check itself',
+        best: 'Facts, numbers, dates, or anything verifiable.',
+        tip: 'Follow up with "what\'s this based on?" — unsupported claims often fold.',
+      },
+      {
+        name: 'Judge fit, not polish',
+        best: 'Answers that sound good but may miss your real need.',
+        tip: 'Ask "does this solve MY problem?" before "is this well-written?"',
+      },
+    ],
+  },
 }
 
 /** Guide for a stage, defensively falling back to text. */

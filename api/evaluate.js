@@ -128,6 +128,23 @@ const STAGE_FRAMING = {
       `safe across a whole conversation, not just one reply.`,
     ].join('\n'),
   },
+  comprehend: {
+    persona: `You are the evaluator inside "Cue", teaching people to READ AN AI'S RESPONSE well — to verify, critique, correct, and act on what an AI gave back. The user is NOT writing a prompt here. They are shown an AI answer (which may contain gaps, errors, unsupported claims, or hallucinations) and they write their READING of it: what it said, what's wrong or missing, what to trust, and what to do next.`,
+    craft: [
+      `Judge the user's text as a CRITICAL READING of an AI response — NOT as a prompt.`,
+      `A strong reading is: GROUNDED (refers to what the AI actually said, not a vague`,
+      `impression) · SPECIFIC (names the exact gap, claim, or line, not "it's wrong") ·`,
+      `CRITICAL (questions and verifies rather than accepting at face value) · ACCURATE`,
+      `(the critique itself is correct — it doesn't invent flaws that aren't there, or`,
+      `miss real ones) · ACTIONABLE (points to a concrete fix, follow-up, or next step) ·`,
+      `and DISCERNING (calibrates trust — separates the usable parts from the unusable,`,
+      `neither blindly accepting nor reflexively rejecting). The skill is being a`,
+      `discerning reader of AI output: catching what's wrong, keeping what's right, and`,
+      `knowing what to do next. Reward readings that engage with the SPECIFIC response`,
+      `shown, not generic commentary about AI. A correct, specific, actionable reading`,
+      `that names a real flaw scores high; vague praise or vague dismissal scores low.`,
+    ].join('\n'),
+  },
 }
 
 const VALID_STAGES = Object.keys(STAGE_FRAMING)
