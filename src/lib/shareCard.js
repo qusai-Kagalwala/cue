@@ -46,7 +46,10 @@ function roundRect(ctx, x, y, w, h, r) {
  * Returns { blob, url } — caller revokes the URL when done.
  */
 export async function makeShareCard({ score = null, level, rank, xp, streak, name = null, variant = 0, avatar = null }) {
-  const V = CARD_VARIANTS[((variant % CARD_VARIANTS.length) + CARD_VARIANTS.length) % CARD_VARIANTS.length]
+  const vi = Number.isInteger(variant) ? variant : 0
+  const V =
+    CARD_VARIANTS[((vi % CARD_VARIANTS.length) + CARD_VARIANTS.length) % CARD_VARIANTS.length] ??
+    CARD_VARIANTS[0]
   const canvas = document.createElement('canvas')
   canvas.width = SIZE
   canvas.height = SIZE

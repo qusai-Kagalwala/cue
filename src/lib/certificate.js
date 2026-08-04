@@ -125,24 +125,26 @@ function drawCertificate({ stageId = 'all', name, rank, xp, avatar = null }) {
   ctx.font = `22px ${SERIF}`
   ctx.fillText('This certifies that', W / 2, avatar ? 408 : 372)
 
+  const nameY = avatar ? 484 : 452
   ctx.fillStyle = C.ink
   ctx.font = `bold 66px ${SERIF}`
-  ctx.fillText(name || 'A Prompt Practitioner', W / 2, avatar ? 484 : 452)
+  ctx.fillText(name || 'A Prompt Practitioner', W / 2, nameY)
 
-  // underline flourish under the name
+  // underline flourish — sits BELOW the name baseline, tracking its position
   ctx.strokeStyle = C.cueDim
   ctx.lineWidth = 2
   const nameW = Math.min(560, ctx.measureText(name || 'A Prompt Practitioner').width + 80)
+  const underlineY = nameY + 26
   ctx.beginPath()
-  ctx.moveTo(W / 2 - nameW / 2, 476)
-  ctx.lineTo(W / 2 + nameW / 2, 476)
+  ctx.moveTo(W / 2 - nameW / 2, underlineY)
+  ctx.lineTo(W / 2 + nameW / 2, underlineY)
   ctx.stroke()
 
-  // what they completed
+  // what they completed — clears the underline with breathing room
   const isMaster = stageId === 'all'
   ctx.fillStyle = C.muted
   ctx.font = `22px ${SERIF}`
-  ctx.fillText('has completed', W / 2, 540)
+  ctx.fillText('has completed', W / 2, underlineY + 66)
 
   ctx.fillStyle = C.cue
   ctx.font = `bold 40px ${SERIF}`
