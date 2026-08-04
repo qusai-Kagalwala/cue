@@ -8,6 +8,7 @@ import { warmUpProxy } from './lib/gemini'
 import { loadState, updateState } from './lib/storage'
 import { useProgress } from './hooks/useProgress'
 import OpeningAct from './screens/OpeningAct'
+import Landing from './screens/Landing'
 import TopBar from './components/TopBar'
 import BottomNav from './components/BottomNav'
 import AnimatedBackground from './components/AnimatedBackground'
@@ -42,9 +43,17 @@ export default function App() {
     setScreen(tier === 'assisted' ? SCREENS.ASSISTED : SCREENS.GUIDED)
   }
   // v2-3a — read once at mount; completing the act flips both.
+  const [showLanding, setShowLanding] = useState(
+    () => !loadState().landingSeen
+  )
   const [showOpening, setShowOpening] = useState(
     () => !loadState().openingActDone
   )
+
+  function enterFromLanding() {
+    updateState({ landingSeen: true })
+    setShowLanding(false)
+  }
 
   useEffect(() => {
     warmUpProxy()
@@ -53,6 +62,10 @@ export default function App() {
   function completeOpeningAct() {
     updateState({ openingActDone: true })
     setShowOpening(false)
+  }
+
+  if (showLanding) {
+    return <Landing onEnter={enterFromLanding} />
   }
 
   if (showOpening) {
