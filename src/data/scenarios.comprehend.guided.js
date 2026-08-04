@@ -73,10 +73,10 @@ export const GUIDED_COMPREHEND = {
   // l8 — READ THE MEDIUM: verify AI-generated media (not detect it)
   l8: {
     student: { scenario: 'Read the group caption above. The photo could be real, old, or AI-made — you cannot tell by eye.', aiResponse: 'Group caption: "Our campus RIGHT NOW 🌊 100% real I was there, share fast!"', task: 'Fill in how you would verify it.',
-      skeleton: [{ text: 'I cannot tell real from fake by looking, so I will not trust it yet — first I will ' }, { blank: 'the check', hint: 'find where the photo first appeared and look for the same event from a trusted news source' }, { text: '.' }] },
+      skeleton: [{ text: 'I cannot tell real from fake by looking, so I will not trust it yet — first I will ' }, { blank: 'the check', hint: 'trace where it first appeared, confirm via a trusted source' }, { text: '.' }] },
     everyday: { scenario: 'Read the forwarded message above. The face and voice can both be AI-faked now.', aiResponse: 'Forward: "BREAKING — free gas cylinders for all, claim before the link closes 👇"', task: 'Fill in how you would verify it.',
-      skeleton: [{ text: 'A convincing video is not proof, so before sharing I will ' }, { blank: 'the check', hint: 'look for a real news source confirming it and treat the "claim now" pressure as a scam sign' }, { text: '.' }] },
+      skeleton: [{ text: 'A convincing video is not proof, so before sharing I will ' }, { blank: 'the check', hint: 'look for a real news source; the urgency to claim now is a scam sign' }, { text: '.' }] },
     professional: { scenario: 'Read the vendor note above. Fluent text and code can still be fabricated or subtly broken.', aiResponse: 'Vendor: "5-star review from a Fortune 500 client, plus AI-generated code — fully tested, just ship it."', task: 'Fill in how you would verify it.',
-      skeleton: [{ text: 'Fluency is not proof, so I will ' }, { blank: 'the check', hint: 'independently confirm the client/review and run and review the code myself rather than trust "tested"' }, { text: '.' }] },
+      skeleton: [{ text: 'Fluency is not proof, so I will ' }, { blank: 'the check', hint: 'confirm the review independently and run the code myself' }, { text: '.' }] },
   },
 }

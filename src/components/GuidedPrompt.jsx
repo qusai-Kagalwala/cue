@@ -131,7 +131,7 @@ export default function GuidedPrompt({ lessonId, onExit, onDone, flowLabel }) {
       {!result ? (
         <>
           {/* The skeleton: text runs + inline blank inputs */}
-          <div className="rounded-xl border border-line bg-raised p-4 font-mono text-sm leading-loose">
+          <div className="rounded-xl border border-line bg-raised p-4 font-mono text-sm leading-loose wrap-break-word">
             {content.skeleton.map((part, i) => {
               if (part.text != null) return <span key={i}>{part.text}</span>
               const b = blankAt[i]
@@ -144,8 +144,9 @@ export default function GuidedPrompt({ lessonId, onExit, onDone, flowLabel }) {
                   }
                   placeholder={part.hint}
                   aria-label={part.blank}
-                  size={Math.max(part.hint.length, 8)}
-                  className="mx-1 inline-block rounded border-b-2 border-cue-dim bg-stage px-2 py-0.5 text-cue placeholder:text-faint focus:border-cue focus:outline-none"
+                  size={Math.min(Math.max(part.hint.length, 8), 32)}
+                  title={part.hint}
+                  className="mx-1 my-0.5 inline-block max-w-full min-w-0 rounded border-b-2 border-cue-dim bg-stage px-2 py-0.5 align-baseline text-cue placeholder:text-faint focus:border-cue focus:outline-none"
                 />
               )
             })}
