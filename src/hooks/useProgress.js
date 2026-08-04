@@ -300,7 +300,14 @@ export function useProgress() {
   // v3-1a fix — journey fields live per stage; read them from there.
   const stageId = s.activeStage ?? 'text'
   const j = getStageProgress(s, stageId)
+  // isComplete = the queue pointer reached the end (controls the Challenge
+  // screen: show a lesson vs. the Completion hand-off).
   const isComplete = j.currentLessonIndex >= TOTAL_LESSONS
+  // v6 fix — allLessonsDone = every lesson has a score, regardless of where the
+  // queue pointer sits. This gates the certificate so replaying an earlier
+  // lesson (which moves the pointer back) never hides an earned certificate.
+  const allLessonsDone =
+    Object.keys(j.lessonScores ?? {}).length >= TOTAL_LESSONS
   const currentLesson = isComplete
     ? null
     : getLessonByIndex(j.currentLessonIndex, s.persona ?? 'everyday')
@@ -315,6 +322,7 @@ export function useProgress() {
     lessonStage: j.lessonStage ?? 'guided',
     currentLesson,          // merged with persona variant, null when all done
     isComplete,
+    allLessonsDone,
     xp: s.xp,
     level: s.level,
     xpToNext: xpToNextLevel(s.xp),

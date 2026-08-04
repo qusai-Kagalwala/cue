@@ -21,14 +21,29 @@ function loadImage(src) {
   })
 }
 
-const C = {
-  stage: '#0e0d0b',
-  paper: '#14120f',
-  line: '#2b2721',
-  ink: '#ede8df',
-  muted: '#9a9184',
-  cue: '#f5b942',
-  cueDim: '#6b5320',
+const PALETTES = {
+  dark: {
+    stage: '#0e0d0b',
+    paper: '#14120f',
+    line: '#2b2721',
+    ink: '#ede8df',
+    muted: '#9a9184',
+    cue: '#f5b942',
+    cueDim: '#6b5320',
+    paperTop: '#211c14',
+    paperBottom: '#141109',
+  },
+  light: {
+    stage: '#faf6ef',
+    paper: '#fffdf8',
+    line: '#ddd5c6',
+    ink: '#23201a',
+    muted: '#5c5546',
+    cue: '#a5751a',
+    cueDim: '#c9a961',
+    paperTop: '#fffdf8',
+    paperBottom: '#f3ecdf',
+  },
 }
 const SERIF = 'Georgia, "Times New Roman", serif'
 const MONO = '"Courier New", monospace'
@@ -67,7 +82,8 @@ function todayLong() {
  * Draw a certificate to a canvas and return it.
  * opts: { stageId? ('all' for master), name, rank, xp }
  */
-async function drawCertificate({ stageId = 'all', name, rank, xp, avatar = null }) {
+async function drawCertificate({ stageId = 'all', name, rank, xp, avatar = null, theme = 'dark' }) {
+  const C = PALETTES[theme] ?? PALETTES.dark
   const canvas = document.createElement('canvas')
   canvas.width = W
   canvas.height = H
@@ -80,9 +96,9 @@ async function drawCertificate({ stageId = 'all', name, rank, xp, avatar = null 
   roundRect(ctx, 40, 40, W - 80, H - 80, 18)
   ctx.fill()
 
-  // soft spotlight from top
+  // soft spotlight from top (amber glow works on both themes at low alpha)
   const spot = ctx.createRadialGradient(W / 2, -120, 80, W / 2, -120, 900)
-  spot.addColorStop(0, 'rgba(245,185,66,0.16)')
+  spot.addColorStop(0, `rgba(245,185,66,${theme === 'light' ? 0.1 : 0.16})`)
   spot.addColorStop(1, 'rgba(245,185,66,0)')
   ctx.fillStyle = spot
   ctx.fillRect(40, 40, W - 80, H - 80)
@@ -145,22 +161,24 @@ async function drawCertificate({ stageId = 'all', name, rank, xp, avatar = null 
 
   // what they completed — clears the underline with breathing room
   const isMaster = stageId === 'all'
+  const completedY = underlineY + 60
   ctx.fillStyle = C.muted
   ctx.font = `22px ${SERIF}`
-  ctx.fillText('has completed', W / 2, underlineY + 66)
+  ctx.fillText('has completed', W / 2, completedY)
 
+  const titleY = completedY + 52
   ctx.fillStyle = C.cue
   ctx.font = `bold 40px ${SERIF}`
   if (isMaster) {
-    ctx.fillText('The Full Programme of Prompt Craft', W / 2, 596)
+    ctx.fillText('The Full Programme of Prompt Craft', W / 2, titleY)
     ctx.fillStyle = C.muted
     ctx.font = `20px ${MONO}`
-    ctx.fillText('from prompting to directing AI', W / 2, 632)
+    ctx.fillText('from prompting to directing AI', W / 2, titleY + 36)
   } else {
-    ctx.fillText(`The ${STAGE_TITLES[stageId] ?? 'Prompting'} Stage`, W / 2, 596)
+    ctx.fillText(`The ${STAGE_TITLES[stageId] ?? 'Prompting'} Stage`, W / 2, titleY)
     ctx.fillStyle = C.muted
     ctx.font = `20px ${SERIF}`
-    ctx.fillText('eight lessons of deliberate practice', W / 2, 632)
+    ctx.fillText('eight lessons of deliberate practice', W / 2, titleY + 36)
   }
 
   // rank + date footer row
@@ -197,7 +215,7 @@ async function drawCertificate({ stageId = 'all', name, rank, xp, avatar = null 
 
 /** PNG download. Returns { blob, url }; caller revokes the url. */
 export async function makeCertificatePNG(opts) {
-  const canvas = drawCertificate(opts)
+  const canvas = await drawCertificate(opts)
   const blob = await new Promise((r) => canvas.toBlob(r, 'image/png'))
   return { blob, url: URL.createObjectURL(blob) }
 }

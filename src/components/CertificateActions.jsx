@@ -16,7 +16,7 @@ import {
 const ALL_STAGES = STAGE_LIST.map((s) => s.id)
 
 export default function CertificateActions() {
-  const { name, level, xp, avatar, activeStage, stageProgress } = useProgress()
+  const { name, level, xp, avatar, theme, activeStage, stageProgress } = useProgress()
   const [busy, setBusy] = useState(false)
   const rank = rankForLevel(level)
 
@@ -27,14 +27,14 @@ export default function CertificateActions() {
   async function png(stageId) {
     setBusy(true)
     try {
-      await downloadCertificatePNG({ stageId, name, rank, xp, avatar })
+      await downloadCertificatePNG({ stageId, name, rank, xp, avatar, theme })
     } finally {
       setBusy(false)
     }
   }
 
   function pdf(stageId) {
-    printCertificatePDF({ stageId, name, rank, xp, avatar })
+    printCertificatePDF({ stageId, name, rank, xp, avatar, theme })
   }
 
   return (

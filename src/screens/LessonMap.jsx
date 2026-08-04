@@ -24,7 +24,7 @@ function LockIcon() {
 }
 
 export default function LessonMap({ onNavigate, onPractice }) {
-  const { currentLessonIndex, lessonScores, level, isComplete } = useProgress()
+  const { currentLessonIndex, lessonScores, level, allLessonsDone } = useProgress()
   const reduce = useReducedMotion()
 
   // Highest done index +1 stays unlocked even if the queue pointer
@@ -96,7 +96,7 @@ export default function LessonMap({ onNavigate, onPractice }) {
       {/* Certificate entry — the completion page holds the certificate + share
           card. Reachable here whenever THIS stage is finished, so it no longer
           vanishes the moment the active stage changes. */}
-      {isComplete && (
+      {allLessonsDone && (
         <button
           onClick={() => onNavigate?.(SCREENS.COMPLETION)}
           className="mb-1 flex w-full items-center justify-between rounded-xl border border-cue-dim bg-cue/5 p-4 text-left transition-colors hover:bg-cue/10"
