@@ -203,6 +203,7 @@ export default function Challenge({ onNavigate }) {
             scenario={currentLesson.scenario}
             task={currentLesson.task}
             hints={currentLesson.hints}
+            aiResponse={currentLesson.aiResponse}
           />
         </div>
       </div>

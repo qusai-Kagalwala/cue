@@ -4,7 +4,7 @@
 
 import { useState } from 'react'
 
-export default function ScenarioCard({ scenario, task, hints = [] }) {
+export default function ScenarioCard({ scenario, task, hints = [], aiResponse = null }) {
   const [showHints, setShowHints] = useState(false)
 
   return (
@@ -13,6 +13,16 @@ export default function ScenarioCard({ scenario, task, hints = [] }) {
         <p className="text-xs uppercase tracking-widest text-faint">Scenario</p>
         <p className="max-w-[65ch] leading-relaxed">{scenario}</p>
       </div>
+
+      {aiResponse && (
+        <div className="space-y-1">
+          <p className="text-xs uppercase tracking-widest text-faint">The AI replied</p>
+          <blockquote className="max-w-[65ch] rounded-lg border border-cue-dim/60 bg-raised/60 p-3 text-sm leading-relaxed text-ink">
+            <span className="mr-1.5 select-none font-mono text-cue">AI</span>
+            {aiResponse}
+          </blockquote>
+        </div>
+      )}
 
       <div className="space-y-1">
         <p className="text-xs uppercase tracking-widest text-faint">Your task</p>

@@ -134,7 +134,7 @@ async function drawCertificate({ stageId = 'all', name, rank, xp, avatar = null,
     try {
       const d = 84
       const img = await loadImage(avatarDataUrl(avatar, d))
-      ctx.drawImage(img, W / 2 - d / 2, 340 - d / 2, d, d)
+      ctx.drawImage(img, W / 2 - d / 2, 372 - d / 2, d, d)
     } catch {
       // skip silently if the avatar art fails to load
     }
@@ -142,9 +142,9 @@ async function drawCertificate({ stageId = 'all', name, rank, xp, avatar = null,
   }
 
   ctx.font = `22px ${SERIF}`
-  ctx.fillText('This certifies that', W / 2, avatar ? 408 : 372)
+  ctx.fillText('This certifies that', W / 2, avatar ? 438 : 372)
 
-  const nameY = avatar ? 484 : 452
+  const nameY = avatar ? 508 : 452
   ctx.fillStyle = C.ink
   ctx.font = `bold 66px ${SERIF}`
   ctx.fillText(name || 'A Prompt Practitioner', W / 2, nameY)

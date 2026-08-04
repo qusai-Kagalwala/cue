@@ -94,7 +94,13 @@ export default function AssistedPrompt({ lessonId, onExit, onDone, flowLabel }) 
       {/* Scenario */}
       <div className="rounded-xl border border-line bg-surface p-4 text-sm leading-relaxed">
         <p className="text-muted">{content.scenario}</p>
-        <p className="mt-2 text-cue">{content.task}</p>
+        {content.aiResponse && (
+          <blockquote className="mt-3 rounded-lg border border-cue-dim/60 bg-raised/60 p-3 text-ink">
+            <span className="mr-1.5 select-none font-mono text-cue">AI</span>
+            {content.aiResponse}
+          </blockquote>
+        )}
+        <p className="mt-3 text-cue">{content.task}</p>
       </div>
 
       </div>

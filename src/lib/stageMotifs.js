@@ -64,6 +64,14 @@ const MOTIFS = {
     <path d="M44 30 v-6 M44 58 v6 M30 44 h-6 M58 44 h6 M34 34 l-4 -4 M54 54 l4 4 M54 34 l4 -4 M34 54 l-4 4" stroke="${C}" stroke-width="2"/>
     <circle cx="44" cy="44" r="5" fill="${C}"/>
     <path d="M110 100 L134 100 L134 120 L158 120 M134 100 L128 94 M134 100 L128 106" stroke="${C}" stroke-width="2" fill="none"/>`,
+  comprehend: `
+    <path d="M26 30 h40 v22 h-26 l-8 8 v-8 h-6 z" fill="none" stroke="${C}" stroke-width="1.6"/>
+    <path d="M34 38 h24 M34 44 h16" stroke="${C}" stroke-width="1.4"/>
+    <path d="M120 96 l6 6 l12 -14" stroke="${C}" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="60" cy="120" r="10" fill="none" stroke="${C}" stroke-width="2"/>
+    <path d="M67 127 l9 9" stroke="${C}" stroke-width="2" stroke-linecap="round"/>
+    <path d="M150 40 q10 -10 20 0 q-10 10 -20 0z" fill="none" stroke="${C}" stroke-width="1.6"/>
+    <circle cx="160" cy="40" r="3" fill="${C}"/>`,
   system: `
     <rect x="28" y="28" width="44" height="44" rx="6" fill="none" stroke="${C}" stroke-width="2"/>
     <path d="M40 44 h20 M40 52 h20 M40 60 h12" stroke="${C}" stroke-width="2"/>
