@@ -1,6 +1,6 @@
 // src/lib/shareCard.js
 // v2-1 — Canvas share card, 1080×1080, fully client-side.
-import { avatarEmoji } from './avatars'
+import { avatarDataUrl } from './avatars'
 
 // System font stacks only: canvas can't reliably wait on webfonts, and a
 // card that sometimes renders in fallback anyway should ALWAYS render in
@@ -26,6 +26,17 @@ export const CARD_VARIANTS = [
   { id: 'violet',  accent: '#a98cf0', dim: '#3f2f6b', spot: '169,140,240' },
   { id: 'emerald', accent: '#5fc98a', dim: '#245239', spot: '95,201,138' },
 ]
+
+// Rasterise an SVG data-URL onto the canvas — awaited so the card waits for it.
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => resolve(img)
+    img.onerror = reject
+    img.src = src
+  })
+}
+
 const SERIF = 'Georgia, "Times New Roman", serif'
 const MONO = '"Courier New", monospace'
 
@@ -74,18 +85,17 @@ export async function makeShareCard({ score = null, level, rank, xp, streak, nam
 
   ctx.textAlign = 'center'
 
-  // Avatar (the stage face) — a themed disc with the chosen emoji
+  // Avatar (the stage face) — the hand-drawn SVG, rasterised onto the card.
   if (avatar) {
     const ax = SIZE / 2
     const ay = 120
-    ctx.beginPath()
-    ctx.arc(ax, ay, 46, 0, Math.PI * 2)
-    ctx.fillStyle = V.dim
-    ctx.fill()
-    ctx.font = '52px sans-serif'
-    ctx.textBaseline = 'middle'
-    ctx.fillText(avatarEmoji(avatar), ax, ay + 3)
-    ctx.textBaseline = 'alphabetic'
+    const d = 104
+    try {
+      const img = await loadImage(avatarDataUrl(avatar, d))
+      ctx.drawImage(img, ax - d / 2, ay - d / 2, d, d)
+    } catch {
+      // if the SVG fails to load, skip silently — the card still renders
+    }
   }
 
   // Cue mark

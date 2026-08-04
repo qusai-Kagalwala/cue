@@ -6,7 +6,7 @@
 import { useState } from 'react'
 import { useProgress } from '../hooks/useProgress'
 import { PERSONAS } from '../data/lessons'
-import { AVATARS, DEFAULT_AVATAR } from '../lib/avatars'
+import { AVATARS, DEFAULT_AVATAR, avatarSvg } from '../lib/avatars'
 import { SCREENS } from '../lib/screens'
 import ConfirmDialog from '../components/ConfirmDialog'
 import { downloadExport, validateImport, applyImport } from '../lib/portability'
@@ -87,14 +87,13 @@ export default function Settings({ onNavigate }) {
                 onClick={() => setAvatar(a.id)}
                 aria-pressed={active}
                 title={a.label}
-                className={`flex aspect-square items-center justify-center rounded-xl border text-2xl transition-colors ${
+                className={`flex aspect-square items-center justify-center rounded-xl border p-1.5 transition-colors ${
                   active
                     ? 'border-cue bg-cue/10'
                     : 'border-line bg-raised hover:border-cue-dim'
                 }`}
-              >
-                {a.emoji}
-              </button>
+                dangerouslySetInnerHTML={{ __html: avatarSvg(a.id, 44) }}
+              />
             )
           })}
         </div>

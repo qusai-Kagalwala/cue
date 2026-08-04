@@ -7,16 +7,20 @@
 // A stage counts as complete when its currentLessonIndex >= 8. The "master"
 // certificate is for finishing all five stages.
 
+import { avatarDataUrl } from './avatars'
+
 const W = 1400
 const H = 990 // ~A4 landscape ratio
 
-// v6 — avatar emoji map (inlined; this file has no imports by design).
-// Keep in sync with src/lib/avatars.js.
-const AVATAR_EMOJI = {
-  masks: '🎭', star: '🌟', spotlight: '🔦', curtain: '🎬', quill: '🪶',
-  crown: '👑', ticket: '🎟️', trophy: '🏆', comedy: '😄', owl: '🦉',
-  rocket: '🚀', flame: '🔥',
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => resolve(img)
+    img.onerror = reject
+    img.src = src
+  })
 }
+
 const C = {
   stage: '#0e0d0b',
   paper: '#14120f',
@@ -63,7 +67,7 @@ function todayLong() {
  * Draw a certificate to a canvas and return it.
  * opts: { stageId? ('all' for master), name, rank, xp }
  */
-function drawCertificate({ stageId = 'all', name, rank, xp, avatar = null }) {
+async function drawCertificate({ stageId = 'all', name, rank, xp, avatar = null }) {
   const canvas = document.createElement('canvas')
   canvas.width = W
   canvas.height = H
@@ -109,16 +113,15 @@ function drawCertificate({ stageId = 'all', name, rank, xp, avatar = null }) {
 
   // recipient
   ctx.fillStyle = C.muted
-  // avatar disc above the name, if chosen
+  // avatar (the hand-drawn SVG) above the name, if chosen
   if (avatar) {
-    ctx.beginPath()
-    ctx.arc(W / 2, 340, 34, 0, Math.PI * 2)
-    ctx.fillStyle = C.cueDim
-    ctx.fill()
-    ctx.font = '38px sans-serif'
-    ctx.textBaseline = 'middle'
-    ctx.fillText(AVATAR_EMOJI[avatar] ?? '🎭', W / 2, 342)
-    ctx.textBaseline = 'alphabetic'
+    try {
+      const d = 84
+      const img = await loadImage(avatarDataUrl(avatar, d))
+      ctx.drawImage(img, W / 2 - d / 2, 340 - d / 2, d, d)
+    } catch {
+      // skip silently if the avatar art fails to load
+    }
     ctx.fillStyle = C.muted
   }
 
@@ -218,7 +221,7 @@ export async function downloadCertificatePNG(opts) {
  * browser's print dialog, where the user picks "Save as PDF". No library.
  */
 export async function printCertificatePDF(opts) {
-  const canvas = drawCertificate(opts)
+  const canvas = await drawCertificate(opts)
   const dataUrl = canvas.toDataURL('image/png')
   const win = window.open('', '_blank')
   if (!win) return false

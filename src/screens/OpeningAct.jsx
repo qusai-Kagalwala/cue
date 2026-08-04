@@ -385,7 +385,10 @@ function CurtainBeat({ onComplete, name }) {
 function StageBeat({ onNext }) {
   // text is the default (the 'just start with writing' link below), so the
   // grid offers the OTHER stages as deliberate choices.
+  const ADVANCED = new Set(['code', 'agent', 'rag', 'automation', 'system'])
   const options = STAGE_LIST.filter((s) => s.id !== 'text' && isStagePlayable(s.id))
+  const coreOptions = options.filter((s) => !ADVANCED.has(s.id))
+  const advancedOptions = options.filter((s) => ADVANCED.has(s.id))
 
   function choose(stageId) {
     setActiveStage(stageId)
@@ -401,25 +404,56 @@ function StageBeat({ onNext }) {
         Where would you like to start?
       </h2>
       <p className="mx-auto max-w-[42ch] leading-relaxed text-muted">
-        Cue teaches prompting across five stages. Begin wherever you like —
-        you can switch anytime from the map.
+        Cue teaches prompting across many stages — from everyday writing to
+        directing AI. Begin wherever you like; switch anytime from the map.
       </p>
 
-      <div className="mx-auto grid max-w-md grid-cols-1 gap-2 sm:grid-cols-2">
-        {options.map((s) => (
-          <button
-            key={s.id}
-            onClick={() => choose(s.id)}
-            className="group rounded-xl border border-line bg-raised px-4 py-3 text-left transition-colors hover:border-cue-dim"
-          >
-            <span className="block text-sm font-medium text-ink group-hover:text-cue">
-              {s.label}
-            </span>
-            <span className="block font-mono text-[11px] leading-snug text-faint">
-              {s.blurb}
-            </span>
-          </button>
-        ))}
+      <div className="mx-auto max-w-md space-y-4">
+        <div className="space-y-2">
+          <p className="text-left font-mono text-[10px] uppercase tracking-widest text-faint">
+            everyday craft
+          </p>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {coreOptions.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => choose(s.id)}
+                className="group rounded-xl border border-line bg-raised px-4 py-3 text-left transition-colors hover:border-cue-dim"
+              >
+                <span className="block text-sm font-medium text-ink group-hover:text-cue">
+                  {s.label}
+                </span>
+                <span className="block font-mono text-[11px] leading-snug text-faint">
+                  {s.blurb}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {advancedOptions.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-left font-mono text-[10px] uppercase tracking-widest text-cue/70">
+              advanced · directing AI
+            </p>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {advancedOptions.map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => choose(s.id)}
+                  className="group rounded-xl border border-line bg-raised px-4 py-3 text-left transition-colors hover:border-cue-dim"
+                >
+                  <span className="block text-sm font-medium text-ink group-hover:text-cue">
+                    {s.label}
+                  </span>
+                  <span className="block font-mono text-[11px] leading-snug text-faint">
+                    {s.blurb}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <button
