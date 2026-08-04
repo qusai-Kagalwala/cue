@@ -261,6 +261,10 @@ export function completeEncore(score) {
 /** v2-15 — theme switch. Light is a Level 3 unlock (the XP sink):
     below the gate the request is ignored, dark stays. */
 /** v3-7 — toggle score-reveal sound cues. */
+export function setDoodles(on) {
+  setState({ doodlesOn: Boolean(on) })
+}
+
 export function setSound(on) {
   if (isGodMode()) return
   setState({ soundOn: Boolean(on) })
@@ -334,11 +338,13 @@ export function useProgress() {
     dailyDoneToday: s.dailyDone === todayKey(),
     theme: s.theme ?? 'dark',
     soundOn: s.soundOn ?? false,
+    doodlesOn: s.doodlesOn ?? true,
     dailyLessonIndex: dailyLessonIndexFor(todayKey(), TOTAL_LESSONS),
     // actions
     setPersona,
     setAvatar,
     setSound,
+    setDoodles,
     setActiveStage,        // v3-1c fix — was missing from the snapshot
     completeLesson,
     advanceLesson,

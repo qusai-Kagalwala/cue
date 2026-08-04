@@ -37,6 +37,7 @@ export const DEFAULT_STATE = Object.freeze({
   dailyDone: null,               // v2-10 — dateKey of the last daily bonus
   theme: 'dark',                 // v2-15 — 'dark' | 'light' (light = L3 unlock)
   soundOn: false,                // v3-7 — score-reveal sound cues (off by default)
+  doodlesOn: true,               // v6.2 — per-stage background motifs (on by default)
   xp: 0,
   level: 1,
   streak: { count: 0, lastActiveDate: null },

@@ -77,8 +77,9 @@ const TILE = 200
  * A full SVG string (as a data-URL body) with the stage's motif tiled across
  * it, at the given opacity. Falls back to the text motif for unknown stages.
  */
-export function stageMotifSvg(stageId, opacity = 0.06) {
-  const motif = MOTIFS[stageId] ?? MOTIFS.text
+export function stageMotifSvg(stageId, opacity = 0.06, color = '#f5b942') {
+  // motifs are authored in amber (#f5b942); swap to `color` for theming.
+  const motif = (MOTIFS[stageId] ?? MOTIFS.text).replaceAll('#f5b942', color)
   return `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
     <defs>
       <pattern id="m-${stageId}" width="${TILE}" height="${TILE}" patternUnits="userSpaceOnUse">
@@ -90,8 +91,8 @@ export function stageMotifSvg(stageId, opacity = 0.06) {
 }
 
 /** Data-URL form for use as a CSS background-image. */
-export function stageMotifDataUrl(stageId, opacity = 0.06) {
-  return `data:image/svg+xml;utf8,${encodeURIComponent(stageMotifSvg(stageId, opacity))}`
+export function stageMotifDataUrl(stageId, opacity = 0.06, color = '#f5b942') {
+  return `data:image/svg+xml;utf8,${encodeURIComponent(stageMotifSvg(stageId, opacity, color))}`
 }
 
 export const MOTIF_STAGES = Object.keys(MOTIFS)
