@@ -117,6 +117,30 @@ export default function Landing({ onEnter }) {
         </cite>
       </section>
 
+      {/* ---------- THE MOMENT (AI literacy) ---------- */}
+      <section className="mx-auto max-w-3xl px-6">
+        <p className="mb-4 font-mono text-xs uppercase tracking-[0.2em] text-cue">
+          the moment we're in
+        </p>
+        <h2 className="font-display text-3xl font-semibold">
+          Everyone can use AI. Few use it well.
+        </h2>
+        <p className="mt-4 leading-relaxed text-muted">
+          In a couple of years, AI went from a novelty to something people lean
+          on for work, study, and daily life. But the tools arrived faster than
+          the skill of using them. Most people type a vague line, get a vague
+          answer, and conclude the AI “isn't that smart.” The truth is closer to
+          home: a model can only be as clear as the request it's given.
+        </p>
+        <p className="mt-4 leading-relaxed text-muted">
+          And it cuts both ways. As AI answers get more fluent and confident,
+          telling a <span className="text-ink">good</span> answer from a
+          convincing-but-wrong one becomes its own skill — one that matters more,
+          not less, as the models improve. Asking well and reading well are the
+          two halves of AI literacy. Cue teaches both.
+        </p>
+      </section>
+
       {/* ---------- ABOUT CUE ---------- */}
       <section className="mx-auto max-w-3xl px-6">
         <p className="mb-4 font-mono text-xs uppercase tracking-[0.2em] text-cue">
@@ -160,6 +184,75 @@ export default function Landing({ onEnter }) {
         <p className="mt-8 leading-relaxed text-muted">
           It runs entirely in your browser — no account, nothing to install,
           your work stays on your device. Free to use, and yours to keep.
+        </p>
+      </section>
+
+      {/* ---------- HOW IT WORKS ---------- */}
+      <section className="mx-auto mt-16 max-w-3xl px-6">
+        <p className="mb-4 font-mono text-xs uppercase tracking-[0.2em] text-cue">
+          how it works
+        </p>
+        <h2 className="font-display text-3xl font-semibold">
+          Write, get scored, ask better
+        </h2>
+        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          <div className="rounded-xl border border-line bg-surface/50 p-5">
+            <p className="font-display text-2xl text-cue">1</p>
+            <h3 className="mt-2 font-display font-semibold text-ink">A real scenario</h3>
+            <p className="mt-1 text-sm leading-relaxed text-muted">
+              You're handed an everyday situation and asked to prompt for it —
+              no blank page, no jargon.
+            </p>
+          </div>
+          <div className="rounded-xl border border-line bg-surface/50 p-5">
+            <p className="font-display text-2xl text-cue">2</p>
+            <h3 className="mt-2 font-display font-semibold text-ink">Honest feedback</h3>
+            <p className="mt-1 text-sm leading-relaxed text-muted">
+              Your prompt is scored across six things that make prompts work,
+              with the one change that would help most.
+            </p>
+          </div>
+          <div className="rounded-xl border border-line bg-surface/50 p-5">
+            <p className="font-display text-2xl text-cue">3</p>
+            <h3 className="mt-2 font-display font-semibold text-ink">You improve</h3>
+            <p className="mt-1 text-sm leading-relaxed text-muted">
+              Try again, climb the ranks, and carry the habit into your own
+              real conversations with AI.
+            </p>
+          </div>
+        </div>
+        <p className="mt-6 leading-relaxed text-muted">
+          Every lesson comes in three levels of help — fully guided, lightly
+          assisted, or on your own — so a first-timer and a power user both find
+          the right footing. Cue coaches; it never writes the prompt for you.
+        </p>
+      </section>
+
+      {/* ---------- WHO IT'S FOR ---------- */}
+      <section className="mx-auto mt-16 max-w-3xl px-6">
+        <p className="mb-4 font-mono text-xs uppercase tracking-[0.2em] text-cue">
+          who it's for
+        </p>
+        <h2 className="font-display text-3xl font-semibold">
+          Built for everyone who talks to AI
+        </h2>
+        <div className="mt-6 space-y-3">
+          <p className="leading-relaxed text-muted">
+            <span className="text-ink">Students</span> — get clearer help with
+            study, writing, and research instead of generic answers.
+          </p>
+          <p className="leading-relaxed text-muted">
+            <span className="text-ink">Everyday users</span> — from drafting a
+            message to sorting out a bill, ask in a way that actually gets it done.
+          </p>
+          <p className="leading-relaxed text-muted">
+            <span className="text-ink">Professionals</span> — brief coding
+            agents, design context, and write system instructions with real craft.
+          </p>
+        </div>
+        <p className="mt-6 leading-relaxed text-faint">
+          The lessons are set in everyday life — bills, forms, messages, budgets —
+          so the skill transfers straight to the things you actually do.
         </p>
       </section>
 
