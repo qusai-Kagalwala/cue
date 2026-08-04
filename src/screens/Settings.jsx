@@ -12,7 +12,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import { downloadExport, validateImport, applyImport } from '../lib/portability'
 
 export default function Settings({ onNavigate }) {
-  const { persona, setPersona, avatar, setAvatar, resetProgress, level, theme, setTheme, soundOn, setSound } = useProgress()
+  const { persona, setPersona, avatar, setAvatar, resetProgress, level, theme, setTheme, soundOn, setSound, doodlesOn, setDoodles } = useProgress()
   const [confirming, setConfirming] = useState(false)
   const [importError, setImportError] = useState(null)
   const [importReady, setImportReady] = useState(null) // validated file waiting for confirm
@@ -189,6 +189,28 @@ export default function Settings({ onNavigate }) {
           }`}
         >
           {soundOn ? '🔊 Sound on' : '🔇 Sound off'}
+        </button>
+      </section>
+
+      {/* v6.2 — per-stage background doodles */}
+      <section className="space-y-2">
+        <div>
+          <h2 className="font-display font-semibold">Background doodles</h2>
+          <p className="text-sm text-muted">
+            A faint motif behind each stage — brackets for Code, a waveform for
+            Audio, and so on. Turn it off for a plain background.
+          </p>
+        </div>
+        <button
+          onClick={() => setDoodles(!doodlesOn)}
+          aria-pressed={doodlesOn}
+          className={`rounded-full border px-4 py-2 text-sm transition-colors ${
+            doodlesOn
+              ? 'border-cue bg-cue/10 text-cue'
+              : 'border-line bg-raised text-ink hover:border-cue-dim hover:text-cue'
+          }`}
+        >
+          {doodlesOn ? '✨ Doodles on' : '⬛ Doodles off'}
         </button>
       </section>
 
