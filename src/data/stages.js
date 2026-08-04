@@ -201,7 +201,7 @@ export const STAGES = {
   comprehend: {
     id: 'comprehend',
     label: 'Reading',
-    blurb: 'Read the AI\'s answer well — verify, critique, correct, and act on it.',
+    blurb: 'Read the AI\'s answer well — verify, critique, correct, and check the medium.',
     locked: false,
     lessons: LESSON_META_COMPREHEND,
     scenarios: {

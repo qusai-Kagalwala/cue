@@ -124,7 +124,10 @@ you. Reading teaches the AI→human direction: understanding what the AI gave
 *back*. The learner is shown a real AI response (with a deliberate flaw) and
 writes their reading of it, across an 8-lesson arc — Read Closely, Spot the Gap,
 Catch the Flaw, Check the Claim, Judge the Fit, Correct It, Extract the Value,
-Act on It (verify → critique → correct → act). Scored on six comprehension
+and Read the Medium (verify → critique → correct → verify the medium). The
+finale turns the same skill on AI-*generated* media — a photo, video, or code
+that may be fake — teaching verification (check the source, calibrate trust)
+rather than unreliable "spot the fake" detection. Scored on six comprehension
 dimensions (Grounded · Specific · Critical · Accurate · Actionable · Discerning).
 
 The key UX decision: the AI's answer is **displayed on screen** (an "AI replied"
