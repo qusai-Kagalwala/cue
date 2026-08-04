@@ -56,6 +56,21 @@ export const PROGRAMME = [
     footer: 'Same three steps as every stage — these just aim higher.',
   },
   {
+    id: 'reading',
+    title: 'The capstone — reading the AI',
+    body: [
+      'Every other stage teaches you to make an AI understand you. The last stage turns that around: it teaches you to understand the AI — to read what it gives back and judge it well.',
+      'You are shown a real AI answer, with a hidden mistake or gap, and you learn to:',
+    ],
+    items: [
+      ['Read closely 👀', 'Say back what it actually said — not what you assumed.'],
+      ['Spot the gap & catch the flaw 🔍', 'Find what is missing or plainly wrong.'],
+      ['Check the claim ⚖️', 'Notice what it states as fact with no real basis.'],
+      ['Correct & act ✅', 'Fix the biggest problem, keep the useful part, and decide your next step.'],
+    ],
+    footer: 'The most important skill as AI gets more capable: not just asking well, but reading well. 🎭',
+  },
+  {
     id: 'rewards',
     title: 'XP, ranks & what unlocks',
     body: [
@@ -99,7 +114,7 @@ export const PROGRAMME = [
     id: 'next',
     title: 'And next…',
     body: [
-      'Cue teaches nine stages — Text, Image, Video, Audio for everyday craft, and Code, Agent, Context, Automation, System for directing AI. The same three steps across all of them. Same theatre, many productions. 🎭',
+      'Cue teaches ten stages — Text, Image, Video, Audio for everyday craft; Code, Agent, Context, Automation, System for directing AI; and Reading, the capstone, for understanding what the AI gives back. Same theatre, many productions. 🎭',
     ],
   },
 ]

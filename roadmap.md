@@ -116,6 +116,36 @@ technique.
 **The honest next lever remains launch, not code** — every research-identified
 gap and agentic-era skill is now built.
 
+## ✅ v7 — THE READING CAPSTONE & CHARACTER POLISH (COMPLETE)
+
+**The Reading stage (the capstone):** The tenth stage flips Cue's whole premise.
+Every earlier stage teaches the human→AI direction — making an AI understand
+you. Reading teaches the AI→human direction: understanding what the AI gave
+*back*. The learner is shown a real AI response (with a deliberate flaw) and
+writes their reading of it, across an 8-lesson arc — Read Closely, Spot the Gap,
+Catch the Flaw, Check the Claim, Judge the Fit, Correct It, Extract the Value,
+Act on It (verify → critique → correct → act). Scored on six comprehension
+dimensions (Grounded · Specific · Critical · Accurate · Actionable · Discerning).
+
+The key UX decision: the AI's answer is **displayed on screen** (an "AI replied"
+block) so the learner reads and reacts to a real response — never guesses what
+it said. Shipped as a content pack + one rubric, zero screen changes — the
+architecture claim now proven ten times over.
+
+**Character avatars:** The DP selector was redrawn from flat icons into a cast
+of 12 SVG *characters* with personality — Wizard, Jester, Monarch, Bard,
+Playwright, Diva, Knight, Sage, Hero, Director, Detective, Star — shown in the
+picker, on the share card, and on the certificate.
+
+**Background & certificate polish:** Per-stage background motifs became theme-
+aware (visible in light mode, not just dark) with an on/off toggle in Settings.
+The certificate gained a light-theme palette, corrected avatar/spacing layout,
+and a creator credit.
+
+Cue is now feature-complete at **ten stages**. The honest remaining lever is
+launch — every research-identified gap, the agentic-era skills, and the
+capstone comprehension skill are all built.
+
 ## 📄 Final Phase — Docs & Submission (deliberately last)
 
 SRS + UML assembled from the living docs (this file, decisions.md,

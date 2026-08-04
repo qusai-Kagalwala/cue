@@ -10,18 +10,25 @@ Cue is an interactive web app that teaches anyone — students, everyday users, 
 
 ---
 
-## 🎭 Multi-modal — the nine Stages
+## 🎭 Multi-modal — the ten Stages
 
-Cue teaches **nine stages** of prompt craft through one machine, grouped into
-everyday craft and the agentic track:
+Cue teaches **ten stages** of prompt craft through one machine, grouped into
+everyday craft, the agentic track, and a capstone:
 
 **Everyday craft** — Text · Image · Video · Audio
 **Directing AI** — Code · Agent · Context · Automation · System
+**Capstone** — Reading (understanding the AI's *response*)
 
 The advanced stages teach the skills that grow as base models get smarter:
 briefing a coding **Agent** (Claude Code, Cursor), designing **Context** for an
 AI (the skill behind RAG), describing an **Automation** (n8n, Zapier), and
 writing a **System** prompt (the persistent rules that govern an AI).
+
+The capstone **Reading** stage flips the whole app around: every other stage
+teaches you to make an AI understand *you*; Reading teaches you to understand
+the *AI* — to verify, critique, correct, and act on the answer it gives back.
+The AI's response is shown on screen and the learner reads it, so it scores a
+critical reading, not a prompt.
 
 A "stage" is a content pack — 8 lessons, 24 scenarios across three tiers, and
 its own six-dimension rubric — flowing through the *unchanged* app: same
@@ -29,7 +36,7 @@ ladder, same XP, same Encore, same Season Report. Your name, rank, streak and
 stickers travel across every stage; each keeps its own lesson progress.
 
 Every stage after the first two changed exactly one data file each and **zero
-screens** — the architecture's core claim, proven nine times over.
+screens** — the architecture's core claim, proven ten times over.
 
 ## ✨ What's inside
 
@@ -56,7 +63,7 @@ screens** — the architecture's core claim, proven nine times over.
 
 **The Programme** — a built-in user guide (Settings → 🎭): every feature, where to find it, how to use it — the booklet at the theatre door.
 
-**Nine stages live** — Text and Image (with lens terms, aspect ratios, art movements, negative prompts), plus Video, Audio, Code, and the four agentic-era stages (Agent, Context, Automation, System). Each has its own six-dimension rubric; the checklist relabels itself per stage.
+**Ten stages live** — Text and Image (with lens terms, aspect ratios, art movements, negative prompts), Video, Audio, Code, the four agentic-era stages (Agent, Context, Automation, System), and the **Reading** capstone (judging an AI's response). Each has its own six-dimension rubric; the checklist relabels itself per stage.
 
 ## 🛠️ Stack
 
@@ -66,7 +73,7 @@ screens** — the architecture's core claim, proven nine times over.
 | Styling | Tailwind CSS v4 — CSS-first tokens; dark default + AA-checked light theme (L3 unlock) |
 | AI evaluation | Gemini Flash-Lite → Flash fallback chain via a stateless serverless proxy; three modes (lesson / review / persona), strict `responseSchema` JSON |
 | Cue Sense | Six-dimension weighted rubric **per stage** — Cue's on-device read that powers instant scoring, the Audition, the live checklist, and both practice tiers at zero quota |
-| Stages | All nine shipped: Text · Image · Video · Audio · Code · Agent · Context · Automation · System |
+| Stages | All ten shipped: Text · Image · Video · Audio · Code · Agent · Context · Automation · System · Reading |
 | Persistence | localStorage only — state, attempt history, library, playbill; full export/import |
 | Hosting | Vercel (frontend + `/api` function, single deploy) |
 | Backend | **None** — one stateless function, no database, no auth, no analytics |
@@ -104,7 +111,7 @@ Each in three persona variants, each with a one-line takeaway, each climbable in
 
 ## 🗺️ Status
 
-**✅ v2.0 complete**, **✅ v3–v6 complete** — the machine is stage-aware and all nine stages are live, including the full agentic track (Agent, Context, Automation, System). Docs (SRS + UML) land as the final phase. See [`task.md`](./task.md), [`roadmap.md`](./roadmap.md), and the architecture contract in [`docs/v3-stages.md`](./docs/v3-stages.md). See [`task.md`](./task.md) and [`roadmap.md`](./roadmap.md).
+**✅ v2.0 complete**, **✅ v3–v7 complete** — the machine is stage-aware and all ten stages are live, including the full agentic track (Agent, Context, Automation, System) and the Reading capstone (understanding AI output). Character avatars, per-stage background motifs (with a light-mode-aware toggle), and Cue Sense round out the experience. Docs (SRS + UML) land as the final phase. See [`task.md`](./task.md), [`roadmap.md`](./roadmap.md), and the architecture contract in [`docs/v3-stages.md`](./docs/v3-stages.md). See [`task.md`](./task.md) and [`roadmap.md`](./roadmap.md).
 
 ## 📄 About
 
