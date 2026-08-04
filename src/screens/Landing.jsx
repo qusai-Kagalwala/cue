@@ -8,14 +8,23 @@
 
 import { useProgress } from '../hooks/useProgress'
 
-// A tiny theatre-mask mark for the hero (matches the app's motif).
-function CurtainMark() {
+// Theatre masks — the comedy/tragedy pair, the universal sign of the stage.
+// Matches Cue's avatar/motif world and actually reads at small sizes.
+function StageMark() {
   return (
-    <svg viewBox="0 0 120 60" className="h-14 w-auto" aria-hidden="true">
-      <path d="M4 4 Q10 30 6 56 L22 56 Q18 28 26 4 Z" fill="var(--color-cue)" opacity="0.9" />
-      <path d="M116 4 Q110 30 114 56 L98 56 Q102 28 94 4 Z" fill="var(--color-cue)" opacity="0.9" />
-      <path d="M30 4 Q34 12 40 4 Z" fill="var(--color-cue-bright)" />
-      <rect x="26" y="2" width="68" height="5" rx="2" fill="var(--color-cue-dim)" />
+    <svg viewBox="0 0 96 64" className="h-16 w-auto" role="img" aria-label="Theatre masks">
+      {/* comedy mask (left) */}
+      <path d="M10 14 Q10 8 18 8 L36 8 Q42 8 42 16 L42 34 Q42 52 26 52 Q10 52 10 34 Z"
+        fill="var(--color-cue)" stroke="var(--color-stage)" stroke-width="2" />
+      <path d="M18 24 Q21 21 25 24 M31 24 Q34 21 37 24"
+        stroke="var(--color-stage)" stroke-width="2.4" fill="none" stroke-linecap="round" />
+      <path d="M17 36 Q26 46 35 36 Q26 40 17 36 Z" fill="var(--color-stage)" />
+      {/* tragedy mask (right) */}
+      <path d="M54 14 Q54 8 62 8 L80 8 Q86 8 86 16 L86 34 Q86 52 70 52 Q54 52 54 34 Z"
+        fill="var(--color-cue-bright)" stroke="var(--color-stage)" stroke-width="2" />
+      <path d="M61 26 L67 26 M73 26 L79 26"
+        stroke="var(--color-stage)" stroke-width="2.4" stroke-linecap="round" />
+      <path d="M63 42 Q70 36 77 42 Q70 40 63 42 Z" fill="var(--color-stage)" />
     </svg>
   )
 }
@@ -24,7 +33,7 @@ export default function Landing({ onEnter }) {
   const { theme, setTheme } = useProgress()
   const isLight = theme === 'light'
   // light is normally a Level-3 unlock; on the landing we let anyone preview it
-  const toggleTheme = () => setTheme(isLight ? 'dark' : 'light')
+  const toggleTheme = () => setTheme(isLight ? 'dark' : 'light', true)
 
   return (
     <div className="relative min-h-dvh overflow-x-hidden bg-stage text-ink">
@@ -49,7 +58,7 @@ export default function Landing({ onEnter }) {
       {/* ---------- HERO ---------- */}
       <section className="mx-auto max-w-3xl px-6 pb-8 pt-10 text-center sm:pt-16">
         <div className="mb-6 flex justify-center">
-          <CurtainMark />
+          <StageMark />
         </div>
         <p className="mb-4 font-mono text-xs uppercase tracking-[0.3em] text-faint">
           a stage for talking to AI

@@ -270,8 +270,10 @@ export function setSound(on) {
   setState({ soundOn: Boolean(on) })
 }
 
-export function setTheme(theme) {
-  if (theme === 'light' && state.level < 3) return
+export function setTheme(theme, force = false) {
+  // Light is normally a Level-3 unlock inside the app; the landing passes
+  // force=true so a first-time visitor can preview it before entering.
+  if (theme === 'light' && !force && state.level < 3) return
   if (theme !== 'light' && theme !== 'dark') return
   setState({ theme })
 }
