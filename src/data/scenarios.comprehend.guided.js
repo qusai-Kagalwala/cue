@@ -70,13 +70,13 @@ export const GUIDED_COMPREHEND = {
     professional: { scenario: 'Read the feedback above — mostly sharp, one bit outdated. Sort it.', aiResponse: 'Your structure is clear and action verbs are strong. Quantify achievements. Also add a lengthy "Career Objective" paragraph at the top.', task: 'Fill in what to keep/drop.',
       skeleton: [{ text: 'I will take ' }, { blank: 'the good advice', hint: 'the structure, action-verb, and quantifying feedback' }, { text: ' and ignore ' }, { blank: 'the outdated part', hint: 'the long "Career Objective" suggestion' }, { text: '.' }] },
   },
-  // l8 — ACT ON IT: decide on the shown answer
+  // l8 — READ THE MEDIUM: verify AI-generated media (not detect it)
   l8: {
-    student: { scenario: 'Read the explanation above — clear, but one formula looks off. Decide.', aiResponse: 'The area of a circle is pi times the radius (A = π × r). This gives the space inside. Practise a few examples and you are ready.', task: 'Fill in the decision.',
-      skeleton: [{ text: 'I will ' }, { blank: 'what to use', hint: 'use the clear explanation of the idea' }, { text: ', but first ' }, { blank: 'what to verify', hint: 'check that formula — area is π × r², not π × r' }, { text: '.' }] },
-    everyday: { scenario: 'Read the remedies above — mostly harmless, but one gives a dose. Decide.', aiResponse: 'Drink warm water with honey and ginger, avoid cold drinks, rest your voice. You can also take 2 teaspoons of cough syrup every 4 hours.', task: 'Fill in the decision.',
-      skeleton: [{ text: 'I will ' }, { blank: 'what to use', hint: 'use the harmless tips like warm water and honey' }, { text: ', but ' }, { blank: 'what to verify', hint: 'confirm the cough syrup dose with a pharmacist first' }, { text: '.' }] },
-    professional: { scenario: 'Read the clause above — reads well, but it is legal. Decide.', aiResponse: 'The Client agrees to indemnify and hold harmless the Service Provider against any and all liabilities, without limitation, arising from the engagement.', task: 'Fill in the decision.',
-      skeleton: [{ text: 'I will ' }, { blank: 'what to use', hint: 'use the clause as a starting draft' }, { text: ', but ' }, { blank: 'what to verify', hint: 'have a lawyer review the "without limitation" liability term' }, { text: '.' }] },
+    student: { scenario: 'Read the group caption above. The photo could be real, old, or AI-made — you cannot tell by eye.', aiResponse: 'Group caption: "Our campus RIGHT NOW 🌊 100% real I was there, share fast!"', task: 'Fill in how you would verify it.',
+      skeleton: [{ text: 'I cannot tell real from fake by looking, so I will not trust it yet — first I will ' }, { blank: 'the check', hint: 'find where the photo first appeared and look for the same event from a trusted news source' }, { text: '.' }] },
+    everyday: { scenario: 'Read the forwarded message above. The face and voice can both be AI-faked now.', aiResponse: 'Forward: "BREAKING — free gas cylinders for all, claim before the link closes 👇"', task: 'Fill in how you would verify it.',
+      skeleton: [{ text: 'A convincing video is not proof, so before sharing I will ' }, { blank: 'the check', hint: 'look for a real news source confirming it and treat the "claim now" pressure as a scam sign' }, { text: '.' }] },
+    professional: { scenario: 'Read the vendor note above. Fluent text and code can still be fabricated or subtly broken.', aiResponse: 'Vendor: "5-star review from a Fortune 500 client, plus AI-generated code — fully tested, just ship it."', task: 'Fill in how you would verify it.',
+      skeleton: [{ text: 'Fluency is not proof, so I will ' }, { blank: 'the check', hint: 'independently confirm the client/review and run and review the code myself rather than trust "tested"' }, { text: '.' }] },
   },
 }

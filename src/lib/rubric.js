@@ -759,7 +759,7 @@ const LESSON_WEIGHTS_CMP = {
   l5: { role: 0.15, context: 0.15, constraints: 0.20, format: 0.05, specificity: 0.10, length: 0.35 }, // judge the fit
   l6: { role: 0.10, context: 0.10, constraints: 0.15, format: 0.05, specificity: 0.50, length: 0.10 }, // correct it
   l7: { role: 0.15, context: 0.20, constraints: 0.10, format: 0.10, specificity: 0.15, length: 0.30 }, // extract the value
-  l8: { role: 0.10, context: 0.10, constraints: 0.15, format: 0.10, specificity: 0.30, length: 0.25 }, // act on it
+  l8: { role: 0.10, context: 0.10, constraints: 0.15, format: 0.10, specificity: 0.30, length: 0.25 }, // read the medium
 }
 
 

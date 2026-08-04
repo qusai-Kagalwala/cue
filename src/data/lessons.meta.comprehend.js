@@ -86,13 +86,13 @@ export const LESSON_META_COMPREHEND = [
     tokenBudget: null,
   },
   {
-    id: 'l8', order: 8, title: 'Act on It',
+    id: 'l8', order: 8, title: 'Read the Medium',
     concept:
-      'Reading ends in a decision: use it, redo it, or verify first. The final skill is choosing the right next step for THIS answer — with the right level of trust — instead of blindly acting or blindly discarding.',
-    takeaway: 'Decide the next step: use it, redo it, or verify first.',
+      'The final skill turns the whole stage outward: apply the same reading to AI-GENERATED media — a text, image, audio, video, or a no-code build. You cannot reliably "detect" a fake by looking (the tells change with every model), so the durable move is verification: check the source, the context, and whether it can be corroborated — and decide how much to trust it, rather than guessing real-or-fake.',
+    takeaway: 'Do not guess real-or-fake — verify the source and calibrate trust.',
     example: {
-      bad: 'i guess i will use it',
-      good: 'The advice is mostly sound but one medical claim needs a doctor to confirm — so my next step is: use the general tips, but verify that one point before acting on it',
+      bad: 'looks real to me so it is fine',
+      good: 'This photo could be AI-made and I cannot tell by eye, so I will not treat it as proof — I will check where it first appeared and look for the same event from a trusted source before believing or sharing it',
     },
     tokenBudget: null,
   },

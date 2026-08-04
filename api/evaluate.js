@@ -143,6 +143,10 @@ const STAGE_FRAMING = {
       `knowing what to do next. Reward readings that engage with the SPECIFIC response`,
       `shown, not generic commentary about AI. A correct, specific, actionable reading`,
       `that names a real flaw scores high; vague praise or vague dismissal scores low.`,
+      `For AI-GENERATED MEDIA (a photo, video, audio, or code that may be fake or`,
+      `fabricated): the user CANNOT reliably detect fakes by eye, so do NOT reward`,
+      `"it looks fake / looks real" guesses. Reward VERIFICATION — checking the source,`,
+      `context, and corroboration, and calibrating trust — over any claim to spot a fake.`,
     ].join('\n'),
   },
 }
