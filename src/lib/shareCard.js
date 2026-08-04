@@ -6,6 +6,16 @@ import { avatarDataUrl } from './avatars'
 // card that sometimes renders in fallback anyway should ALWAYS render in
 // fallback — deterministic beats occasionally-prettier.
 
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => resolve(img)
+    img.onerror = reject
+    img.src = src
+  })
+}
+
 const SIZE = 1080
 const C = {
   stage: '#0e0d0b',
@@ -26,17 +36,6 @@ export const CARD_VARIANTS = [
   { id: 'violet',  accent: '#a98cf0', dim: '#3f2f6b', spot: '169,140,240' },
   { id: 'emerald', accent: '#5fc98a', dim: '#245239', spot: '95,201,138' },
 ]
-
-// Rasterise an SVG data-URL onto the canvas — awaited so the card waits for it.
-function loadImage(src) {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    img.onload = () => resolve(img)
-    img.onerror = reject
-    img.src = src
-  })
-}
-
 const SERIF = 'Georgia, "Times New Roman", serif'
 const MONO = '"Courier New", monospace'
 
@@ -57,10 +56,7 @@ function roundRect(ctx, x, y, w, h, r) {
  * Returns { blob, url } — caller revokes the URL when done.
  */
 export async function makeShareCard({ score = null, level, rank, xp, streak, name = null, variant = 0, avatar = null }) {
-  const vi = Number.isInteger(variant) ? variant : 0
-  const V =
-    CARD_VARIANTS[((vi % CARD_VARIANTS.length) + CARD_VARIANTS.length) % CARD_VARIANTS.length] ??
-    CARD_VARIANTS[0]
+  const V = CARD_VARIANTS[((variant % CARD_VARIANTS.length) + CARD_VARIANTS.length) % CARD_VARIANTS.length]
   const canvas = document.createElement('canvas')
   canvas.width = SIZE
   canvas.height = SIZE
@@ -85,7 +81,7 @@ export async function makeShareCard({ score = null, level, rank, xp, streak, nam
 
   ctx.textAlign = 'center'
 
-  // Avatar (the stage face) — the hand-drawn SVG, rasterised onto the card.
+  // Avatar (the stage face) — the hand-drawn SVG character, rasterised on.
   if (avatar) {
     const ax = SIZE / 2
     const ay = 120
@@ -94,7 +90,7 @@ export async function makeShareCard({ score = null, level, rank, xp, streak, nam
       const img = await loadImage(avatarDataUrl(avatar, d))
       ctx.drawImage(img, ax - d / 2, ay - d / 2, d, d)
     } catch {
-      // if the SVG fails to load, skip silently — the card still renders
+      // skip silently if the avatar art fails to load
     }
   }
 

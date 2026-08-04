@@ -1,6 +1,6 @@
 // src/components/CertificateActions.jsx
 // The certificate CTA shown on stage completion. Offers PNG (share/save)
-// and PDF (print) for the finished stage. When all stages are done it
+// and PDF (print) for the finished stage. When all five stages are done it
 // also offers the master "all stages" certificate. Fully client-side.
 
 import { useState } from 'react'
@@ -16,7 +16,7 @@ import {
 const ALL_STAGES = STAGE_LIST.map((s) => s.id)
 
 export default function CertificateActions() {
-  const { name, level, xp, avatar, theme, activeStage, stageProgress } = useProgress()
+  const { name, level, xp, avatar, activeStage, stageProgress, theme } = useProgress()
   const [busy, setBusy] = useState(false)
   const rank = rankForLevel(level)
 
@@ -67,7 +67,7 @@ export default function CertificateActions() {
       {allDone && (
         <div className="border-t border-cue-dim/50 pt-3">
           <p className="mb-2 text-sm text-ink">
-            You've finished every stage — claim the master certificate:
+            You've finished all five stages — claim the master certificate:
           </p>
           <div className="flex flex-wrap justify-center gap-2">
             <button
