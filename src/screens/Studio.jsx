@@ -12,6 +12,7 @@ import { useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { STAGE_LIST, isStagePlayable } from '../data/stages'
 import { guideFor } from '../data/modelGuide'
+import { promptGuideFor } from '../data/promptGuide'
 import { draftPrompt } from '../lib/gemini'
 import { saveToLibrary } from '../lib/storage'
 import InlineHint from '../components/InlineHint'
@@ -22,7 +23,11 @@ const ANALYSES_REFERENCE = { text: true, code: true, image: true }
 const ACCEPTS_IMAGE = { image: true }
 
 export default function Studio() {
-  const stages = STAGE_LIST.filter((s) => isStagePlayable(s.id))
+  // The Studio drafts prompts. The Reading capstone (comprehend) is about
+  // reading an AI's answer, not writing a prompt — so it's excluded here.
+  const stages = STAGE_LIST.filter(
+    (s) => isStagePlayable(s.id) && s.id !== 'comprehend'
+  )
   const [stageId, setStageId] = useState('text')
   const [goal, setGoal] = useState('')
   const [reference, setReference] = useState('')
@@ -34,6 +39,7 @@ export default function Studio() {
 
   const reduce = useReducedMotion()
   const guide = guideFor(stageId)
+  const craft = promptGuideFor(stageId)
   const stageLabel = (stages.find((x) => x.id === stageId)?.label) ?? 'Text'
   const refAnalysed = ANALYSES_REFERENCE[stageId]
   const acceptsImage = ACCEPTS_IMAGE[stageId]
@@ -283,6 +289,31 @@ export default function Studio() {
           )}
         </motion.section>
       )}
+
+      {/* what to craft in this mode */}
+      <section className="space-y-3 rounded-xl border border-line bg-surface p-4">
+        <div>
+          <p className="font-mono text-xs uppercase tracking-widest text-faint">
+            what to put in your prompt
+          </p>
+          <p className="text-sm text-muted">{craft.craft}</p>
+        </div>
+        <ul className="space-y-1.5">
+          {craft.include.map((item, i) => (
+            <li key={i} className="flex gap-2 text-sm text-ink">
+              <span className="select-none text-cue">·</span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="rounded-lg border border-cue-dim/50 bg-raised/50 p-3">
+          <p className="font-mono text-xs uppercase tracking-widest text-cue">example</p>
+          <p className="mt-1 text-sm italic text-ink">{craft.example}</p>
+        </div>
+        <p className="text-xs text-muted">
+          <span className="text-faint">Avoid:</span> {craft.avoid}
+        </p>
+      </section>
 
       {/* curated model guide for this stage */}
       <section className="space-y-3 rounded-xl border border-line bg-surface p-4">
