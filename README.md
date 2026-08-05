@@ -111,7 +111,7 @@ Each in three persona variants, each with a one-line takeaway, each climbable in
 
 ## 🗺️ Status
 
-**✅ v2.0 complete**, **✅ v3–v7 complete** — the machine is stage-aware and all ten stages are live, including the full agentic track (Agent, Context, Automation, System) and the Reading capstone (understanding AI output). Character avatars, per-stage background motifs (with a light-mode-aware toggle), and Cue Sense round out the experience. Docs (SRS + UML) land as the final phase. See [`task.md`](./task.md), [`roadmap.md`](./roadmap.md), and the architecture contract in [`docs/v3-stages.md`](./docs/v3-stages.md). See [`task.md`](./task.md) and [`roadmap.md`](./roadmap.md).
+**✅ v2.0 complete**, **✅ v3–v7 complete** — the machine is stage-aware and all ten stages are live, including the full agentic track (Agent, Context, Automation, System) and the Reading capstone (understanding AI output). A landing page front door, character avatars, per-stage background motifs (with a light-mode-aware toggle and on/off switch), and Cue Sense round out the experience. The Reading capstone ends on "Read the Medium" — applying the same skepticism to AI-generated media. Docs (SRS + UML) land as the final phase. See [`task.md`](./task.md), [`roadmap.md`](./roadmap.md), and the architecture contract in [`docs/v3-stages.md`](./docs/v3-stages.md). See [`task.md`](./task.md) and [`roadmap.md`](./roadmap.md).
 
 ## 📄 About
 

@@ -1,8 +1,9 @@
 # v5 — The Agentic Track (planning doc)
 
-**Status:** planned, not started. Deliberately sequenced **after launch** — this
-broadens Cue toward power users, so it should follow real user signal, not
-precede it.
+**Status:** ✅ COMPLETE (shipped in v5–v7). All four agentic stages (Agent,
+Context, Automation, System) are live, plus the Reading capstone (v7) that
+followed them. This doc is kept as the original planning record; the thesis
+below is what drove the build.
 
 **The thesis:** as base models get smarter, single-prompt crafting matters
 less, but *instructing agents, designing context, and briefing automations*

@@ -4,6 +4,17 @@ The tree as it stands (v1.0 shipped & teacher-approved) plus what the
 current phase will add, marked ⏳. Rule unchanged: **a file not on this tree gets questioned
 before an AI session may create it.**
 
+> **Note (v7–v8):** the tree below is the v1.0 snapshot. Since then the app grew
+> to **ten stages** and added, among others: `src/screens/Landing.jsx` (the
+> front door), `src/lib/avatars.js` (12 SVG character avatars),
+> `src/lib/stageMotifs.js` (per-stage background art),
+> `src/screens/Studio.jsx` / `Sandbox.jsx` / `SeasonReport.jsx`, and per-stage
+> content files `src/data/lessons.meta.<stage>.js` +
+> `src/data/scenarios.<stage>.{solo,assisted,guided}.js` for every stage
+> (`image, video, audio, code, agent, rag, automation, system, comprehend`).
+> The Reading capstone (`comprehend`) is the tenth stage. See `roadmap.md` for
+> the full v3–v8 history.
+
 ```
 cue/
 ├── api/

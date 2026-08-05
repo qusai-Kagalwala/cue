@@ -108,8 +108,8 @@ screen changes:
 - **System** — writing the persistent rules that govern an AI: identity, scope,
   boundaries, style, concrete rules.
 
-Cue now teaches **nine stages** — the architecture's extensibility claim proven
-nine times over. Scoring calibration was also tuned so genuinely strong
+Cue now teaches **ten stages** — the architecture's extensibility claim proven
+ten times over. Scoring calibration was also tuned so genuinely strong
 real-world prompts are rewarded, not punished for skipping a lesson's specific
 technique.
 
